@@ -1,7 +1,6 @@
 package ar.edu.unrn.seminario.gui;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -13,9 +12,6 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import ar.edu.unrn.seminario.api.IApi;
-import ar.edu.unrn.seminario.api.MemoryApi;
-import ar.edu.unrn.seminario.api.PersistenceApi
-;
 
 public class VentanaPrincipal extends JFrame {
 
@@ -34,42 +30,48 @@ public class VentanaPrincipal extends JFrame {
 
 		JMenuItem altaUsuarioMenuItem = new JMenuItem("Alta/Modificación");
 		altaUsuarioMenuItem.addActionListener(new ActionListener() {
-			
+
 			public void actionPerformed(ActionEvent arg0) {
 				AltaUsuario alta = new AltaUsuario(api);
 				alta.setLocationRelativeTo(null);
 				alta.setVisible(true);
 			}
-			
+
 		});
 		usuarioMenu.add(altaUsuarioMenuItem);
 
 		JMenuItem listadoUsuarioMenuItem = new JMenuItem("Listado");
 		listadoUsuarioMenuItem.addActionListener(new ActionListener() {
-			
+
 			public void actionPerformed(ActionEvent arg0) {
-				ListadoUsuario listado= new ListadoUsuario(api);
+				ListadoUsuario listado = new ListadoUsuario(api);
 				listado.setLocationRelativeTo(null);
 				listado.setVisible(true);
 			}
-			
+
 		});
 		usuarioMenu.add(listadoUsuarioMenuItem);
-		
+
 		JMenu propuestasVariable = new JMenu("Propuestas");
 		menuBar.add(propuestasVariable);
-		
+
 		JMenuItem verPropuestas = new JMenuItem("Ver propuestas");
 		propuestasVariable.add(verPropuestas);
-		
+
 		JMenuItem cargarPropuestasVar = new JMenuItem("Cargar propuestas");
+		cargarPropuestasVar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				CargarPropuesta cargar = new CargarPropuesta(VentanaPrincipal.this);
+				cargar.setVisible(true);
+			}
+		});
 		propuestasVariable.add(cargarPropuestasVar);
-		
-				JMenu configuracionMenu = new JMenu("Configuración");
-				menuBar.add(configuracionMenu);
-				
-						JMenuItem salirMenuItem = new JMenuItem("Salir");
-						configuracionMenu.add(salirMenuItem);
+
+		JMenu configuracionMenu = new JMenu("Configuración");
+		menuBar.add(configuracionMenu);
+
+		JMenuItem salirMenuItem = new JMenuItem("Salir");
+		configuracionMenu.add(salirMenuItem);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
