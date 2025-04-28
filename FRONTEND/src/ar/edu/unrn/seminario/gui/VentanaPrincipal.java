@@ -55,12 +55,21 @@ public class VentanaPrincipal extends JFrame {
 			
 		});
 		usuarioMenu.add(listadoUsuarioMenuItem);
-
-		JMenu configuracionMenu = new JMenu("Configuración");
-		menuBar.add(configuracionMenu);
-
-		JMenuItem salirMenuItem = new JMenuItem("Salir");
-		configuracionMenu.add(salirMenuItem);
+		
+		JMenu propuestasVariable = new JMenu("Propuestas");
+		menuBar.add(propuestasVariable);
+		
+		JMenuItem verPropuestas = new JMenuItem("Ver propuestas");
+		propuestasVariable.add(verPropuestas);
+		
+		JMenuItem cargarPropuestasVar = new JMenuItem("Cargar propuestas");
+		propuestasVariable.add(cargarPropuestasVar);
+		
+				JMenu configuracionMenu = new JMenu("Configuración");
+				menuBar.add(configuracionMenu);
+				
+						JMenuItem salirMenuItem = new JMenuItem("Salir");
+						configuracionMenu.add(salirMenuItem);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
