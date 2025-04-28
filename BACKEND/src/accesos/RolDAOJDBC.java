@@ -79,13 +79,12 @@ public class RolDAOJDBC implements RolDao {
 		ResultSet resultado = null;
 		try {
 			sentencia = ConnectionManager.getConnection().createStatement();
-			resultado = sentencia.executeQuery("select r.nombre, r.codigo, r.activo from roles r ");
+			resultado = sentencia.executeQuery("select r.nombre, r.codigo from roles r ");
 
 			while (resultado.next()) {
 				Rol rol = new Rol();
 				rol.setNombre(resultado.getString(1));
 				rol.setCodigo(resultado.getInt(2));
-				rol.setActivo(resultado.getBoolean(3));
 
 				listado.add(rol);
 			}
