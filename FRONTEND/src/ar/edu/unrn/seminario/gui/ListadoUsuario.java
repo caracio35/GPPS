@@ -110,7 +110,7 @@ public class ListadoUsuario extends JFrame {
 				dispose();
 			}
 		});
-//		contentPane.add(cerrarButton, BorderLayout.SOUTH);
+		// contentPane.add(cerrarButton, BorderLayout.SOUTH);
 
 		JPanel pnlBotonesOperaciones = new JPanel();
 		pnlBotonesOperaciones.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
