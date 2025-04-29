@@ -19,7 +19,7 @@ public class UsuarioDAOJDBC implements UsuarioDao {
 
 			Connection conn = ConnectionManager.getConnection();
 			PreparedStatement statement = conn
-					.prepareStatement("INSERT INTO usuarios(usuario, contrasena, nombre, email, activo,rol) "
+					.prepareStatement("INSERT INTO usuarios(usuario, contrasena, email, nombre, activo,rol) "
 							+ "VALUES (?, ?, ?, ?, ?, ?)");
 
 			statement.setString(1, usuario.getUsuario());
@@ -50,26 +50,61 @@ public class UsuarioDAOJDBC implements UsuarioDao {
 
 	@Override
 	public void update(Usuario usuario) {
-		// TODO Auto-generated method stub
-
-//		if (e instanceof SQLIntegrityConstraintViolationException) {
-//	        // Duplicate entry
-//	    } else {
-//	        // Other SQL Exception
-//	    }
-
+		try {
+			Connection conn = ConnectionManager.getConnection();
+			PreparedStatement statement = conn.prepareStatement(
+					"UPDATE usuarios SET contrasena=?, nombre=?, email=?, activo=?, rol=? WHERE usuario=?");
+			statement.setString(1, usuario.getContrasena());
+			statement.setString(2, usuario.getNombre());
+			statement.setString(3, usuario.getEmail());
+			statement.setBoolean(4, usuario.isActivo());
+			statement.setInt(5, usuario.getRol().getCodigo());
+			statement.setString(6, usuario.getUsuario());
+			int cantidad = statement.executeUpdate();
+			if (cantidad == 0) {
+				System.out.println("No se encontró el usuario para actualizar.");
+			}
+		} catch (SQLException e) {
+			System.out.println("Error al actualizar usuario: " + e.getMessage());
+		} finally {
+			ConnectionManager.disconnect();
+		}
 	}
 
 	@Override
 	public void remove(Long id) {
-		// TODO Auto-generated method stub
-
+		try {
+			Connection conn = ConnectionManager.getConnection();
+			PreparedStatement statement = conn.prepareStatement(
+					"DELETE FROM usuarios WHERE usuario=?");
+			statement.setString(1, String.valueOf(id));
+			int cantidad = statement.executeUpdate();
+			if (cantidad == 0) {
+				System.out.println("No se encontró el usuario para eliminar.");
+			}
+		} catch (SQLException e) {
+			System.out.println("Error al eliminar usuario: " + e.getMessage());
+		} finally {
+			ConnectionManager.disconnect();
+		}
 	}
 
 	@Override
-	public void remove(Usuario rol) {
-		// TODO Auto-generated method stub
-
+	public void remove(Usuario usuario) {
+		try {
+			Connection conn = ConnectionManager.getConnection();
+			PreparedStatement statement = conn.prepareStatement(
+					"DELETE FROM usuarios WHERE usuario=?");
+			statement.setString(1, usuario.getUsuario());
+			int cantidad = statement.executeUpdate();
+			if (cantidad == 0) {
+				System.out.println("No se encontró el usuario para eliminar.");
+			}
+		} catch (SQLException e) {
+			System.out.println("Error al eliminar usuario: " + e.getMessage());
+		} finally {
+			ConnectionManager.disconnect();
+		}
 	}
 
 	@Override
@@ -78,28 +113,25 @@ public class UsuarioDAOJDBC implements UsuarioDao {
 		try {
 			Connection conn = ConnectionManager.getConnection();
 			PreparedStatement statement = conn.prepareStatement(
-					"SELECT u.usuario,  u.contrasena, u.nombre, u.email, r.codigo as codigo_rol, r.nombre as nombre_rol "
-							+ " FROM usuarios u JOIN roles r ON (u.rol = r.codigo) " + " WHERE u.usuario = ?");
-
+					"SELECT u.usuario, u.contrasena, u.nombre, u.email, u.activo, r.codigo as codigo_rol, r.nombre as nombre_rol "
+							+
+							"FROM usuarios u JOIN roles r ON (u.rol = r.codigo) WHERE u.usuario = ?");
 			statement.setString(1, username);
 			ResultSet rs = statement.executeQuery();
 			if (rs.next()) {
 				Rol rol = new Rol(rs.getInt("codigo_rol"), rs.getString("nombre_rol"));
-				usuario = new Usuario(rs.getString("usuario"), rs.getString("contrasena"), rs.getString("nombre"),
-						rs.getString("email"), rol);
+				usuario = new Usuario(
+						rs.getString("usuario"),
+						rs.getString("contrasena"),
+						rs.getString("nombre"),
+						rs.getString("email"),
+						rol);
 			}
-
 		} catch (SQLException e) {
 			System.out.println("Error al procesar consulta");
-			// TODO: disparar Exception propia
-			// throw new AppException(e, e.getSQLState(), e.getMessage());
-		} catch (Exception e) {
-			// TODO: disparar Exception propia
-			// throw new AppException(e, e.getCause().getMessage(), e.getMessage());
 		} finally {
 			ConnectionManager.disconnect();
 		}
-
 		return usuario;
 	}
 
@@ -110,27 +142,24 @@ public class UsuarioDAOJDBC implements UsuarioDao {
 			Connection conn = ConnectionManager.getConnection();
 			Statement statement = conn.createStatement();
 			ResultSet rs = statement.executeQuery(
-					"SELECT u.usuario,  u.contrasena, u.nombre, u.email, r.codigo as codigo_rol, r.nombre as nombre_rol  "
-							+ "FROM usuarios u JOIN roles r ON (u.rol = r.codigo) ");
-
+					"SELECT u.usuario, u.contrasena, u.nombre, u.email, u.activo, r.codigo as codigo_rol, r.nombre as nombre_rol "
+							+
+							"FROM usuarios u JOIN roles r ON (u.rol = r.codigo)");
 			while (rs.next()) {
-
 				Rol rol = new Rol(rs.getInt("codigo_rol"), rs.getString("nombre_rol"));
-				Usuario usuario = new Usuario(rs.getString("usuario"), rs.getString("contrasena"),
-						rs.getString("nombre"), rs.getString("email"), rol);
-
+				Usuario usuario = new Usuario(
+						rs.getString("usuario"),
+						rs.getString("contrasena"),
+						rs.getString("nombre"),
+						rs.getString("email"),
+						rol);
 				usuarios.add(usuario);
 			}
 		} catch (SQLException e) {
 			System.out.println("Error de mySql\n" + e.toString());
-			// TODO: disparar Exception propia
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-			// TODO: disparar Exception propia
 		} finally {
 			ConnectionManager.disconnect();
 		}
-
 		return usuarios;
 	}
 

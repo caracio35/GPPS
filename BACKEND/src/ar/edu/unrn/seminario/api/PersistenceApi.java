@@ -12,7 +12,6 @@ import ar.edu.unrn.seminario.dto.UsuarioDTO;
 import ar.edu.unrn.seminario.modelo.Rol;
 import ar.edu.unrn.seminario.modelo.Usuario;
 
-
 public class PersistenceApi implements IApi {
 
 	private RolDao rolDao;
@@ -49,8 +48,10 @@ public class PersistenceApi implements IApi {
 
 	@Override
 	public void eliminarUsuario(String username) {
-		// TODO Auto-generated method stub
-
+		Usuario usuario = usuarioDao.find(username);
+		if (usuario != null) {
+			usuarioDao.remove(usuario);
+		}
 	}
 
 	@Override
@@ -96,14 +97,20 @@ public class PersistenceApi implements IApi {
 
 	@Override
 	public void activarUsuario(String username) {
-		// TODO Auto-generated method stub
-
+		Usuario usuario = usuarioDao.find(username);
+		if (usuario != null) {
+			usuario.activar();
+			usuarioDao.update(usuario);
+		}
 	}
 
 	@Override
 	public void desactivarUsuario(String username) {
-		// TODO Auto-generated method stub
-
+		Usuario usuario = usuarioDao.find(username);
+		if (usuario != null) {
+			usuario.desactivar();
+			usuarioDao.update(usuario);
+		}
 	}
 
 }
