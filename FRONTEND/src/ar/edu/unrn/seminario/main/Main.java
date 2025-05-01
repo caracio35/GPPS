@@ -18,7 +18,7 @@ public class Main {
 					IApi api = new PersistenceApi();
 					VentanaPrincipal frame = new VentanaPrincipal(api);
 
-					frame.setVisible(true);
+					frame.setVisible(true);//
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
