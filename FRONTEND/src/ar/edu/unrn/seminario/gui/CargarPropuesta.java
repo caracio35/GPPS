@@ -2,128 +2,288 @@ package ar.edu.unrn.seminario.gui;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.GroupLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 public class CargarPropuesta extends JDialog {
+    private JTextField tituloField;
+    private JTextField areaField;
+    private JTextArea objetivoArea;
+    private JTextArea descripcionArea;
+    private JTable actividadesTable;
+    private DefaultTableModel tableModel;
+    private JLabel totalHorasLabel;
+    private int totalHoras = 0;
+
     public CargarPropuesta(JFrame parent) {
         super(parent, "Cargar Propuesta", true);
 
+        // Panel con fondo degradado
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                int w = getWidth();
+                int h = getHeight();
+                Color color1 = new Color(240, 248, 255);
+                Color color2 = new Color(248, 248, 255);
+                GradientPaint gp = new GradientPaint(0, 0, color1, 0, h, color2);
+                g2d.setPaint(gp);
+                g2d.fillRect(0, 0, w, h);
+            }
+        };
+        panel.setLayout(new BorderLayout(10, 10));
+        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        // Panel superior con título
         JLabel header = new JLabel("Carga de Propuesta");
         header.setFont(new Font("Segoe UI", Font.BOLD, 24));
         header.setHorizontalAlignment(SwingConstants.CENTER);
         header.setForeground(new Color(33, 150, 243));
+        header.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+        panel.add(header, BorderLayout.NORTH);
 
-        JLabel tituloLabel = new JLabel("Título de propuesta:");
-        JTextField tituloField = new JTextField(20);
-        tituloField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        tituloField.setBorder(BorderFactory.createCompoundBorder(
-                tituloField.getBorder(), BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+        // Panel central con formulario
+        JPanel formPanel = new JPanel();
+        formPanel.setOpaque(false);
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        
+        // Estilo para las etiquetas
+        Font labelFont = new Font("Segoe UI", Font.BOLD, 14);
+        Color labelColor = new Color(70, 70, 70);
 
-        JLabel descripcionLabel = new JLabel("Descripción:");
-        JTextArea descripcionArea = new JTextArea(3, 20);
-        descripcionArea.setLineWrap(true);
-        descripcionArea.setWrapStyleWord(true);
-        descripcionArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        descripcionArea.setBorder(BorderFactory.createCompoundBorder(
-                descripcionArea.getBorder(), BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+        // Título
+        JPanel tituloPanel = createFieldPanel("Título de propuesta:", labelFont, labelColor);
+        tituloField = createTextField();
+        tituloPanel.add(tituloField);
+        formPanel.add(tituloPanel);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        // Área de interés
+        JPanel areaPanel = createFieldPanel("Área de interés:", labelFont, labelColor);
+        areaField = createTextField();
+        areaPanel.add(areaField);
+        formPanel.add(areaPanel);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        // Objetivo del proyecto
+        JPanel objetivoPanel = createFieldPanel("Objetivo del proyecto:", labelFont, labelColor);
+        objetivoArea = createTextArea(3);
+        JScrollPane objetivoScroll = new JScrollPane(objetivoArea);
+        objetivoScroll.setPreferredSize(new Dimension(400, 80));
+        objetivoPanel.add(objetivoScroll);
+        formPanel.add(objetivoPanel);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        // Descripción del proyecto
+        JPanel descripcionPanel = createFieldPanel("Breve descripción del proyecto:", labelFont, labelColor);
+        descripcionArea = createTextArea(4);
         JScrollPane descripcionScroll = new JScrollPane(descripcionArea);
+        descripcionScroll.setPreferredSize(new Dimension(400, 100));
+        descripcionPanel.add(descripcionScroll);
+        formPanel.add(descripcionPanel);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
-        JLabel tiempoLabel = new JLabel("Tiempo estimado:");
-        JTextField tiempoField = new JTextField(20);
-        tiempoField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        tiempoField.setBorder(BorderFactory.createCompoundBorder(
-                tiempoField.getBorder(), BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+        // Tabla de actividades
+        JLabel actividadesLabel = new JLabel("Actividades y horas:");
+        actividadesLabel.setFont(labelFont);
+        actividadesLabel.setForeground(labelColor);
+        actividadesLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
+        formPanel.add(actividadesLabel);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
-        JLabel areaLabel = new JLabel("Área de interés:");
-        JTextField areaField = new JTextField(20);
-        areaField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        areaField.setBorder(BorderFactory.createCompoundBorder(
-                areaField.getBorder(), BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+        // Modelo de tabla
+        String[] columnNames = {"Actividad", "Horas"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        actividadesTable = new JTable(tableModel);
+        actividadesTable.setRowHeight(25);
+        actividadesTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        
+        JScrollPane tableScroll = new JScrollPane(actividadesTable);
+        tableScroll.setPreferredSize(new Dimension(400, 150));
+        formPanel.add(tableScroll);
+        
+        // Panel para botones de la tabla
+        JPanel tableButtonPanel = new JPanel();
+        tableButtonPanel.setOpaque(false);
+        tableButtonPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+        
+        JButton addRowButton = new JButton("Agregar Actividad");
+        addRowButton.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        addRowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tableModel.addRow(new Object[]{"", 0});
+            }
+        });
+        
+        JButton removeRowButton = new JButton("Eliminar Actividad");
+        removeRowButton.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        removeRowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = actividadesTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    tableModel.removeRow(selectedRow);
+                    calcularTotalHoras();
+                }
+            }
+        });
+        
+        tableButtonPanel.add(addRowButton);
+        tableButtonPanel.add(removeRowButton);
+        formPanel.add(tableButtonPanel);
+        
+        // Total de horas
+        JPanel totalPanel = new JPanel();
+        totalPanel.setOpaque(false);
+        totalPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+        
+        JLabel totalLabel = new JLabel("Total de horas:");
+        totalLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        totalHorasLabel = new JLabel("0");
+        totalHorasLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        totalHorasLabel.setForeground(new Color(33, 150, 243));
+        
+        totalPanel.add(totalLabel);
+        totalPanel.add(totalHorasLabel);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        formPanel.add(totalPanel);
+        
+        // Agregar listener para actualizar total de horas
+        tableModel.addTableModelListener(e -> calcularTotalHoras());
+        
+        // Agregar panel de formulario al panel principal
+        JScrollPane formScrollPane = new JScrollPane(formPanel);
+        formScrollPane.setBorder(null);
+        formScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        panel.add(formScrollPane, BorderLayout.CENTER);
 
-        JLabel tutorLabel = new JLabel("Tutor:");
-        JTextField tutorField = new JTextField(20);
-        tutorField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        tutorField.setBorder(BorderFactory.createCompoundBorder(
-                tutorField.getBorder(), BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-
+        // Panel inferior con botones
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setOpaque(false);
+        
         JButton guardarBtn = new JButton("Guardar");
         guardarBtn.setBackground(new Color(76, 175, 80));
         guardarBtn.setForeground(Color.WHITE);
         guardarBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         guardarBtn.setFocusPainted(false);
+        guardarBtn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        
+        guardarBtn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                guardarBtn.setBackground(new Color(56, 142, 60));
+            }
+            
+            @Override
+            public void mouseExited(MouseEvent e) {
+                guardarBtn.setBackground(new Color(76, 175, 80));
+            }
+        });
 
         JButton cancelarBtn = new JButton("Cancelar");
         cancelarBtn.setBackground(new Color(244, 67, 54));
         cancelarBtn.setForeground(Color.WHITE);
         cancelarBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         cancelarBtn.setFocusPainted(false);
+        cancelarBtn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         cancelarBtn.addActionListener(e -> dispose());
+        
+        cancelarBtn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                cancelarBtn.setBackground(new Color(211, 47, 47));
+            }
+            
+            @Override
+            public void mouseExited(MouseEvent e) {
+                cancelarBtn.setBackground(new Color(244, 67, 54));
+            }
+        });
+        
+        buttonPanel.add(guardarBtn);
+        buttonPanel.add(Box.createRigidArea(new Dimension(20, 0)));
+        buttonPanel.add(cancelarBtn);
+        
+        panel.add(buttonPanel, BorderLayout.SOUTH);
 
-        JPanel panel = new JPanel();
-        panel.setBackground(Color.WHITE);
-        GroupLayout layout = new GroupLayout(panel);
-        panel.setLayout(layout);
-        layout.setAutoCreateGaps(true);
-        layout.setAutoCreateContainerGaps(true);
-
-        layout.setHorizontalGroup(
-                layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                        .addComponent(header)
-                        .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                                        .addComponent(tituloLabel)
-                                        .addComponent(descripcionLabel)
-                                        .addComponent(tiempoLabel)
-                                        .addComponent(areaLabel)
-                                        .addComponent(tutorLabel))
-                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                        .addComponent(tituloField)
-                                        .addComponent(descripcionScroll)
-                                        .addComponent(tiempoField)
-                                        .addComponent(areaField)
-                                        .addComponent(tutorField)))
-                        .addGroup(layout.createSequentialGroup()
-                                .addComponent(guardarBtn, GroupLayout.PREFERRED_SIZE, 120, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(cancelarBtn, GroupLayout.PREFERRED_SIZE, 120,
-                                        GroupLayout.PREFERRED_SIZE)));
-
-        layout.setVerticalGroup(
-                layout.createSequentialGroup()
-                        .addComponent(header)
-                        .addGap(10)
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(tituloLabel)
-                                .addComponent(tituloField))
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                .addComponent(descripcionLabel)
-                                .addComponent(descripcionScroll))
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(tiempoLabel)
-                                .addComponent(tiempoField))
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(areaLabel)
-                                .addComponent(areaField))
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(tutorLabel)
-                                .addComponent(tutorField))
-                        .addGap(20)
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(guardarBtn)
-                                .addComponent(cancelarBtn)));
+        // Agregar filas iniciales a la tabla
+        tableModel.addRow(new Object[]{"", 0});
+        tableModel.addRow(new Object[]{"", 0});
+        tableModel.addRow(new Object[]{"", 0});
 
         setContentPane(panel);
-        setSize(520, 420);
+        setSize(650, 700);
         setLocationRelativeTo(parent);
+        getRootPane().setDefaultButton(guardarBtn);
+    }
+    
+    private JPanel createFieldPanel(String labelText, Font labelFont, Color labelColor) {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+        
+        JLabel label = new JLabel(labelText);
+        label.setFont(labelFont);
+        label.setForeground(labelColor);
+        label.setAlignmentX(JLabel.LEFT_ALIGNMENT);
+        
+        panel.add(label);
+        panel.add(Box.createRigidArea(new Dimension(0, 5)));
+        
+        return panel;
+    }
+    
+    private JTextField createTextField() {
+        JTextField field = new JTextField();
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        field.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
+                BorderFactory.createEmptyBorder(8, 8, 8, 8)));
+        field.setAlignmentX(JTextField.LEFT_ALIGNMENT);
+        field.setMaximumSize(new Dimension(Integer.MAX_VALUE, field.getPreferredSize().height));
+        return field;
+    }
+    
+    private JTextArea createTextArea(int rows) {
+        JTextArea area = new JTextArea(rows, 20);
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+        area.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        area.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
+                BorderFactory.createEmptyBorder(8, 8, 8, 8)));
+        return area;
+    }
+    
+    private void calcularTotalHoras() {
+        totalHoras = 0;
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            Object value = tableModel.getValueAt(i, 1);
+            if (value != null) {
+                try {
+                    totalHoras += Integer.parseInt(value.toString());
+                } catch (NumberFormatException e) {
+                    // Ignorar valores no numéricos
+                }
+            }
+        }
+        totalHorasLabel.setText(String.valueOf(totalHoras));
     }
 }
