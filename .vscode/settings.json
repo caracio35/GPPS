@@ -4,5 +4,14 @@
     "FRONTEND/src",
     "COMMONS/src",
     "ENTITIES/src"
+  ],
+  "java.project.referencedLibraries": [
+    //"lib/**/*.jar",
+    //"FRONTEND/jcalendar-1.4.jar",
+    "BACKEND/mysql-connector-java-5.1.48.jar"
+    //"jgoodies-forms-1.8.0.jar",
+    //"jgoodies-forms-1.8.0-sources.jar",
+    //"jgoodies-commons-1.8.0.jar",
+    //"jgoodies-common-1.8.0-sources.jar"
   ]
 }

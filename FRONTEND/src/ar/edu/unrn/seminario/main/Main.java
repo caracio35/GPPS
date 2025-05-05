@@ -1,5 +1,6 @@
 package ar.edu.unrn.seminario.main;
 
+import javax.swing.SwingUtilities;
 import java.awt.EventQueue;
 
 import ar.edu.unrn.seminario.api.IApi;
