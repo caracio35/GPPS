@@ -6,6 +6,7 @@ import java.awt.EventQueue;
 import ar.edu.unrn.seminario.api.IApi;
 import ar.edu.unrn.seminario.api.MemoryApi;
 import ar.edu.unrn.seminario.api.PersistenceApi;
+import ar.edu.unrn.seminario.gui.LoginScreen;
 import ar.edu.unrn.seminario.gui.VentanaPrincipal;
 
 public class Main {
@@ -15,11 +16,11 @@ public class Main {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-
 					IApi api = new PersistenceApi();
-					VentanaPrincipal frame = new VentanaPrincipal(api);
-
-					frame.setVisible(true);//
+					LoginScreen log=new LoginScreen(api);
+					log.setVisible(true);
+					
+				
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

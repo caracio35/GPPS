@@ -69,11 +69,12 @@ public class AltaUsuario extends JFrame {
 
 				RolDTO rol = roles.get(rolComboBox.getSelectedIndex());
 
-					api.registrarUsuario(usuarioTextField.getText(), contrasenaTextField.getText(),
-							nombreTextField.getText(), emailTextField.getText(), rol.getCodigo());
-					JOptionPane.showMessageDialog(null, "Usuario registrado con exito!", "Info", JOptionPane.INFORMATION_MESSAGE);
-					setVisible(false);
-					dispose();
+				api.registrarUsuario(usuarioTextField.getText(), contrasenaTextField.getText(),
+						nombreTextField.getText(), emailTextField.getText(), rol.getCodigo());
+				JOptionPane.showMessageDialog(null, "Usuario registrado con exito!", "Info",
+						JOptionPane.INFORMATION_MESSAGE);
+				setVisible(false);
+				dispose();
 
 			}
 		});

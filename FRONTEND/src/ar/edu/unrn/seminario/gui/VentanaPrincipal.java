@@ -1,81 +1,112 @@
 package ar.edu.unrn.seminario.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import ar.edu.unrn.seminario.api.IApi;
+import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 
 public class VentanaPrincipal extends JFrame {
+    private JPanel contentPane;
+    private IApi api;
+    private UsuarioSimplificadoDTO usuario;
 
-	private JPanel contentPane;
+    public VentanaPrincipal(UsuarioSimplificadoDTO usuario, IApi api) {
+        this.api = api;
+        this.usuario = usuario;
+        inicializarVentana();
+        configurarMenuSegunRol();
+    }
 
-	public VentanaPrincipal(IApi api) {
-		getContentPane().setLayout(null);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+    private void inicializarVentana() {
+        setTitle("Sistema GPPS - " + usuario.getRol());
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(800, 600);
+        setLocationRelativeTo(null);
 
-		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
+        contentPane = new JPanel();
+        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+        contentPane.setLayout(new BorderLayout(0, 0));
+        setContentPane(contentPane);
 
-		JMenu usuarioMenu = new JMenu("Usuarios");
-		menuBar.add(usuarioMenu);
+        // Añadir un mensaje de bienvenida
+        JLabel welcomeLabel = new JLabel("Bienvenido/a - " + usuario.getNombre(), SwingConstants.CENTER);
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        contentPane.add(welcomeLabel, BorderLayout.CENTER);
+    }
 
-		JMenuItem altaUsuarioMenuItem = new JMenuItem("Alta/Modificación");
-		altaUsuarioMenuItem.addActionListener(new ActionListener() {
+    private void configurarMenuSegunRol() {
+        JMenuBar menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
 
-			public void actionPerformed(ActionEvent arg0) {
-				AltaUsuario alta = new AltaUsuario(api);
-				alta.setLocationRelativeTo(null);
-				alta.setVisible(true);
-			}
+        // Menú Archivo (común para todos)
+        JMenu menuArchivo = new JMenu("Archivo");
+        JMenuItem menuSalir = new JMenuItem("Salir");
+        menuSalir.addActionListener(e -> System.exit(0));
+        menuArchivo.add(menuSalir);
+        menuBar.add(menuArchivo);
 
-		});
-		usuarioMenu.add(altaUsuarioMenuItem);
+        // Configurar menús específicos según el rol
+        switch(usuario.getRol()) {
+            case "Director de Carrera":
+                agregarMenuDirector(menuBar);
+                break;
+            case "Tutor":
+                agregarMenuTutor(menuBar);
+                break;
+            case "Institución":
+                agregarMenuInstitucion(menuBar);
+                break;
+            case "Alumno":
+                agregarMenuUsuarioRegular(menuBar);
+                break;
+        }
 
-		JMenuItem listadoUsuarioMenuItem = new JMenuItem("Listado");
-		listadoUsuarioMenuItem.addActionListener(new ActionListener() {
+        // Menú de propuestas (común para todos)
+        JMenu propuestasMenu = new JMenu("Propuestas");
+        menuBar.add(propuestasMenu);
 
-			public void actionPerformed(ActionEvent arg0) {
-				ListadoUsuario listado = new ListadoUsuario(api);
-				listado.setLocationRelativeTo(null);
-				listado.setVisible(true);
-			}
+        JMenuItem verPropuestas = new JMenuItem("Ver propuestas");
+        propuestasMenu.add(verPropuestas);
 
-		});
-		usuarioMenu.add(listadoUsuarioMenuItem);
+        JMenuItem cargarPropuestas = new JMenuItem("Cargar propuestas");
+        cargarPropuestas.addActionListener(e -> {
+            CargarPropuesta cargar = new CargarPropuesta(this);
+            cargar.setVisible(true);
+        });
+        propuestasMenu.add(cargarPropuestas);
+    }
 
-		JMenu propuestasVariable = new JMenu("Propuestas");
-		menuBar.add(propuestasVariable);
+    private void agregarMenuDirector(JMenuBar menuBar) {
+        JMenu menuGestion = new JMenu("Gestión");
+        
+        JMenuItem gestionUsuarios = new JMenuItem("Gestionar Usuarios");
+        gestionUsuarios.addActionListener(e -> {
+            ListadoUsuario listado = new ListadoUsuario(api);
+            listado.setLocationRelativeTo(null);
+            listado.setVisible(true);
+        });
+        
+        menuGestion.add(gestionUsuarios);
+        menuGestion.add(new JMenuItem("Gestionar Tutores"));
+        menuGestion.add(new JMenuItem("Gestionar Instituciones"));
+        menuGestion.add(new JMenuItem("Ver Estadísticas"));
+        menuBar.add(menuGestion);
+    }
 
-		JMenuItem verPropuestas = new JMenuItem("Ver propuestas");
-		propuestasVariable.add(verPropuestas);
+    private void agregarMenuTutor(JMenuBar menuBar) {
+        // ... existing code ...
+    }
 
-		JMenuItem cargarPropuestasVar = new JMenuItem("Cargar propuestas");
-		cargarPropuestasVar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				CargarPropuesta cargar = new CargarPropuesta(VentanaPrincipal.this);
-				cargar.setVisible(true);
-			}
-		});
-		propuestasVariable.add(cargarPropuestasVar);
+    private void agregarMenuInstitucion(JMenuBar menuBar) {
+        // ... existing code ...
+    }
 
-		JMenu configuracionMenu = new JMenu("Configuración");
-		menuBar.add(configuracionMenu);
-
-		JMenuItem salirMenuItem = new JMenuItem("Salir");
-		configuracionMenu.add(salirMenuItem);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout(0, 0));
-		setContentPane(contentPane);
-	}
-
+    private void agregarMenuUsuarioRegular(JMenuBar menuBar) {
+        // ... existing code ...
+    }
 }

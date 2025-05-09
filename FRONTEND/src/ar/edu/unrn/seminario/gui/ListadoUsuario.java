@@ -104,7 +104,6 @@ public class ListadoUsuario extends JFrame {
 				}
 			}
 		});
-		
 
 		JButton cerrarButton = new JButton("Cerrar");
 		cerrarButton.addActionListener(new ActionListener() {
@@ -121,20 +120,19 @@ public class ListadoUsuario extends JFrame {
 		pnlBotonesOperaciones.add(desactivarButton);
 		pnlBotonesOperaciones.add(activarButton);
 		pnlBotonesOperaciones.add(cerrarButton);
-		
+
 		btnEliminar = new JButton("Eliminar");
 		btnEliminar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				        int reply = JOptionPane.showConfirmDialog(null,
-				                "¿Estás seguro que deseas eliminar el usuario?", "Confirmar eliminación.",
-				                JOptionPane.YES_NO_OPTION);
-				        if (reply == JOptionPane.YES_OPTION) {
-				            String username = (String) table.getModel().getValueAt(table.getSelectedRow(), 0);
-				            api.eliminarUsuario(username);
-				            actualizarTabla();
-				        }
-				    }
-			
+				int reply = JOptionPane.showConfirmDialog(null, "¿Estás seguro que deseas eliminar el usuario?",
+						"Confirmar eliminación.", JOptionPane.YES_NO_OPTION);
+				if (reply == JOptionPane.YES_OPTION) {
+					String username = (String) table.getModel().getValueAt(table.getSelectedRow(), 0);
+					api.eliminarUsuario(username);
+					actualizarTabla();
+				}
+			}
+
 		});
 		pnlBotonesOperaciones.add(btnEliminar);
 
@@ -161,8 +159,5 @@ public class ListadoUsuario extends JFrame {
 			modelo.addRow(new Object[] { u.getUsername(), u.getNombre(), u.getEmail(), u.getEstado(), u.getRol() });
 		}
 
-	
-
-	
-	
-}}
+	}
+}
