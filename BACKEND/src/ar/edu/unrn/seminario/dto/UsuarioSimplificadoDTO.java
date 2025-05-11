@@ -1,22 +1,23 @@
 package ar.edu.unrn.seminario.dto;
 
 public class UsuarioSimplificadoDTO {
-	private String nobreUsuario;
 	private String nombre;
 	private String apellido;
 	private String email;
 	private String rol;
 	private int dni;
 	
-public UsuarioSimplificadoDTO(String nombre, String apellido, String email, String rol, int dni, String nobreUsuario) { 
-    super(); 
-    this.nombre = nombre; 
-    this.apellido = apellido; 
-    this.email = email; 
-    this.rol = rol; 
-    this.dni = dni;
-    this.nobreUsuario = nobreUsuario; 
-}
+
+	public UsuarioSimplificadoDTO(String nombre,String Apellido, String email, String rol, String estado) {
+		super();
+		this.nombre = nombre;
+		this.apellido=apellido;
+		this.email = email;
+		this.rol = rol;
+		this.dni=dni;
+		
+	}
+
 	public String getNombre() {
 		return nombre;
 	}

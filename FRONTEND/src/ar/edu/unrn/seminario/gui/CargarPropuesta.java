@@ -17,8 +17,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
-import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
-
 public class CargarPropuesta extends JDialog {
     private JTextField tituloField;
     private JTextField areaField;
@@ -28,11 +26,9 @@ public class CargarPropuesta extends JDialog {
     private DefaultTableModel tableModel;
     private JLabel totalHorasLabel;
     private int totalHoras = 0;
-    private UsuarioSimplificadoDTO usuario; // Agregar el DTO de usuario
 
-    public CargarPropuesta(JFrame parent, UsuarioSimplificadoDTO usuario) {
+    public CargarPropuesta(JFrame parent) {
         super(parent, "Cargar Propuesta", true);
-        this.usuario = usuario; // Guardar el usuario que está subiendo la propuesta
 
         // Panel con fondo degradado
         JPanel panel = new JPanel() {
@@ -181,7 +177,7 @@ public class CargarPropuesta extends JDialog {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
         
-        JButton guardarBtn = new JButton("Subir Propuesta");
+        JButton guardarBtn = new JButton("Guardar");
         guardarBtn.setBackground(new Color(76, 175, 80));
         guardarBtn.setForeground(Color.WHITE);
         guardarBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -197,13 +193,6 @@ public class CargarPropuesta extends JDialog {
             @Override
             public void mouseExited(MouseEvent e) {
                 guardarBtn.setBackground(new Color(76, 175, 80));
-            }
-        });
-        
-        guardarBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                recogerDatos();
             }
         });
 
@@ -296,52 +285,5 @@ public class CargarPropuesta extends JDialog {
             }
         }
         totalHorasLabel.setText(String.valueOf(totalHoras));
-    }
-    
-    private void recogerDatos() {
-        // Recoger datos del formulario
-        String titulo = tituloField.getText();
-        String area = areaField.getText();
-        String objetivo = objetivoArea.getText();
-        String descripcion = descripcionArea.getText();
-        int dniUsuario = usuario.getDni(); // Obtener el DNI del usuario
-        
-        // Recoger actividades
-        StringBuilder actividades = new StringBuilder();
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            String actividad = tableModel.getValueAt(i, 0).toString();
-            String horas = tableModel.getValueAt(i, 1).toString();
-            if (!actividad.isEmpty()) {
-                actividades.append("- ").append(actividad).append(": ").append(horas).append(" horas\n");
-            }
-        }
-        
-        // Construir mensaje con todos los datos
-        StringBuilder mensaje = new StringBuilder();
-        mensaje.append("Datos de la propuesta:\n\n");
-        mensaje.append("Título: ").append(titulo).append("\n");
-        mensaje.append("Área de interés: ").append(area).append("\n");
-        mensaje.append("Objetivo: ").append(objetivo).append("\n");
-        mensaje.append("Descripción: ").append(descripcion).append("\n");
-        mensaje.append("DNI del usuario: ").append(dniUsuario).append("\n\n");
-        mensaje.append("Actividades:\n").append(actividades);
-        mensaje.append("\nTotal de horas: ").append(totalHoras);
-        
-        // Mostrar ventana emergente con los datos
-        JTextArea textArea = new JTextArea(mensaje.toString());
-        textArea.setEditable(false);
-        textArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-        
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(500, 400));
-        
-        JOptionPane.showMessageDialog(
-            this,
-            scrollPane,
-            "Datos de la Propuesta",
-            JOptionPane.INFORMATION_MESSAGE
-        );
     }
 }

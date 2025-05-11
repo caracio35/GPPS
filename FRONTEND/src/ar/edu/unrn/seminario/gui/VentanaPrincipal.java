@@ -75,9 +75,8 @@ public class VentanaPrincipal extends JFrame {
 
         JMenuItem cargarPropuestas = new JMenuItem("Cargar propuestas");
         cargarPropuestas.addActionListener(e -> {
-            // En la ventana principal donde se crea la instancia de CargarPropuesta
-            CargarPropuesta ventanaPropuesta = new CargarPropuesta(this, usuario);
-            ventanaPropuesta.setVisible(true);
+            CargarPropuesta cargar = new CargarPropuesta(this);
+            cargar.setVisible(true);
         });
         propuestasMenu.add(cargarPropuestas);
     }
