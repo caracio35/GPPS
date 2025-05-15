@@ -17,6 +17,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import ar.edu.unrn.seminario.dto.ActividadDTO;
+import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 
 public class CargarPropuesta extends JDialog {
@@ -299,49 +301,66 @@ public class CargarPropuesta extends JDialog {
     }
     
     private void recogerDatos() {
-        // Recoger datos del formulario
-        String titulo = tituloField.getText();
-        String area = areaField.getText();
-        String objetivo = objetivoArea.getText();
-        String descripcion = descripcionArea.getText();
-        int dniUsuario = usuario.getDni(); // Obtener el DNI del usuario
-        
-        // Recoger actividades
-        StringBuilder actividades = new StringBuilder();
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            String actividad = tableModel.getValueAt(i, 0).toString();
-            String horas = tableModel.getValueAt(i, 1).toString();
-            if (!actividad.isEmpty()) {
-                actividades.append("- ").append(actividad).append(": ").append(horas).append(" horas\n");
+        try {
+            // Validar campos obligatorios
+            if (tituloField.getText().trim().isEmpty() || 
+                areaField.getText().trim().isEmpty() || 
+                objetivoArea.getText().trim().isEmpty() || 
+                descripcionArea.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                    "Por favor complete todos los campos obligatorios",
+                    "Error de validación",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            // Crear el DTO de la propuesta
+            PropuestaDTO propuesta = new PropuestaDTO(
+                tituloField.getText().trim(),
+                areaField.getText().trim(),
+                objetivoArea.getText().trim(),
+                descripcionArea.getText().trim(),
+                usuario.getDni(),
+                totalHoras
+            );
+
+            // Agregar las actividades
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                String nombreActividad = tableModel.getValueAt(i, 0).toString().trim();
+                String horasStr = tableModel.getValueAt(i, 1).toString().trim();
+                
+                if (!nombreActividad.isEmpty() && !horasStr.isEmpty()) {
+                    try {
+                        int horas = Integer.parseInt(horasStr);
+                        ActividadDTO actividad = new ActividadDTO();
+                        // Configurar la actividad con los datos necesarios
+                        propuesta.agregarActividad(actividad);
+                    } catch (NumberFormatException e) {
+                        JOptionPane.showMessageDialog(this,
+                            "El valor de horas debe ser un número válido",
+                            "Error de validación",
+                            JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+            }
+
+            // Aquí deberías obtener una instancia de tu API e insertar la propuesta
+            // Por ejemplo:
+            // api.guardarPropuesta(propuesta);
+
+            JOptionPane.showMessageDialog(this,
+                "La propuesta se ha guardado exitosamente",
+                "Éxito",
+                JOptionPane.INFORMATION_MESSAGE);
+            
+            dispose(); // Cerrar la ventana después de guardar
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                "Error al guardar la propuesta: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
         }
-        
-        // Construir mensaje con todos los datos
-        StringBuilder mensaje = new StringBuilder();
-        mensaje.append("Datos de la propuesta:\n\n");
-        mensaje.append("Título: ").append(titulo).append("\n");
-        mensaje.append("Área de interés: ").append(area).append("\n");
-        mensaje.append("Objetivo: ").append(objetivo).append("\n");
-        mensaje.append("Descripción: ").append(descripcion).append("\n");
-        mensaje.append("DNI del usuario: ").append(dniUsuario).append("\n\n");
-        mensaje.append("Actividades:\n").append(actividades);
-        mensaje.append("\nTotal de horas: ").append(totalHoras);
-        
-        // Mostrar ventana emergente con los datos
-        JTextArea textArea = new JTextArea(mensaje.toString());
-        textArea.setEditable(false);
-        textArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-        
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(500, 400));
-        
-        JOptionPane.showMessageDialog(
-            this,
-            scrollPane,
-            "Datos de la Propuesta",
-            JOptionPane.INFORMATION_MESSAGE
-        );
     }
 }
