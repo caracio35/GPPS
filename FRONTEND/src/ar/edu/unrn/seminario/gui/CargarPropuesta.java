@@ -14,12 +14,20 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+
+import accesos.ConnectionManager;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import ar.edu.unrn.seminario.dto.ActividadDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class CargarPropuesta extends JDialog {
     private JTextField tituloField;
@@ -324,43 +332,93 @@ public class CargarPropuesta extends JDialog {
                 totalHoras
             );
 
-            // Agregar las actividades
-            for (int i = 0; i < tableModel.getRowCount(); i++) {
-                String nombreActividad = tableModel.getValueAt(i, 0).toString().trim();
-                String horasStr = tableModel.getValueAt(i, 1).toString().trim();
+            // Obtener la conexión a la base de datos
+            Connection conn = ConnectionManager.getConnection();
+            
+            try {
+                // Desactivar el auto-commit para manejar la transacción manualmente
+                conn.setAutoCommit(false);
                 
-                if (!nombreActividad.isEmpty() && !horasStr.isEmpty()) {
-                    try {
+                // Insertar la propuesta
+                String sqlPropuesta = "INSERT INTO propuesta (titulo, area_interes, descripcion, objetivo, tutor, aceptada) " +
+                                    "VALUES (?, ?, ?, ?, ?, ?) RETURNING id";
+                
+                PreparedStatement pstmtPropuesta = conn.prepareStatement(sqlPropuesta);
+                pstmtPropuesta.setString(1, propuesta.getTitulo());
+                pstmtPropuesta.setString(2, propuesta.getAreaInteres());
+                pstmtPropuesta.setString(3, propuesta.getDescripcion());
+                pstmtPropuesta.setString(4, propuesta.getObjetivo());
+                pstmtPropuesta.setString(5, String.valueOf(propuesta.getDniAutor()));
+                pstmtPropuesta.setBoolean(6, false); // Por defecto no está aceptada
+                
+                ResultSet rs = pstmtPropuesta.executeQuery();
+                int propuestaId = -1;
+                if (rs.next()) {
+                    propuestaId = rs.getInt(1);
+                }
+                
+                // Insertar la relación propuesta-usuario
+                String sqlPropuestaUsuario = "INSERT INTO propuestausuarios (propuesta_id, usuario_usuario) VALUES (?, ?)";
+                PreparedStatement pstmtPropuestaUsuario = conn.prepareStatement(sqlPropuestaUsuario);
+                pstmtPropuestaUsuario.setInt(1, propuestaId);
+                pstmtPropuestaUsuario.setString(2, String.valueOf(propuesta.getDniAutor()));
+                pstmtPropuestaUsuario.executeUpdate();
+                
+                // Insertar las actividades
+                String sqlActividad = "INSERT INTO actividad (nombre_actividad, horas, propuesta_id) VALUES (?, ?, ?)";
+                PreparedStatement pstmtActividad = conn.prepareStatement(sqlActividad);
+                
+                for (int i = 0; i < tableModel.getRowCount(); i++) {
+                    String nombreActividad = tableModel.getValueAt(i, 0).toString().trim();
+                    String horasStr = tableModel.getValueAt(i, 1).toString().trim();
+                    
+                    if (!nombreActividad.isEmpty() && !horasStr.isEmpty()) {
                         int horas = Integer.parseInt(horasStr);
-                        ActividadDTO actividad = new ActividadDTO();
-                        // Configurar la actividad con los datos necesarios
-                        propuesta.agregarActividad(actividad);
-                    } catch (NumberFormatException e) {
-                        JOptionPane.showMessageDialog(this,
-                            "El valor de horas debe ser un número válido",
-                            "Error de validación",
-                            JOptionPane.ERROR_MESSAGE);
-                        return;
+                        pstmtActividad.setString(1, nombreActividad);
+                        pstmtActividad.setInt(2, horas);
+                        pstmtActividad.setInt(3, propuestaId);
+                        pstmtActividad.executeUpdate();
+                    }
+                }
+                
+                // Confirmar la transacción
+                conn.commit();
+                
+                JOptionPane.showMessageDialog(this,
+                    "La propuesta se ha guardado exitosamente",
+                    "Éxito",
+                    JOptionPane.INFORMATION_MESSAGE);
+                
+                dispose();
+                
+            } catch (SQLException e) {
+                // En caso de error, hacer rollback
+                if (conn != null) {
+                    try {
+                        conn.rollback();
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                throw e;
+            } finally {
+                // Restaurar el auto-commit y cerrar la conexión
+                if (conn != null) {
+                    try {
+                        conn.setAutoCommit(true);
+                        conn.close();
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
                     }
                 }
             }
-
-            // Aquí deberías obtener una instancia de tu API e insertar la propuesta
-            // Por ejemplo:
-            // api.guardarPropuesta(propuesta);
-
-            JOptionPane.showMessageDialog(this,
-                "La propuesta se ha guardado exitosamente",
-                "Éxito",
-                JOptionPane.INFORMATION_MESSAGE);
-            
-            dispose(); // Cerrar la ventana después de guardar
             
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
                 "Error al guardar la propuesta: " + e.getMessage(),
                 "Error",
                 JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 }
