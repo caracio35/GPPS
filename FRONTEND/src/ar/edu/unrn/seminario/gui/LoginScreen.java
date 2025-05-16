@@ -140,11 +140,11 @@ public class LoginScreen extends JFrame {
 	}
 
 	private void usuarioDePrueba() {
-		nombreUsuarioField.setText("andres1");
-		nombreField.setText("andres");
-		apellidoField.setText("sanmartin");
-		dniField.setText("45203112");
-		correoField.setText("andrescito");
+		nombreUsuarioField.setText("InstitucionDePrueba");
+		nombreField.setText("UNRN");
+		apellidoField.setText("Viedma");
+		dniField.setText("0");
+		correoField.setText("InstiUNRN@gmail.com");
 	}
 
 	private JTextField crearCampoTextoModerno() {

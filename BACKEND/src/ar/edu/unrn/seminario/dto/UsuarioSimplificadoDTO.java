@@ -1,21 +1,21 @@
 package ar.edu.unrn.seminario.dto;
 
 public class UsuarioSimplificadoDTO {
-	private String nobreUsuario;
+	private String nombreUsuario;
 	private String nombre;
 	private String apellido;
 	private String email;
 	private String rol;
 	private int dni;
 	
-public UsuarioSimplificadoDTO(String nombre, String apellido, String email, String rol, int dni, String nobreUsuario) { 
+public UsuarioSimplificadoDTO(String nombre, String apellido, String email, String rol, int dni, String nombreUsuario) { 
     super(); 
     this.nombre = nombre; 
     this.apellido = apellido; 
     this.email = email; 
     this.rol = rol; 
     this.dni = dni;
-    this.nobreUsuario = nobreUsuario; 
+    this.nombreUsuario = nombreUsuario; 
 }
 	public String getNombre() {
 		return nombre;
@@ -56,6 +56,8 @@ public UsuarioSimplificadoDTO(String nombre, String apellido, String email, Stri
 	public void setApellido(String apellido) {
 		this.apellido = apellido;
 	}
+    public String getUsuario() {
+		return nombreUsuario;}
 
 }
 

@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mysql.jdbc.Statement;
+
 import ar.edu.unrn.seminario.modelo.Propuesta;
 import ar.edu.unrn.seminario.modelo.Actividad;
 
@@ -18,7 +20,7 @@ public class PropuestaDAOJDBC implements PropuestaDao {
             Connection conn = ConnectionManager.getConnection();
             PreparedStatement statement = conn.prepareStatement(
                 "INSERT INTO propuesta (titulo, area_interes, descripcion, objetivo, tutor, aceptada) VALUES (?, ?, ?, ?, ?, ?)",
-                PreparedStatement.RETURN_GENERATED_KEYS
+                Statement.RETURN_GENERATED_KEYS
             );
 
             statement.setString(1, propuesta.getTitulo());
@@ -28,9 +30,13 @@ public class PropuestaDAOJDBC implements PropuestaDao {
             statement.setString(5, propuesta.getTutor());
             statement.setBoolean(6, false); // Nueva propuesta, por defecto no aceptada
 
-            statement.executeUpdate();
+            // Cambiar executeQuery() por executeUpdate()
+            int affectedRows = statement.executeUpdate();
 
-            // Obtener el ID generado para la propuesta
+            if (affectedRows == 0) {
+                throw new SQLException("La creación de la propuesta falló, ninguna fila afectada.");
+            }
+
             ResultSet generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 int propuestaId = generatedKeys.getInt(1);
@@ -43,10 +49,9 @@ public class PropuestaDAOJDBC implements PropuestaDao {
                     actividadStmt.setString(1, actividad.getNombre());
                     actividadStmt.setInt(2, actividad.getHoras());
                     actividadStmt.setInt(3, propuestaId);
-                    actividadStmt.executeUpdate();
+                    actividadStmt.executeUpdate(); // También usar executeUpdate() aquí
                 }
             }
-
         } catch (SQLException e) {
             throw new RuntimeException("Error al crear la propuesta: " + e.getMessage());
         } finally {
