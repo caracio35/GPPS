@@ -328,20 +328,7 @@ public class CargarPropuesta extends JDialog {
             conn.setAutoCommit(false);
             
             try {
-                // Agregar línea de depuración
-                System.out.println("Usuario intentando crear propuesta: InstitucionDePrueba");
-                
-                // Primero verificar si el usuario existe
-                String checkUsuario = "SELECT usuario FROM usuario WHERE usuario = ?";
-                PreparedStatement checkStmt = conn.prepareStatement(checkUsuario);
-                checkStmt.setString(1, "InstitucionDePrueba");
-                ResultSet rs = checkStmt.executeQuery();
-                
-                if (!rs.next()) {
-                    throw new SQLException("El usuario no existe en la base de datos.");
-                }
-
-                // Si el usuario existe, procedemos con la inserción de la propuesta
+                // Insertar en la tabla propuesta
                 String sqlPropuesta = "INSERT INTO propuesta (titulo, area_interes, descripcion, objetivo, tutor, aceptada) " +
                                      "VALUES (?, ?, ?, ?, ?, ?)";
                 
@@ -351,37 +338,50 @@ public class CargarPropuesta extends JDialog {
                 pstmtPropuesta.setString(2, areaField.getText().trim());
                 pstmtPropuesta.setString(3, descripcionArea.getText().trim());
                 pstmtPropuesta.setString(4, objetivoArea.getText().trim());
-                pstmtPropuesta.setString(5, "InstitucionDePrueba"); // Establecer el autor como InstitucionDePrueba
+                pstmtPropuesta.setString(5, "InstitucionDePrueba");
                 pstmtPropuesta.setBoolean(6, false);
                 
                 int affectedRows = pstmtPropuesta.executeUpdate();
                 
-                if (affectedRows == 0) {
-                    throw new SQLException("La creación de la propuesta falló, ninguna fila fue insertada.");
-                }
-                
-                // Obtener el ID generado
-                try (ResultSet generatedKeys = pstmtPropuesta.getGeneratedKeys()) {
+                int propuestaId = -1;
+                if (affectedRows > 0) {
+                    ResultSet generatedKeys = pstmtPropuesta.getGeneratedKeys();
                     if (generatedKeys.next()) {
-                        int propuestaId = generatedKeys.getInt(1);
-                        PreparedStatement pstmtActividad = null;
-                        // Ahora podemos usar propuestaId para las actividades
-                        // ... existing code ...
-                        pstmtActividad.setInt(3, propuestaId);
-                        pstmtActividad.executeUpdate();
+                        propuestaId = generatedKeys.getInt(1);
+                        
+                        // Insertar las actividades solo si tenemos un ID válido
+                        String sqlActividad = "INSERT INTO actividad (nombre_actividad, horas, propuesta_id) VALUES (?, ?, ?)";
+                        PreparedStatement pstmtActividad = conn.prepareStatement(sqlActividad);
+                        
+                        for (int i = 0; i < tableModel.getRowCount(); i++) {
+                            String nombreActividad = tableModel.getValueAt(i, 0).toString().trim();
+                            String horasStr = tableModel.getValueAt(i, 1).toString().trim();
+                            
+                            // Solo insertar actividades con nombre y horas válidas
+                            if (!nombreActividad.isEmpty() && !horasStr.equals("0")) {
+                                try {
+                                    int horas = Integer.parseInt(horasStr);
+                                    pstmtActividad.setString(1, nombreActividad);
+                                    pstmtActividad.setInt(2, horas);
+                                    pstmtActividad.setInt(3, propuestaId);
+                                    pstmtActividad.executeUpdate();
+                                } catch (NumberFormatException e) {
+                                    // Ignorar filas con horas inválidas
+                                    continue;
+                                }
+                            }
+                        }
+                        
+                        // Insertar en propuestausuarios usando el ID correcto
+                        String sqlPropuestaUsuario = "INSERT INTO propuestausuarios (propuesta_id, usuario_usuario) VALUES (?, ?)";
+                        PreparedStatement pstmtPropuestaUsuario = conn.prepareStatement(sqlPropuestaUsuario);
+                        pstmtPropuestaUsuario.setInt(1, propuestaId);
+                        pstmtPropuestaUsuario.setString(2, "InstitucionDePrueba");
+                        pstmtPropuestaUsuario.executeUpdate();
                     }
                 }
     
-                // Insertar en propuestausuarios
-                String sqlPropuestaUsuario = "INSERT INTO propuestausuarios (propuesta_id, usuario_usuario) VALUES (?, ?)";
-                PreparedStatement pstmtPropuestaUsuario = conn.prepareStatement(sqlPropuestaUsuario);
-                int propuestaId = 0;
-                pstmtPropuestaUsuario.setInt(1, propuestaId);
-                pstmtPropuestaUsuario.setString(2, String.valueOf(usuario.getDni()));
-                pstmtPropuestaUsuario.executeUpdate();
-    
                 conn.commit();
-                
                 JOptionPane.showMessageDialog(this,
                     "La propuesta se ha guardado exitosamente",
                     "Éxito",
