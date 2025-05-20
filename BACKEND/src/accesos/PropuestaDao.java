@@ -8,4 +8,5 @@ public interface PropuestaDao {
     void update(Propuesta propuesta);
     Propuesta find(Integer id);
     List<Propuesta> findAll();
+    
 }

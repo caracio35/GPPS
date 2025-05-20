@@ -1,12 +1,16 @@
 package ar.edu.unrn.seminario.api;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import accesos.PropuestaDAOJDBC;
 import accesos.RolDAOJDBC;
 import accesos.RolDao;
 import accesos.UsuarioDAOJDBC;
 import accesos.UsuarioDao;
+import ar.edu.unrn.seminario.dto.ActividadDTO;
+import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.RolDTO;
 import ar.edu.unrn.seminario.dto.UsuarioDTO;
 import ar.edu.unrn.seminario.modelo.Rol;
@@ -112,5 +116,10 @@ public class PersistenceApi implements IApi {
 			usuarioDao.update(usuario);
 		}
 	}
+	
+	public void guardarPropuesta(PropuestaDTO propuesta, List<ActividadDTO> actividades) throws SQLException {
+        PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
+        dao.insertarPropuestaConActividades(propuesta, actividades);
+    }
 
 }

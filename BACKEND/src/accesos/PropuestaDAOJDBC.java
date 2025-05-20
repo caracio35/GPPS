@@ -10,6 +10,8 @@ import java.util.List;
 import com.mysql.jdbc.Statement;
 
 import ar.edu.unrn.seminario.modelo.Propuesta;
+import ar.edu.unrn.seminario.dto.ActividadDTO;
+import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.modelo.Actividad;
 
 public class PropuestaDAOJDBC implements PropuestaDao {
@@ -158,4 +160,54 @@ public class PropuestaDAOJDBC implements PropuestaDao {
         }
         return propuestas;
     }
+
+	public void insertarPropuestaConActividades(PropuestaDTO propuesta, List<ActividadDTO> actividades) throws SQLException {
+        Connection conn = ConnectionManager.getConnection();
+        conn.setAutoCommit(false); // transacción manual
+
+        String sqlPropuesta = "INSERT INTO propuestas (titulo, area_interes, objetivo, descripcion, dni_autor, total_horas) VALUES (?, ?, ?, ?, ?, ?)";
+        String sqlActividad = "INSERT INTO actividades (nombre, horas, id_propuesta) VALUES (?, ?, ?)";
+
+        try (
+            PreparedStatement stmtPropuesta = conn.prepareStatement(sqlPropuesta, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement stmtActividad = conn.prepareStatement(sqlActividad)
+        ) {
+            // Insertar propuesta
+            stmtPropuesta.setString(1, propuesta.getTitulo());
+            stmtPropuesta.setString(2, propuesta.getAreaInteres());
+            stmtPropuesta.setString(3, propuesta.getObjetivo());
+            stmtPropuesta.setString(4, propuesta.getDescripcion());
+            stmtPropuesta.setInt(5, propuesta.getDniAutor());
+            stmtPropuesta.setInt(6, propuesta.getTotalHoras());
+
+            stmtPropuesta.executeUpdate();
+
+            // Obtener ID generado
+            ResultSet rs = stmtPropuesta.getGeneratedKeys();
+            int idPropuesta = -1;
+            if (rs.next()) {
+                idPropuesta = rs.getInt(1);
+            } else {
+                throw new SQLException("No se pudo obtener el ID de la propuesta");
+            }
+
+            // Insertar actividades
+            for (ActividadDTO act : actividades) {
+                stmtActividad.setString(1, act.getnombre());
+                stmtActividad.setInt(2, act.getHoras());
+                stmtActividad.setInt(3, idPropuesta);
+                stmtActividad.executeUpdate();
+            }
+
+            conn.commit();
+
+        } catch (SQLException e) {
+            conn.rollback();
+            throw e;
+        } finally {
+            conn.setAutoCommit(true);
+            conn.close();
+        }
+    }
+		
 }

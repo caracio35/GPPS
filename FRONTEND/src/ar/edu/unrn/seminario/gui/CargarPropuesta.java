@@ -15,21 +15,16 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-import com.mysql.jdbc.Statement;
-
-import accesos.ConnectionManager;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import ar.edu.unrn.seminario.api.PersistenceApi;
 import ar.edu.unrn.seminario.dto.ActividadDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CargarPropuesta extends JDialog {
     private JTextField tituloField;
@@ -310,7 +305,7 @@ public class CargarPropuesta extends JDialog {
         totalHorasLabel.setText(String.valueOf(totalHoras));
     }
     
-    private void recogerDatos() {
+    void recogerDatos() {
         try {
             // Validar campos obligatorios
             if (tituloField.getText().trim().isEmpty() || 
@@ -323,80 +318,45 @@ public class CargarPropuesta extends JDialog {
                     JOptionPane.ERROR_MESSAGE);
                 return;
             }
-    
-            Connection conn = ConnectionManager.getConnection();
-            conn.setAutoCommit(false);
-            
-            try {
-                // Insertar en la tabla propuesta
-                String sqlPropuesta = "INSERT INTO propuesta (titulo, area_interes, descripcion, objetivo, tutor, aceptada) " +
-                                     "VALUES (?, ?, ?, ?, ?, ?)";
-                
-                PreparedStatement pstmtPropuesta = conn.prepareStatement(sqlPropuesta, 
-                        Statement.RETURN_GENERATED_KEYS);
-                pstmtPropuesta.setString(1, tituloField.getText().trim());
-                pstmtPropuesta.setString(2, areaField.getText().trim());
-                pstmtPropuesta.setString(3, descripcionArea.getText().trim());
-                pstmtPropuesta.setString(4, objetivoArea.getText().trim());
-                pstmtPropuesta.setString(5, "InstitucionDePrueba");
-                pstmtPropuesta.setBoolean(6, false);
-                
-                int affectedRows = pstmtPropuesta.executeUpdate();
-                
-                int propuestaId = -1;
-                if (affectedRows > 0) {
-                    ResultSet generatedKeys = pstmtPropuesta.getGeneratedKeys();
-                    if (generatedKeys.next()) {
-                        propuestaId = generatedKeys.getInt(1);
-                        
-                        // Insertar las actividades solo si tenemos un ID válido
-                        String sqlActividad = "INSERT INTO actividad (nombre_actividad, horas, propuesta_id) VALUES (?, ?, ?)";
-                        PreparedStatement pstmtActividad = conn.prepareStatement(sqlActividad);
-                        
-                        for (int i = 0; i < tableModel.getRowCount(); i++) {
-                            String nombreActividad = tableModel.getValueAt(i, 0).toString().trim();
-                            String horasStr = tableModel.getValueAt(i, 1).toString().trim();
-                            
-                            // Solo insertar actividades con nombre y horas válidas
-                            if (!nombreActividad.isEmpty() && !horasStr.equals("0")) {
-                                try {
-                                    int horas = Integer.parseInt(horasStr);
-                                    pstmtActividad.setString(1, nombreActividad);
-                                    pstmtActividad.setInt(2, horas);
-                                    pstmtActividad.setInt(3, propuestaId);
-                                    pstmtActividad.executeUpdate();
-                                } catch (NumberFormatException e) {
-                                    // Ignorar filas con horas inválidas
-                                    continue;
-                                }
-                            }
-                        }
-                        
-                        // Insertar en propuestausuarios usando el ID correcto
-                        String sqlPropuestaUsuario = "INSERT INTO propuestausuarios (propuesta_id, usuario_usuario) VALUES (?, ?)";
-                        PreparedStatement pstmtPropuestaUsuario = conn.prepareStatement(sqlPropuestaUsuario);
-                        pstmtPropuestaUsuario.setInt(1, propuestaId);
-                        pstmtPropuestaUsuario.setString(2, "InstitucionDePrueba");
-                        pstmtPropuestaUsuario.executeUpdate();
+
+            // Armar lista de actividades desde la tabla y calcular total de horas
+            int totalHoras = 0;
+            List<ActividadDTO> actividades = new ArrayList<>();
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                String nombre = tableModel.getValueAt(i, 0).toString().trim();
+                String horasStr = tableModel.getValueAt(i, 1).toString().trim();
+                if (!nombre.isEmpty() && !horasStr.equals("0")) {
+                    try {
+                        int horas = Integer.parseInt(horasStr);
+                        totalHoras += horas;
+                        actividades.add(new ActividadDTO(nombre, horas));
+                    } catch (NumberFormatException e) {
+                        // Ignorar filas con datos inválidos
                     }
                 }
-    
-                conn.commit();
-                JOptionPane.showMessageDialog(this,
-                    "La propuesta se ha guardado exitosamente",
-                    "Éxito",
-                    JOptionPane.INFORMATION_MESSAGE);
-                
-                dispose();
-                
-            } catch (SQLException e) {
-                conn.rollback();
-                throw new RuntimeException("Error al guardar la propuesta: " + e.getMessage());
-            } finally {
-                conn.setAutoCommit(true);
-                conn.close();
             }
+
+            // Crear DTO de propuesta
+            PropuestaDTO propuesta = new PropuestaDTO(
+                tituloField.getText().trim(),
+                areaField.getText().trim(),
+                objetivoArea.getText().trim(),
+                descripcionArea.getText().trim(),
+                usuario.getDni(), // Asegurate de tener este campo en UsuarioSimplificadoDTO
+                totalHoras
+            );
+
+            // Llamar a la API de persistencia
+            PersistenceApi api = new PersistenceApi();
+            api.guardarPropuesta(propuesta, actividades);
+
+            JOptionPane.showMessageDialog(this,
+                "La propuesta se ha guardado exitosamente",
+                "Éxito",
+                JOptionPane.INFORMATION_MESSAGE);
             
+            dispose();
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
                 "Error al guardar la propuesta: " + e.getMessage(),
@@ -405,4 +365,5 @@ public class CargarPropuesta extends JDialog {
             e.printStackTrace();
         }
     }
+
 }
