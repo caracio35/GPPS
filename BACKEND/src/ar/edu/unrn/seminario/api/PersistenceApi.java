@@ -7,8 +7,10 @@ import accesos.RolDAOJDBC;
 import accesos.RolDao;
 import accesos.UsuarioDAOJDBC;
 import accesos.UsuarioDao;
+import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.RolDTO;
 import ar.edu.unrn.seminario.dto.UsuarioDTO;
+import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 import ar.edu.unrn.seminario.modelo.Rol;
 import ar.edu.unrn.seminario.modelo.Usuario;
 
@@ -40,11 +42,7 @@ public class PersistenceApi implements IApi {
 		return dtos;
 	}
 
-	@Override
-	public UsuarioDTO obtenerUsuario(String username) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 
 	@Override
 	public void eliminarUsuario(String username) {
@@ -111,6 +109,48 @@ public class PersistenceApi implements IApi {
 			usuario.desactivar();
 			usuarioDao.update(usuario);
 		}
+	}
+
+	@Override
+	public void crearPropuesta(PropuestaDTO propuesta) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<PropuestaDTO> listarPropuestas() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PropuestaDTO obtenerPropuesta(int propuestaId) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void actualizarPropuesta(PropuestaDTO propuesta) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void aceptarPropuesta(int propuestaId, String comentario) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void rechazarPropuesta(int propuestaId, String comentario) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public UsuarioSimplificadoDTO obtenerUsuario(String nombreUsuario) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
