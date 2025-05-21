@@ -35,7 +35,7 @@ public class CargarPropuesta extends JDialog {
     private DefaultTableModel tableModel;
     private JLabel totalHorasLabel;
     private int totalHoras = 0;
-    private UsuarioSimplificadoDTO usuario; // Agregar el DTO de usuario
+    private UsuarioSimplificadoDTO usuario; 
 
     public CargarPropuesta(JFrame parent, UsuarioSimplificadoDTO usuario) {
         super(parent, "Cargar Propuesta", true);
@@ -342,7 +342,7 @@ public class CargarPropuesta extends JDialog {
                 areaField.getText().trim(),
                 objetivoArea.getText().trim(),
                 descripcionArea.getText().trim(),
-                usuario.getDni(), // Asegurate de tener este campo en UsuarioSimplificadoDTO
+              //  usuario.getDni(), // Asegurate de tener este campo en UsuarioSimplificadoDTO
                 totalHoras
             );
 

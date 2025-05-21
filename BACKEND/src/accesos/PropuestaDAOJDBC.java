@@ -165,7 +165,7 @@ public class PropuestaDAOJDBC implements PropuestaDao {
         Connection conn = ConnectionManager.getConnection();
         conn.setAutoCommit(false); // transacción manual
 
-        String sqlPropuesta = "INSERT INTO propuestas (titulo, area_interes, objetivo, descripcion, dni_autor, total_horas) VALUES (?, ?, ?, ?, ?, ?)";
+        String sqlPropuesta = "INSERT INTO propuesta (titulo, area_interes, objetivo, descripcion, total_horas) VALUES (?, ?, ?, ?, ?)";
         String sqlActividad = "INSERT INTO actividades (nombre, horas, id_propuesta) VALUES (?, ?, ?)";
 
         try (
@@ -177,7 +177,7 @@ public class PropuestaDAOJDBC implements PropuestaDao {
             stmtPropuesta.setString(2, propuesta.getAreaInteres());
             stmtPropuesta.setString(3, propuesta.getObjetivo());
             stmtPropuesta.setString(4, propuesta.getDescripcion());
-            stmtPropuesta.setInt(5, propuesta.getDniAutor());
+            //stmtPropuesta.setInt(5, propuesta.getDniAutor());
             stmtPropuesta.setInt(6, propuesta.getTotalHoras());
 
             stmtPropuesta.executeUpdate();

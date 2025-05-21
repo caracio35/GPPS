@@ -12,13 +12,12 @@ public class PropuestaDTO {
     private int totalHoras;
     private List<ActividadDTO> actividades;
 
-    public PropuestaDTO(String titulo, String areaInteres, String objetivo, String descripcion, 
-                       int dniAutor, int totalHoras) {
+    public PropuestaDTO(String titulo, String areaInteres, String objetivo, String descripcion, int totalHoras) {
         this.titulo = titulo;
         this.areaInteres = areaInteres;
         this.objetivo = objetivo;
         this.descripcion = descripcion;
-        this.dniAutor = dniAutor;
+        //this.dniAutor = dniAutor;
         this.totalHoras = totalHoras;
         this.actividades = new ArrayList<>();
     }
@@ -40,9 +39,9 @@ public class PropuestaDTO {
         return descripcion;
     }
 
-    public int getDniAutor() {
+   /* public int getDniAutor() {
         return dniAutor;
-    }
+    }*/
 
     public int getTotalHoras() {
         return totalHoras;
@@ -69,9 +68,9 @@ public class PropuestaDTO {
         this.descripcion = descripcion;
     }
 
-    public void setDniAutor(int dniAutor) {
+   /* public void setDniAutor(int dniAutor) {
         this.dniAutor = dniAutor;
-    }
+    }*/
 
     public void setTotalHoras(int totalHoras) {
         this.totalHoras = totalHoras;
