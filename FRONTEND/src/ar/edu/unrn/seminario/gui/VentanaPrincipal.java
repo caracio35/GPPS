@@ -76,32 +76,7 @@ public class VentanaPrincipal extends JFrame {
 
         JMenuItem verPropuestas = new JMenuItem("Ver propuestas");
         verPropuestas.addActionListener(e -> {
-            try {
-                Connection conn = ConnectionManager.getConnection();
-                PreparedStatement stmt = conn.prepareStatement("SELECT DISTINCT p.* FROM propuesta p LEFT JOIN propuestausuarios pu ON p.id = pu.propuesta_id");
-                ResultSet rs = stmt.executeQuery();
-                
-                if (rs.next()) {
-                    // Crear y mostrar la ventana de propuestas
-                    VerPropuestas ventanaVerPropuestas = new VerPropuestas(this, usuario);
-                    ventanaVerPropuestas.cargarTodasLasPropuestas();
-                    ventanaVerPropuestas.setVisible(true);
-                } else {
-                    JOptionPane.showMessageDialog(this,
-                        "No hay propuestas disponibles para mostrar",
-                        "Sin propuestas",
-                        JOptionPane.INFORMATION_MESSAGE);
-                }
-                
-                conn.close();
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this,
-                    "Error al cargar las propuestas: " + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
-            }
-        });
+            
         propuestasMenu.add(verPropuestas);
 
         JMenuItem cargarPropuestas = new JMenuItem("Cargar propuestas");
