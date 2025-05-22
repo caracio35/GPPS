@@ -20,6 +20,7 @@ public class PersistenceApi implements IApi {
 
 	private RolDao rolDao;
 	private UsuarioDao usuarioDao;
+	private List<PropuestaDTO> propuestas ;
 
 	public PersistenceApi() {
 		rolDao = new RolDAOJDBC();
@@ -121,5 +122,15 @@ public class PersistenceApi implements IApi {
         PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
         dao.insertarPropuestaConActividades(propuesta, actividades);
     }
+
+	@Override
+	public List<PropuestaDTO> buscarPropuestas(int propuestaId) {
+		
+		
+		propuestas=new List<>();
+		
+	
+		return propuestas;
+	}
 
 }

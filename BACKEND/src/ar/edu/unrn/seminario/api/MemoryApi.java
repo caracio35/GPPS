@@ -3,6 +3,7 @@ package ar.edu.unrn.seminario.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.RolDTO;
 import ar.edu.unrn.seminario.dto.UsuarioDTO;
 import ar.edu.unrn.seminario.modelo.Rol;
@@ -128,6 +129,12 @@ public class MemoryApi implements IApi {
 			if (user.getUsuario().equals(usuario))
 				return user;
 		}
+		return null;
+	}
+
+	@Override
+	public List<PropuestaDTO> buscarPropuestas(int propuestaId) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 }

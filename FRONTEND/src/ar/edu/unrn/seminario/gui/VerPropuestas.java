@@ -10,10 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -34,7 +31,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
+import accesos.ConexionFallidaExeption;
 import accesos.ConnectionManager;
+import ar.edu.unrn.seminario.api.IApi;
+import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 
 public class VerPropuestas extends JDialog {
@@ -47,10 +47,13 @@ public class VerPropuestas extends JDialog {
     private JLabel totalHorasLabel;
     private int totalHoras = 0;
     private UsuarioSimplificadoDTO usuario;
+    private IApi api;
+    
 
-    public VerPropuestas(JFrame parent, UsuarioSimplificadoDTO usuario) {
+    public VerPropuestas(JFrame parent, UsuarioSimplificadoDTO usuario, IApi api) {
         super(parent, "Ver Propuesta", true);
         this.usuario = usuario;
+        this.api = api;
 
         // Panel con fondo degradado
         JPanel panel = new JPanel() {
@@ -259,7 +262,28 @@ public class VerPropuestas extends JDialog {
 
     // Método para cargar los datos de una propuesta
     public void cargarPropuesta(int propuestaId) {
-        try {
+       List <PropuestaDTO> Propuestas = api.buscarPropuestas(propuestaId);
+        
+        
+        // Limpiar tabla
+        while (tableModel.getRowCount() > 0) {
+            tableModel.removeRow(0);
+        }
+        
+        // Agregar actividades a la tabla
+        while (rsAct.next()) {
+            tableModel.addRow(new Object[]{
+                rsAct.getString("nombre_actividad"),
+                rsAct.getInt("horas")
+            });
+        }
+        
+        calcularTotalHoras();
+        
+    }
+
+	private void buscarPropuestas(int propuestaId) throws ConexionFallidaExeption {
+		try {
             Connection conn = ConnectionManager.getConnection();
             
             // Cargar datos de la propuesta
@@ -280,20 +304,7 @@ public class VerPropuestas extends JDialog {
                 pstmtAct.setInt(1, propuestaId);
                 ResultSet rsAct = pstmtAct.executeQuery();
                 
-                // Limpiar tabla
-                while (tableModel.getRowCount() > 0) {
-                    tableModel.removeRow(0);
-                }
-                
-                // Agregar actividades a la tabla
-                while (rsAct.next()) {
-                    tableModel.addRow(new Object[]{
-                        rsAct.getString("nombre_actividad"),
-                        rsAct.getInt("horas")
-                    });
-                }
-                
-                calcularTotalHoras();
+               
             }
             
             conn.close();
@@ -305,7 +316,7 @@ public class VerPropuestas extends JDialog {
                 JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
-    }
+	}
 
     public void cargarTodasLasPropuestas() {
         Connection conn = null;
