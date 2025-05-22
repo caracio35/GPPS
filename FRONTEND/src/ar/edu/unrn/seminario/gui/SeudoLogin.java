@@ -29,7 +29,7 @@ import javax.swing.border.LineBorder;
 import ar.edu.unrn.seminario.api.IApi;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 
-public class LoginScreen extends JFrame {
+public class SeudoLogin extends JFrame {
 	private JTextField nombreField;
 	private JTextField apellidoField;
 	private JTextField dniField;
@@ -48,7 +48,7 @@ public class LoginScreen extends JFrame {
 	private static final Color COLOR_BOTON = new Color(52, 152, 219);
 	private static final Color COLOR_BOTON_HOVER = new Color(41, 128, 185);
 
-	public LoginScreen(IApi api) {
+	public SeudoLogin(IApi api) {
 		this.api = api;
 		// Configuración básica de la ventana
 		setTitle("Registro de Usuario");
@@ -230,7 +230,7 @@ public class LoginScreen extends JFrame {
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(() -> {
-			LoginScreen loginScreen = new LoginScreen(null); // Puedes pasar la API real aquí
+			SeudoLogin loginScreen = new SeudoLogin(null); // Puedes pasar la API real aquí
 			loginScreen.setVisible(true);
 		});
 	}

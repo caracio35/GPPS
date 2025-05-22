@@ -1,13 +1,10 @@
 package ar.edu.unrn.seminario.main;
 
-import javax.swing.SwingUtilities;
 import java.awt.EventQueue;
 
 import ar.edu.unrn.seminario.api.IApi;
-import ar.edu.unrn.seminario.api.MemoryApi;
 import ar.edu.unrn.seminario.api.PersistenceApi;
 import ar.edu.unrn.seminario.gui.SeudoLogin;
-import ar.edu.unrn.seminario.gui.VentanaPrincipal;
 
 public class Main {
 
@@ -17,13 +14,13 @@ public class Main {
 			public void run() {
 				try {
 					IApi api = new PersistenceApi();
-					SeudoLogin log=new SeudoLogin(api);
+					SeudoLogin log = new SeudoLogin(api);
 					log.setVisible(true);
-					
-				
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
-	}}
+	}
+}

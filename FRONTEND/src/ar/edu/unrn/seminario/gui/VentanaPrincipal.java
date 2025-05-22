@@ -2,15 +2,16 @@ package ar.edu.unrn.seminario.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.*;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import accesos.ConnectionManager;
+
 import ar.edu.unrn.seminario.api.IApi;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 
@@ -76,27 +77,32 @@ public class VentanaPrincipal extends JFrame {
 
         JMenuItem verPropuestas = new JMenuItem("Ver propuestas");
         verPropuestas.addActionListener(e -> {
-            
+            // Aquí deberías añadir el código para mostrar las propuestas
+            // Por ejemplo:
+            // ListadoPropuestas listado = new ListadoPropuestas(api);
+            // listado.setLocationRelativeTo(null);
+            // listado.setVisible(true);
+        });
         propuestasMenu.add(verPropuestas);
 
         JMenuItem cargarPropuestas = new JMenuItem("Cargar propuestas");
         cargarPropuestas.addActionListener(e -> {
-            CargarPropuesta cargar = new CargarPropuesta(this ,usuario);
+            CargarPropuesta cargar = new CargarPropuesta(this, usuario);
             cargar.setVisible(true);
         });
         propuestasMenu.add(cargarPropuestas);
     }
-    
+
     private void agregarMenuDirector(JMenuBar menuBar) {
         JMenu menuGestion = new JMenu("Gestión");
-        
+
         JMenuItem gestionUsuarios = new JMenuItem("Gestionar Usuarios");
         gestionUsuarios.addActionListener(e -> {
             ListadoUsuario listado = new ListadoUsuario(api);
             listado.setLocationRelativeTo(null);
             listado.setVisible(true);
         });
-        
+
         menuGestion.add(gestionUsuarios);
         menuGestion.add(new JMenuItem("Gestionar Tutores"));
         menuGestion.add(new JMenuItem("Gestionar Instituciones"));
