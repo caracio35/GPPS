@@ -106,12 +106,12 @@ public class VentanaPrincipal extends JFrame {
 
         JMenuItem cargarPropuestas = new JMenuItem("Cargar propuestas");
         cargarPropuestas.addActionListener(e -> {
-            CargarPropuesta cargar = new CargarPropuesta(this);
+            CargarPropuesta cargar = new CargarPropuesta(this ,usuario);
             cargar.setVisible(true);
         });
         propuestasMenu.add(cargarPropuestas);
     }
-
+    
     private void agregarMenuDirector(JMenuBar menuBar) {
         JMenu menuGestion = new JMenu("Gestión");
         
