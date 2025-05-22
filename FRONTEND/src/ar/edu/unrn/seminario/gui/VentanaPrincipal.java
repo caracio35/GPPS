@@ -6,7 +6,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import accesos.ConnectionManager;
 import ar.edu.unrn.seminario.api.IApi;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 
@@ -71,6 +75,33 @@ public class VentanaPrincipal extends JFrame {
         menuBar.add(propuestasMenu);
 
         JMenuItem verPropuestas = new JMenuItem("Ver propuestas");
+        verPropuestas.addActionListener(e -> {
+            try {
+                Connection conn = ConnectionManager.getConnection();
+                PreparedStatement stmt = conn.prepareStatement("SELECT DISTINCT p.* FROM propuesta p LEFT JOIN propuestausuarios pu ON p.id = pu.propuesta_id");
+                ResultSet rs = stmt.executeQuery();
+                
+                if (rs.next()) {
+                    // Crear y mostrar la ventana de propuestas
+                    VerPropuestas ventanaVerPropuestas = new VerPropuestas(this, usuario);
+                    ventanaVerPropuestas.cargarTodasLasPropuestas();
+                    ventanaVerPropuestas.setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                        "No hay propuestas disponibles para mostrar",
+                        "Sin propuestas",
+                        JOptionPane.INFORMATION_MESSAGE);
+                }
+                
+                conn.close();
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this,
+                    "Error al cargar las propuestas: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            }
+        });
         propuestasMenu.add(verPropuestas);
 
         JMenuItem cargarPropuestas = new JMenuItem("Cargar propuestas");

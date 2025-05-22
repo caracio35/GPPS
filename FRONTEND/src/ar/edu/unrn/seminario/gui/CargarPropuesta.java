@@ -14,8 +14,17 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+
+import ar.edu.unrn.seminario.api.PersistenceApi;
+import ar.edu.unrn.seminario.dto.ActividadDTO;
+import ar.edu.unrn.seminario.dto.PropuestaDTO;
+import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CargarPropuesta extends JDialog {
     private JTextField tituloField;
@@ -26,9 +35,11 @@ public class CargarPropuesta extends JDialog {
     private DefaultTableModel tableModel;
     private JLabel totalHorasLabel;
     private int totalHoras = 0;
+    private UsuarioSimplificadoDTO usuario; 
 
-    public CargarPropuesta(JFrame parent) {
+    public CargarPropuesta(JFrame parent, UsuarioSimplificadoDTO usuario) {
         super(parent, "Cargar Propuesta", true);
+        this.usuario = usuario; // Guardar el usuario que está subiendo la propuesta
 
         // Panel con fondo degradado
         JPanel panel = new JPanel() {
@@ -177,7 +188,7 @@ public class CargarPropuesta extends JDialog {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
         
-        JButton guardarBtn = new JButton("Guardar");
+        JButton guardarBtn = new JButton("Subir Propuesta");
         guardarBtn.setBackground(new Color(76, 175, 80));
         guardarBtn.setForeground(Color.WHITE);
         guardarBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -193,6 +204,13 @@ public class CargarPropuesta extends JDialog {
             @Override
             public void mouseExited(MouseEvent e) {
                 guardarBtn.setBackground(new Color(76, 175, 80));
+            }
+        });
+        
+        guardarBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                recogerDatos();
             }
         });
 
@@ -286,4 +304,66 @@ public class CargarPropuesta extends JDialog {
         }
         totalHorasLabel.setText(String.valueOf(totalHoras));
     }
+    
+    void recogerDatos() {
+        try {
+            // Validar campos obligatorios
+            if (tituloField.getText().trim().isEmpty() || 
+                areaField.getText().trim().isEmpty() || 
+                objetivoArea.getText().trim().isEmpty() || 
+                descripcionArea.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                    "Por favor complete todos los campos obligatorios",
+                    "Error de validación",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Armar lista de actividades desde la tabla y calcular total de horas
+            int totalHoras = 0;
+            List<ActividadDTO> actividades = new ArrayList<>();
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                String nombre = tableModel.getValueAt(i, 0).toString().trim();
+                String horasStr = tableModel.getValueAt(i, 1).toString().trim();
+                if (!nombre.isEmpty() && !horasStr.equals("0")) {
+                    try {
+                        int horas = Integer.parseInt(horasStr);
+                        totalHoras += horas;
+                        actividades.add(new ActividadDTO(nombre, horas));
+                    } catch (NumberFormatException e) {
+                        // Ignorar filas con datos inválidos
+                    }
+                }
+            }
+
+            // Crear DTO de propuesta
+            PropuestaDTO propuesta = new PropuestaDTO(
+                tituloField.getText().trim(),
+                areaField.getText().trim(),
+                objetivoArea.getText().trim(),
+                descripcionArea.getText().trim(),
+              //  usuario.getDni(), // Asegurate de tener este campo en UsuarioSimplificadoDTO
+                totalHoras
+            );
+
+            // Llamar a la API de persistencia
+            PersistenceApi api = new PersistenceApi();
+            api.guardarPropuesta(propuesta, actividades);
+
+            JOptionPane.showMessageDialog(this,
+                "La propuesta se ha guardado exitosamente",
+                "Éxito",
+                JOptionPane.INFORMATION_MESSAGE);
+            
+            dispose();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                "Error al guardar la propuesta: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
 }
