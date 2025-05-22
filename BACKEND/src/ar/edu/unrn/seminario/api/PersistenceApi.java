@@ -13,6 +13,7 @@ import ar.edu.unrn.seminario.dto.ActividadDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.RolDTO;
 import ar.edu.unrn.seminario.dto.UsuarioDTO;
+import ar.edu.unrn.seminario.modelo.Propuesta;
 import ar.edu.unrn.seminario.modelo.Rol;
 import ar.edu.unrn.seminario.modelo.Usuario;
 
@@ -20,7 +21,8 @@ public class PersistenceApi implements IApi {
 
 	private RolDao rolDao;
 	private UsuarioDao usuarioDao;
-	private List<PropuestaDTO> propuestas ;
+	private List<Propuesta> propuestas;
+	private ArrayList<PropuestaDTO> propuestasDTO;
 
 	public PersistenceApi() {
 		rolDao = new RolDAOJDBC();
@@ -117,20 +119,29 @@ public class PersistenceApi implements IApi {
 			usuarioDao.update(usuario);
 		}
 	}
-	
+
 	public void guardarPropuesta(PropuestaDTO propuesta, List<ActividadDTO> actividades) throws SQLException {
-        PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
-        dao.insertarPropuestaConActividades(propuesta, actividades);
-    }
+		PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
+		dao.insertarPropuestaConActividades(propuesta, actividades);
+	}
 
 	@Override
 	public List<PropuestaDTO> buscarPropuestas(int propuestaId) {
-		
-		
-		propuestas=new List<>();
-		
-	
-		return propuestas;
+
+		propuestas = new ArrayList<Propuesta>();
+		propuestasDTO = new ArrayList<PropuestaDTO>();
+
+		PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
+
+		propuestas = dao.buscarPropuestas();
+		for (Propuesta propuesta : propuestas) {
+			propuestasDTO.add(new PropuestaDTO(propuesta.getCodigo(), propuesta.getNombre(), propuesta.getEstado(),
+					propuesta.getInstitucion().getNombre(), propuesta.getCarrera().getNombre(),
+					propuesta.getTutor().getNombre(), propuesta.getDirector().getNombre(),
+					propuesta.getAlumno().getNombre()));
+		}
+
+		return propuestasDTO;
 	}
 
 }

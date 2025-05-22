@@ -9,28 +9,34 @@ import java.util.List;
 
 import com.mysql.jdbc.Statement;
 
-import ar.edu.unrn.seminario.modelo.Propuesta;
 import ar.edu.unrn.seminario.dto.ActividadDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
+import ar.edu.unrn.seminario.exception.ConexionFallidaExeption;
 import ar.edu.unrn.seminario.modelo.Actividad;
+import ar.edu.unrn.seminario.modelo.Propuesta;
 
 public class PropuestaDAOJDBC implements PropuestaDao {
 
     @Override
-    public void create(Propuesta propuesta) {
+    public void create(Propuesta propuesta) throws ConexionFallidaExeption {
         try {
             Connection conn = ConnectionManager.getConnection();
+
             PreparedStatement statement = conn.prepareStatement(
-                "INSERT INTO propuesta (titulo, area_interes, descripcion, objetivo, tutor, aceptada) VALUES (?, ?, ?, ?, ?, ?)",
-                Statement.RETURN_GENERATED_KEYS
-            );
+                    "INSERT INTO propuesta (titulo, area_interes, descripcion, objetivo, tutor, aceptada) VALUES (?, ?, ?, ?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS);
 
             statement.setString(1, propuesta.getTitulo());
             statement.setString(2, propuesta.getAreaInteres());
             statement.setString(3, propuesta.getDescripcion());
             statement.setString(4, propuesta.getObjetivo());
             statement.setString(5, propuesta.getTutor());
-            statement.setBoolean(6, false); // Nueva propuesta, por defecto no aceptada
+            statement.setBoolean(6, false); // Nueva
+                                            // propuesta,
+                                            // por
+                                            // defecto
+                                            // no
+                                            // aceptada
 
             // Cambiar executeQuery() por executeUpdate()
             int affectedRows = statement.executeUpdate();
@@ -42,12 +48,11 @@ public class PropuestaDAOJDBC implements PropuestaDao {
             ResultSet generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 int propuestaId = generatedKeys.getInt(1);
-                
+
                 // Guardar las actividades asociadas
                 for (Actividad actividad : propuesta.getActividades()) {
                     PreparedStatement actividadStmt = conn.prepareStatement(
-                        "INSERT INTO actividad (nombre_actividad, horas, propuesta_id) VALUES (?, ?, ?)"
-                    );
+                            "INSERT INTO actividad (nombre_actividad, horas, propuesta_id) VALUES (?, ?, ?)");
                     actividadStmt.setString(1, actividad.getNombre());
                     actividadStmt.setInt(2, actividad.getHoras());
                     actividadStmt.setInt(3, propuestaId);
@@ -66,8 +71,7 @@ public class PropuestaDAOJDBC implements PropuestaDao {
         try {
             Connection conn = ConnectionManager.getConnection();
             PreparedStatement statement = conn.prepareStatement(
-                "UPDATE propuesta SET titulo = ?, area_interes = ?, descripcion = ?, objetivo = ?, tutor = ?, aceptada = ? WHERE id = ?"
-            );
+                    "UPDATE propuesta SET titulo = ?, area_interes = ?, descripcion = ?, objetivo = ?, tutor = ?, aceptada = ? WHERE id = ?");
 
             statement.setString(1, propuesta.getTitulo());
             statement.setString(2, propuesta.getAreaInteres());
@@ -92,34 +96,30 @@ public class PropuestaDAOJDBC implements PropuestaDao {
         try {
             Connection conn = ConnectionManager.getConnection();
             PreparedStatement statement = conn.prepareStatement(
-                "SELECT * FROM propuesta WHERE id = ?"
-            );
+                    "SELECT * FROM propuesta WHERE id = ?");
             statement.setInt(1, id);
             ResultSet rs = statement.executeQuery();
 
             if (rs.next()) {
                 propuesta = new Propuesta(
-                    rs.getString("titulo"),
-                    rs.getString("area_interes"),
-                    rs.getString("descripcion"),
-                    rs.getString("objetivo"),
-                    rs.getString("tutor")
-                );
+                        rs.getString("titulo"),
+                        rs.getString("area_interes"),
+                        rs.getString("descripcion"),
+                        rs.getString("objetivo"),
+                        rs.getString("tutor"));
                 propuesta.setId(rs.getInt("id"));
                 propuesta.setAceptada(rs.getBoolean("aceptada"));
 
                 // Cargar las actividades asociadas
                 PreparedStatement actividadStmt = conn.prepareStatement(
-                    "SELECT * FROM actividad WHERE propuesta_id = ?"
-                );
+                        "SELECT * FROM actividad WHERE propuesta_id = ?");
                 actividadStmt.setInt(1, id);
                 ResultSet actividadRs = actividadStmt.executeQuery();
 
                 while (actividadRs.next()) {
                     Actividad actividad = new Actividad(
-                        actividadRs.getString("nombre_actividad"),
-                        actividadRs.getInt("horas")
-                    );
+                            actividadRs.getString("nombre_actividad"),
+                            actividadRs.getInt("horas"));
                     propuesta.agregarActividad(actividad);
                 }
             }
@@ -142,12 +142,11 @@ public class PropuestaDAOJDBC implements PropuestaDao {
 
             while (rs.next()) {
                 Propuesta propuesta = new Propuesta(
-                    rs.getString("titulo"),
-                    rs.getString("area_interes"),
-                    rs.getString("descripcion"),
-                    rs.getString("objetivo"),
-                    rs.getString("tutor")
-                );
+                        rs.getString("titulo"),
+                        rs.getString("area_interes"),
+                        rs.getString("descripcion"),
+                        rs.getString("objetivo"),
+                        rs.getString("tutor"));
                 propuesta.setId(rs.getInt("id"));
                 propuesta.setAceptada(rs.getBoolean("aceptada"));
                 propuestas.add(propuesta);
@@ -161,7 +160,54 @@ public class PropuestaDAOJDBC implements PropuestaDao {
         return propuestas;
     }
 
-    public void insertarPropuestaConActividades(PropuestaDTO propuesta, List<ActividadDTO> actividades) throws SQLException {
+    public List<Propuesta> buscarPropuestas() {
+        List<Propuesta> propuestas = new ArrayList<>();
+        try {
+            Connection conn = ConnectionManager.getConnection();
+
+            // Consulta para obtener todas las propuestas
+            String sqlPropuesta = "SELECT * FROM propuesta";
+            PreparedStatement pstmt = conn.prepareStatement(sqlPropuesta);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Propuesta propuesta = new Propuesta(
+                        rs.getString("titulo"),
+                        rs.getString("area_interes"),
+                        rs.getString("descripcion"),
+                        rs.getString("objetivo"),
+                        rs.getString("tutor"));
+                propuesta.setId(rs.getInt("id"));
+                propuesta.setAceptada(rs.getBoolean("aceptada"));
+
+                // Cargar actividades para cada propuesta
+                String sqlActividades = "SELECT * FROM actividad WHERE propuesta_id = ?";
+                PreparedStatement pstmtAct = conn.prepareStatement(sqlActividades);
+                pstmtAct.setInt(1, propuesta.getId());
+                ResultSet rsAct = pstmtAct.executeQuery();
+
+                while (rsAct.next()) {
+                    Actividad actividad = new Actividad(
+                            rsAct.getString("nombre_actividad"),
+                            rsAct.getInt("horas"));
+                    propuesta.agregarActividad(actividad);
+                }
+
+                propuestas.add(propuesta);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al cargar las propuestas: " + e.getMessage(), e);
+        } finally {
+            ConnectionManager.disconnect();
+        }
+        return propuestas;
+    }
+
+    // ... existing code ...
+
+    public void insertarPropuestaConActividades(PropuestaDTO propuesta, List<ActividadDTO> actividades)
+            throws SQLException {
         Connection conn = ConnectionManager.getConnection();
 
         // Sin total_horas, y con nombre correcto de tabla 'actividad'
@@ -169,9 +215,8 @@ public class PropuestaDAOJDBC implements PropuestaDao {
         String sqlActividad = "INSERT INTO actividad (nombre_actividad, horas, propuesta_id) VALUES (?, ?, ?)";
 
         try (
-            PreparedStatement stmtPropuesta = conn.prepareStatement(sqlPropuesta, Statement.RETURN_GENERATED_KEYS);
-            PreparedStatement stmtActividad = conn.prepareStatement(sqlActividad)
-        ) {
+                PreparedStatement stmtPropuesta = conn.prepareStatement(sqlPropuesta, Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement stmtActividad = conn.prepareStatement(sqlActividad)) {
             // Insertar propuesta
             stmtPropuesta.setString(1, propuesta.getTitulo());
             stmtPropuesta.setString(2, propuesta.getAreaInteres());
@@ -185,7 +230,7 @@ public class PropuestaDAOJDBC implements PropuestaDao {
             if (rs.next()) {
                 idPropuesta = rs.getInt(1);
             } else {
-                throw new SQLException("No se pudo obtener el ID de la propuesta");
+                throw new SQLException("No se pudo obtener el ID de la propuesta");// exepcion a cambiar por rulo
             }
 
             // Insertar actividades
@@ -196,11 +241,11 @@ public class PropuestaDAOJDBC implements PropuestaDao {
                 stmtActividad.executeUpdate();
             }
 
-        } catch (SQLException e) {
+        } catch (ConexionFallidaExeption e) {
             throw new RuntimeException("Error al insertar propuesta y actividades: " + e.getMessage(), e);
         } finally {
             conn.close();
         }
     }
-		
+
 }
