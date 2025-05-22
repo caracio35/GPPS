@@ -161,12 +161,12 @@ public class PropuestaDAOJDBC implements PropuestaDao {
         return propuestas;
     }
 
-	public void insertarPropuestaConActividades(PropuestaDTO propuesta, List<ActividadDTO> actividades) throws SQLException {
+    public void insertarPropuestaConActividades(PropuestaDTO propuesta, List<ActividadDTO> actividades) throws SQLException {
         Connection conn = ConnectionManager.getConnection();
-        conn.setAutoCommit(false); // transacción manual
 
-        String sqlPropuesta = "INSERT INTO propuesta (titulo, area_interes, objetivo, descripcion, total_horas) VALUES (?, ?, ?, ?, ?)";
-        String sqlActividad = "INSERT INTO actividades (nombre, horas, id_propuesta) VALUES (?, ?, ?)";
+        // Sin total_horas, y con nombre correcto de tabla 'actividad'
+        String sqlPropuesta = "INSERT INTO propuesta (titulo, area_interes, objetivo, descripcion) VALUES (?, ?, ? , ?)";
+        String sqlActividad = "INSERT INTO actividad (nombre_actividad, horas, propuesta_id) VALUES (?, ?, ?)";
 
         try (
             PreparedStatement stmtPropuesta = conn.prepareStatement(sqlPropuesta, Statement.RETURN_GENERATED_KEYS);
@@ -177,9 +177,6 @@ public class PropuestaDAOJDBC implements PropuestaDao {
             stmtPropuesta.setString(2, propuesta.getAreaInteres());
             stmtPropuesta.setString(3, propuesta.getObjetivo());
             stmtPropuesta.setString(4, propuesta.getDescripcion());
-            //stmtPropuesta.setInt(5, propuesta.getDniAutor());
-            stmtPropuesta.setInt(6, propuesta.getTotalHoras());
-
             stmtPropuesta.executeUpdate();
 
             // Obtener ID generado
@@ -199,13 +196,9 @@ public class PropuestaDAOJDBC implements PropuestaDao {
                 stmtActividad.executeUpdate();
             }
 
-            conn.commit();
-
         } catch (SQLException e) {
-            conn.rollback();
-            throw e;
+            throw new RuntimeException("Error al insertar propuesta y actividades: " + e.getMessage(), e);
         } finally {
-            conn.setAutoCommit(true);
             conn.close();
         }
     }
