@@ -14,7 +14,7 @@ public class VentanaCrearConvenio extends JFrame {
 
 	    private Map<String, ConvenioData> datosConvenioMock;
 
-	    public VentanaCrearConvenio() {
+	    public VentanaCrearConvenio(String titulo ) {
 	        setTitle("Generar Acta Acuerdo");
 	        setSize(600, 500);
 	        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
