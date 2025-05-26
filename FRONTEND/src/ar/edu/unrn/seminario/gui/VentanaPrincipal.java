@@ -74,6 +74,20 @@ public class VentanaPrincipal extends JFrame {
         // Menú de propuestas (común para todos)
         JMenu propuestasMenu = new JMenu("Propuestas");
         menuBar.add(propuestasMenu);
+        
+        // Menú de convenios
+        JMenu conveniosMenu = new JMenu("Convenios");
+        menuBar.add(conveniosMenu);
+
+        JMenuItem gestionarConvenios = new JMenuItem("Administrar Convenios");
+        gestionarConvenios.addActionListener(e -> {
+        	
+            // Lógica para abrir la ventana de administración de convenios
+            ListadoPoyectosParaCovenios listado = new ListadoPoyectosParaCovenios(api);
+            listado.setLocationRelativeTo(this);
+            listado.setVisible(true);
+        });
+        conveniosMenu.add(gestionarConvenios);
 
         JMenuItem verPropuestas = new JMenuItem("Ver propuestas");
         verPropuestas.addActionListener(e -> {
@@ -92,6 +106,7 @@ public class VentanaPrincipal extends JFrame {
         });
         propuestasMenu.add(cargarPropuestas);
     }
+
 
     private void agregarMenuDirector(JMenuBar menuBar) {
         JMenu menuGestion = new JMenu("Gestión");

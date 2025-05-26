@@ -8,18 +8,24 @@ public class PropuestaDTO {
     private String areaInteres;
     private String objetivo;
     private String descripcion;
-    private int dniAutor;
-    private int totalHoras;
+    private boolean aceptada;
+    private String comentarios;
     private List<ActividadDTO> actividades;
+    private int idAlumno; // FK a Alumno
+    private int idEntidad; // FK a Entidad
+    private int idProfesoPrincipal ; 
 
-    public PropuestaDTO(String titulo, String areaInteres, String objetivo, String descripcion, int totalHoras) {
+    public PropuestaDTO(String titulo, String areaInteres, String objetivo, String descripcion, boolean aceptada, String comentarios, int idAlumno, int idEntidad, int idProfesoPrincipal) {
         this.titulo = titulo;
         this.areaInteres = areaInteres;
         this.objetivo = objetivo;
         this.descripcion = descripcion;
-        //this.dniAutor = dniAutor;
-        this.totalHoras = totalHoras;
-        this.actividades = new ArrayList<>();
+        this.aceptada = aceptada;
+        this.comentarios = comentarios;
+        this.idAlumno = idAlumno;
+        this.idEntidad = idEntidad;
+        this.idProfesoPrincipal = idProfesoPrincipal;
+        this.actividades = new ArrayList<>(); // Inicializo la lista vacía
     }
 
     // Getters
@@ -39,12 +45,24 @@ public class PropuestaDTO {
         return descripcion;
     }
 
-   /* public int getDniAutor() {
-        return dniAutor;
-    }*/
+    public boolean isAceptada() {
+        return aceptada;
+    }
 
-    public int getTotalHoras() {
-        return totalHoras;
+    public String getComentarios() {
+        return comentarios;
+    }
+
+    public int getIdAlumno() {
+        return idAlumno;
+    }
+
+    public int getIdEntidad() {
+        return idEntidad;
+    }
+
+    public int getIdProfesoPrincipal() {
+        return idProfesoPrincipal;
     }
 
     public List<ActividadDTO> getActividades() {
@@ -68,12 +86,28 @@ public class PropuestaDTO {
         this.descripcion = descripcion;
     }
 
-   /* public void setDniAutor(int dniAutor) {
-        this.dniAutor = dniAutor;
-    }*/
+    public void setAceptada(boolean aceptada) {
+        this.aceptada = aceptada;
+    }
 
-    public void setTotalHoras(int totalHoras) {
-        this.totalHoras = totalHoras;
+    public void setComentarios(String comentarios) {
+        this.comentarios = comentarios;
+    }
+
+    public void setIdAlumno(int idAlumno) {
+        this.idAlumno = idAlumno;
+    }
+
+    public void setIdEntidad(int idEntidad) {
+        this.idEntidad = idEntidad;
+    }
+
+    public void setIdProfesoPrincipal(int idProfesoPrincipal) {
+        this.idProfesoPrincipal = idProfesoPrincipal;
+    }
+
+    public void setActividades(List<ActividadDTO> actividades) {
+        this.actividades = new ArrayList<>(actividades);
     }
 
     public void agregarActividad(ActividadDTO actividad) {
@@ -87,8 +121,11 @@ public class PropuestaDTO {
                 ", areaInteres='" + areaInteres + '\'' +
                 ", objetivo='" + objetivo + '\'' +
                 ", descripcion='" + descripcion + '\'' +
-                ", dniAutor=" + dniAutor +
-                ", totalHoras=" + totalHoras +
+                ", aceptada=" + aceptada +
+                ", comentarios='" + comentarios + '\'' +
+                ", idAlumno=" + idAlumno +
+                ", idEntidad=" + idEntidad +
+                ", idProfesoPrincipal=" + idProfesoPrincipal +
                 ", actividades=" + actividades +
                 '}';
     }

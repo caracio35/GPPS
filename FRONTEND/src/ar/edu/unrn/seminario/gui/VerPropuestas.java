@@ -37,6 +37,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import accesos.ConnectionManager;
+import ar.edu.unrn.seminario.api.IApi;
+import ar.edu.unrn.seminario.dto.ActividadDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 
@@ -51,7 +53,7 @@ public class VerPropuestas extends JDialog {
     private int totalHoras = 0;
     private UsuarioSimplificadoDTO usuario;
 
-    public VerPropuestas(JFrame parent, UsuarioSimplificadoDTO usuario) {
+    public VerPropuestas(JFrame parent, UsuarioSimplificadoDTO usuario , IApi api) {
         super(parent, "Ver Propuesta", true);
         this.usuario = usuario;
 
@@ -260,285 +262,106 @@ public class VerPropuestas extends JDialog {
         totalHorasLabel.setText(String.valueOf(totalHoras));
     }
 
-    // Método para cargar los datos de una propuesta
-    public void cargarPropuesta(int propuestaId) {
-        List<PropuestaDTO> propuestas = new ArrayList<>();
+    public void cargarTodasLasPropuestas(IApi api) {
+        // Simulamos el panel de pestañas que ya tenías
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        // Limpiar tabla
-        while (tableModel.getRowCount() > 0) {
-            tableModel.removeRow(0);
-        }
+        // Usamos la capa de persistencia para obtener las propuestas
+        List<PropuestaDTO> propuestas = api.ObtenerTodasPropuestas();
 
-        // Agregar actividades a la tabla
-        while (rsAct.next()) {
-            tableModel.addRow(new Object[] {
-                    rsAct.getString("nombre_actividad"),
-                    rsAct.getInt("horas")
-            });
-        }
+        for (PropuestaDTO p : propuestas) {
+            // Crear panel para cada propuesta
+            JPanel propuestaPanel = new JPanel();
+            propuestaPanel.setLayout(new BoxLayout(propuestaPanel, BoxLayout.Y_AXIS));
+            propuestaPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        calcularTotalHoras();
-    }
+            // Título
+            JPanel tituloPanel = createFieldPanel("Título de propuesta:", new Font("Segoe UI", Font.BOLD, 14),
+                    new Color(70, 70, 70));
+            JTextField tituloField = createTextField();
+            tituloField.setText(p.getTitulo());
+            tituloField.setEditable(false);
+            tituloPanel.add(tituloField);
+            propuestaPanel.add(tituloPanel);
+            propuestaPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-    }
+            // Área de interés
+            JPanel areaPanel = createFieldPanel("Área de interés:", new Font("Segoe UI", Font.BOLD, 14),
+                    new Color(70, 70, 70));
+            JTextField areaField = createTextField();
+            areaField.setText(p.getAreaInteres());
+            areaField.setEditable(false);
+            areaPanel.add(areaField);
+            propuestaPanel.add(areaPanel);
+            propuestaPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-    public void cargarTodasLasPropuestas() {
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            conn = ConnectionManager.getConnection();
+            // Objetivo
+            JPanel objetivoPanel = createFieldPanel("Objetivo del proyecto:", new Font("Segoe UI", Font.BOLD, 14),
+                    new Color(70, 70, 70));
+            JTextArea objetivoArea = createTextArea(3);
+            objetivoArea.setText(p.getObjetivo());
+            objetivoArea.setEditable(false);
+            JScrollPane objetivoScroll = new JScrollPane(objetivoArea);
+            objetivoScroll.setPreferredSize(new Dimension(400, 80));
+            objetivoPanel.add(objetivoScroll);
+            propuestaPanel.add(objetivoPanel);
+            propuestaPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-            // Cargar todas las propuestas
-            String sqlPropuestas = "SELECT * FROM propuesta";
-            pstmt = conn.prepareStatement(sqlPropuestas);
-            rs = pstmt.executeQuery();
+            // Descripción
+            JPanel descripcionPanel = createFieldPanel("Breve descripción del proyecto:", new Font("Segoe UI", Font.BOLD, 14),
+                    new Color(70, 70, 70));
+            JTextArea descripcionArea = createTextArea(4);
+            descripcionArea.setText(p.getDescripcion());
+            descripcionArea.setEditable(false);
+            JScrollPane descripcionScroll = new JScrollPane(descripcionArea);
+            descripcionScroll.setPreferredSize(new Dimension(400, 100));
+            descripcionPanel.add(descripcionScroll);
+            propuestaPanel.add(descripcionPanel);
+            propuestaPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
-            // Panel principal con pestañas para cada propuesta
-            JTabbedPane tabbedPane = new JTabbedPane();
-            tabbedPane.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
-            while (rs.next()) {
-                // Crear panel para cada propuesta
-                JPanel propuestaPanel = new JPanel();
-                propuestaPanel.setLayout(new BoxLayout(propuestaPanel, BoxLayout.Y_AXIS));
-                propuestaPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
-
-                // Título
-                JPanel tituloPanel = createFieldPanel("Título de propuesta:", new Font("Segoe UI", Font.BOLD, 14),
-                        new Color(70, 70, 70));
-                JTextField tituloField = createTextField();
-                tituloField.setText(rs.getString("titulo"));
-                tituloField.setEditable(false);
-                tituloPanel.add(tituloField);
-                propuestaPanel.add(tituloPanel);
-                propuestaPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-
-                // Área de interés
-                JPanel areaPanel = createFieldPanel("Área de interés:", new Font("Segoe UI", Font.BOLD, 14),
-                        new Color(70, 70, 70));
-                JTextField areaField = createTextField();
-                areaField.setText(rs.getString("area_interes"));
-                areaField.setEditable(false);
-                areaPanel.add(areaField);
-                propuestaPanel.add(areaPanel);
-                propuestaPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-
-                // Objetivo
-                JPanel objetivoPanel = createFieldPanel("Objetivo del proyecto:", new Font("Segoe UI", Font.BOLD, 14),
-                        new Color(70, 70, 70));
-                JTextArea objetivoArea = createTextArea(3);
-                objetivoArea.setText(rs.getString("objetivo"));
-                objetivoArea.setEditable(false);
-                JScrollPane objetivoScroll = new JScrollPane(objetivoArea);
-                objetivoScroll.setPreferredSize(new Dimension(400, 80));
-                objetivoPanel.add(objetivoScroll);
-                propuestaPanel.add(objetivoPanel);
-                propuestaPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-
-                // Descripción
-                JPanel descripcionPanel = createFieldPanel("Breve descripción del proyecto:",
-                        new Font("Segoe UI", Font.BOLD, 14), new Color(70, 70, 70));
-                JTextArea descripcionArea = createTextArea(4);
-                descripcionArea.setText(rs.getString("descripcion"));
-                descripcionArea.setEditable(false);
-                JScrollPane descripcionScroll = new JScrollPane(descripcionArea);
-                descripcionScroll.setPreferredSize(new Dimension(400, 100));
-                descripcionPanel.add(descripcionScroll);
-                propuestaPanel.add(descripcionPanel);
-                propuestaPanel.add(Box.createRigidArea(new Dimension(0, 15)));
-
-                // Tabla de actividades
-                JPanel actividadesPanel = createFieldPanel("Actividades y horas:", new Font("Segoe UI", Font.BOLD, 14),
-                        new Color(70, 70, 70));
-                String[] columnNames = { "Actividad", "Horas" };
-                DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
-                    @Override
-                    public boolean isCellEditable(int row, int column) {
-                        return false;
-                    }
-                };
-
-                // Cargar actividades
-                String sqlActividades = "SELECT * FROM actividad WHERE propuesta_id = ?";
-                PreparedStatement pstmtAct = conn.prepareStatement(sqlActividades);
-                pstmtAct.setInt(1, rs.getInt("id"));
-                ResultSet rsAct = pstmtAct.executeQuery();
-
-                int totalHoras = 0;
-                while (rsAct.next()) {
-                    tableModel.addRow(new Object[] {
-                            rsAct.getString("nombre_actividad"),
-                            rsAct.getInt("horas")
-                    });
-                    totalHoras += rsAct.getInt("horas");
+            // Actividades
+            JPanel actividadesPanel = createFieldPanel("Actividades y horas:", new Font("Segoe UI", Font.BOLD, 14),
+                    new Color(70, 70, 70));
+            String[] columnNames = { "Actividad", "Horas" };
+            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
                 }
+            };
 
-                JTable actividadesTable = new JTable(tableModel);
-                actividadesTable.setRowHeight(25);
-                actividadesTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
-                JScrollPane tableScroll = new JScrollPane(actividadesTable);
-                tableScroll.setPreferredSize(new Dimension(400, 150));
-                actividadesPanel.add(tableScroll);
-                propuestaPanel.add(actividadesPanel);
-
-                // Dentro del método cargarTodasLasPropuestas(), justo antes de agregar la
-                // pestaña:
-                // Total de horas
-                JPanel totalPanel = new JPanel();
-                totalPanel.setOpaque(false);
-                totalPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
-                JLabel totalLabel = new JLabel("Total de horas: " + totalHoras);
-                totalLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-                totalPanel.add(totalLabel);
-                propuestaPanel.add(totalPanel);
-
-                // Panel para comentarios
-                JPanel comentarioPanel = createFieldPanel("Comentarios:", new Font("Segoe UI", Font.BOLD, 14),
-                        new Color(70, 70, 70));
-                JTextArea comentarioArea = createTextArea(3);
-                JScrollPane comentarioScroll = new JScrollPane(comentarioArea);
-                comentarioScroll.setPreferredSize(new Dimension(400, 80));
-                comentarioPanel.add(comentarioScroll);
-                propuestaPanel.add(comentarioPanel);
-                propuestaPanel.add(Box.createRigidArea(new Dimension(0, 15)));
-
-                // Panel de botones de acción
-                JPanel accionesPanel = new JPanel();
-                accionesPanel.setOpaque(false);
-                accionesPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
-
-                JButton aceptarBtn = new JButton("Aceptar Propuesta");
-                aceptarBtn.setBackground(new Color(76, 175, 80));
-                aceptarBtn.setForeground(Color.WHITE);
-                aceptarBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-                aceptarBtn.setFocusPainted(false);
-                aceptarBtn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-
-                JButton rechazarBtn = new JButton("Rechazar Propuesta");
-                rechazarBtn.setBackground(new Color(244, 67, 54));
-                rechazarBtn.setForeground(Color.WHITE);
-                rechazarBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-                rechazarBtn.setFocusPainted(false);
-                rechazarBtn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-
-                // Agregar acciones a los botones
-                final int propuestaId = rs.getInt("id");
-
-                // Modificar los action listeners para usar el método actualizarPropuesta
-                aceptarBtn.addActionListener(e -> {
-                    if (comentarioArea.getText().trim().isEmpty()) {
-                        JOptionPane.showMessageDialog(this,
-                                "Debe ingresar un comentario",
-                                "Error",
-                                JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    String fechaActual = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
-                            .format(new java.util.Date());
-                    String comentarioCompleto = "Aceptado el " + fechaActual + "\n" + comentarioArea.getText();
-                    actualizarPropuesta(propuestaId, 1, comentarioCompleto);
-                });
-
-                rechazarBtn.addActionListener(e -> {
-                    if (comentarioArea.getText().trim().isEmpty()) {
-                        JOptionPane.showMessageDialog(this,
-                                "Debe ingresar un comentario",
-                                "Error",
-                                JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    String fechaActual = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
-                            .format(new java.util.Date());
-                    String comentarioCompleto = "Rechazado el " + fechaActual + "\n" + comentarioArea.getText();
-                    actualizarPropuesta(propuestaId, 0, comentarioCompleto);
-                });
-
-                // Método actualizarPropuesta modificado
-
-                accionesPanel.add(aceptarBtn);
-                accionesPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-                accionesPanel.add(rechazarBtn);
-                propuestaPanel.add(accionesPanel);
-
-                // Agregar la propuesta como una nueva pestaña
-                tabbedPane.addTab("Propuesta " + rs.getInt("id"), propuestaPanel);
+            int totalHoras = 0;
+            for (ActividadDTO act : p.getActividades()) {
+                tableModel.addRow(new Object[]{ act.getnombre(), act.getHoras() });
+                totalHoras += act.getHoras();
             }
 
-            // Agregar el panel de pestañas al contenido de la ventana
-            getContentPane().add(new JScrollPane(tabbedPane), BorderLayout.CENTER);
+            JTable actividadesTable = new JTable(tableModel);
+            actividadesTable.setRowHeight(25);
+            actividadesTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+            JScrollPane tableScroll = new JScrollPane(actividadesTable);
+            tableScroll.setPreferredSize(new Dimension(400, 150));
+            actividadesPanel.add(tableScroll);
+            propuestaPanel.add(actividadesPanel);
 
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al cargar las propuestas: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null)
-                    rs.close();
-                if (pstmt != null)
-                    pstmt.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            // Total de horas
+            JPanel totalPanel = new JPanel();
+            totalPanel.setOpaque(false);
+            totalPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+            JLabel totalLabel = new JLabel("Total de horas: " + totalHoras);
+            totalLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            totalPanel.add(totalLabel);
+            propuestaPanel.add(totalPanel);
+
+            // Agregar la propuesta como una nueva pestaña
+            tabbedPane.addTab(p.getTitulo(), propuestaPanel);
         }
+
+        // Agregar el panel de pestañas al contenido de la ventana
+        getContentPane().removeAll(); // Limpia lo anterior
+        getContentPane().add(new JScrollPane(tabbedPane), BorderLayout.CENTER);
+        revalidate();
+        repaint();
     }
-
-    private void actualizarPropuesta(int propuestaId, int estado, String comentario) {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        try {
-            // Obtener una nueva conexión para esta operación específica
-            conn = ConnectionManager.getConnection();
-
-            // Preparar y ejecutar la actualización
-            stmt = conn.prepareStatement(
-                    "UPDATE propuesta SET aceptada = ?, comentarios = ? WHERE id = ?");
-            stmt.setInt(1, estado);
-            stmt.setString(2, comentario);
-            stmt.setInt(3, propuestaId);
-
-            int resultado = stmt.executeUpdate();
-
-            if (resultado > 0) {
-                JOptionPane.showMessageDialog(this,
-                        estado == 1 ? "Propuesta aceptada exitosamente" : "Propuesta rechazada exitosamente",
-                        "Éxito",
-                        JOptionPane.INFORMATION_MESSAGE);
-
-                // Cerrar la ventana actual
-                dispose();
-
-                // Crear una nueva instancia de VerPropuestas y mostrarla
-                VerPropuestas nuevaVentana = new VerPropuestas(
-                        (JFrame) SwingUtilities.getWindowAncestor(this),
-                        this.usuario);
-                nuevaVentana.cargarTodasLasPropuestas();
-                nuevaVentana.setVisible(true);
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al actualizar la propuesta: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        } finally {
-            // Cerrar recursos en orden inverso
-            try {
-                if (stmt != null)
-                    stmt.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 }

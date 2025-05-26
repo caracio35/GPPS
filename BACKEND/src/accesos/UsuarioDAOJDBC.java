@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 import ar.edu.unrn.seminario.modelo.Rol;
 import ar.edu.unrn.seminario.modelo.Usuario;
 
@@ -49,7 +50,7 @@ public class UsuarioDAOJDBC implements UsuarioDao {
 	}
 
 	@Override
-	public void update(Usuario usuario) {
+	public void update(Usuario usuario) throws ConexionFallidaException {
 		try {
 			Connection conn = ConnectionManager.getConnection();
 			PreparedStatement statement = conn.prepareStatement(
@@ -72,7 +73,7 @@ public class UsuarioDAOJDBC implements UsuarioDao {
 	}
 
 	@Override
-	public void remove(Long id) {
+	public void remove(Long id) throws ConexionFallidaException {
 		try {
 			Connection conn = ConnectionManager.getConnection();
 			PreparedStatement statement = conn.prepareStatement(
@@ -90,7 +91,7 @@ public class UsuarioDAOJDBC implements UsuarioDao {
 	}
 
 	@Override
-	public void remove(Usuario usuario) {
+	public void remove(Usuario usuario) throws ConexionFallidaException {
 		try {
 			Connection conn = ConnectionManager.getConnection();
 			PreparedStatement statement = conn.prepareStatement(
@@ -108,7 +109,7 @@ public class UsuarioDAOJDBC implements UsuarioDao {
 	}
 
 	@Override
-	public Usuario find(String username) {
+	public Usuario find(String username) throws ConexionFallidaException {
 		Usuario usuario = null;
 		try {
 			Connection conn = ConnectionManager.getConnection();
@@ -136,7 +137,7 @@ public class UsuarioDAOJDBC implements UsuarioDao {
 	}
 
 	@Override
-	public List<Usuario> findAll() {
+	public List<Usuario> findAll() throws ConexionFallidaException {
 		List<Usuario> usuarios = new ArrayList<Usuario>();
 		try {
 			Connection conn = ConnectionManager.getConnection();

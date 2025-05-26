@@ -1,19 +1,27 @@
 package ar.edu.unrn.seminario.dto;
 
 public class ActividadDTO {
+	
+	private String nombrePropuesta;
     private String nombre;
     private int horas;
 
-    public ActividadDTO(String nombre, int horas) {
+    public ActividadDTO(String nombrePropuesta , int horas, String nombre) {
+    	
+    	this.nombrePropuesta = nombrePropuesta ;
         this.nombre = nombre;
         this.horas = horas;
     }
 
-    public ActividadDTO() {
-        //TODO Auto-generated constructor stub
+    
+	public String getnombrePropuesta() {
+        return nombrePropuesta;
+    }
+    
+    public void setnombrePropuesta(String nombre) {
+        this.nombrePropuesta = nombre;
     }
 
-    // Getters
     public String getnombre() {
         return nombre;
     }
@@ -22,7 +30,7 @@ public class ActividadDTO {
         return horas;
     }
 
-    // Setters
+  
     public void setnombre(String nombre) {
         this.nombre = nombre;
     }

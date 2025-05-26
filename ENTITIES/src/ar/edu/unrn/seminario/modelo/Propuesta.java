@@ -1,64 +1,131 @@
 package ar.edu.unrn.seminario.modelo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Propuesta {
+	
+	    private String titulo;
+	    private String areaInteres;
+	    private String objetivo;
+	    private String descripcion;
+	    private boolean aceptada;
+	    private String comentarios;
+	    private List<Actividad> actividades ; 
+	    private int idAlumno; // FK a Alumno
+	    private int idEntidad; // FK a Entidad
+	    private int idProfesoPrincipal ; 
 
-    public Propuesta(String string, String string2, String string3, String string4, String string5) {
-        //TODO Auto-generated constructor stub
-    }
 
-    public String getTitulo() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTitulo'");
-    }
+	    // Constructor con todos los campos
+	    public Propuesta(String titulo, String areaInteres, String objetivo, String descripcion,
+	                     String comentarios, int idAlumno, int idEntidad , List<Actividad> lista , int idProfesor ) {
+	        
+	        this.titulo = titulo;
+	        this.areaInteres = areaInteres;
+	        this.objetivo = objetivo;
+	        this.descripcion = descripcion;
+	        this.aceptada = false;
+	        this.comentarios = comentarios;
+	        this.idAlumno = idAlumno;
+	        this.idEntidad = idEntidad;
+	        this.actividades = lista ; 
+	        this.idProfesoPrincipal = idProfesor;
+	    }
 
-    public String getAreaInteres() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAreaInteres'");
-    }
+	    
+	    public String getTitulo() {
+	        return titulo;
+	    }
 
-    public String getObjetivo() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getObjetivo'");
-    }
+	    public void setTitulo(String titulo) {
+	        this.titulo = titulo;
+	    }
 
-    public String getTutor() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTutor'");
-    }
+	    public String getAreaInteres() {
+	        return areaInteres;
+	    }
 
-    public String getDescripcion() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDescripcion'");
-    }
+	    public void setAreaInteres(String areaInteres) {
+	        this.areaInteres = areaInteres;
+	    }
 
-    public Actividad[] getActividades() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getActividades'");
-    }
+	    public String getObjetivo() {
+	        return objetivo;
+	    }
+	    public List<Actividad> getActividades() {
+	        return actividades;
+	    }
 
-    public boolean isAceptada() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isAceptada'");
-    }
+	    public void setActividades(List<Actividad> actividades) {
+	        this.actividades = actividades;
+	    }
+	    public void setObjetivo(String objetivo) {
+	        this.objetivo = objetivo;
+	    }
 
-    public int getId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getId'");
-    }
+	    public String getDescripcion() {
+	        return descripcion;
+	    }
 
-    public void setId(int int1) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setId'");
-    }
+	    public void setDescripcion(String descripcion) {
+	        this.descripcion = descripcion;
+	    }
 
-    public void setAceptada(boolean boolean1) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setAceptada'");
-    }
+	    public boolean isAceptada() {
+	        return aceptada;
+	    }
 
-    public void agregarActividad(Actividad actividad) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'agregarActividad'");
-    }
+	    public void setAceptada(boolean aceptada) {
+	        this.aceptada = aceptada;
+	    }
 
+	    public String getComentarios() {
+	        return comentarios;
+	    }
+
+	    public void setComentarios(String comentarios) {
+	        this.comentarios = comentarios;
+	    }
+
+	    public int getIdAlumno() {
+	        return idAlumno;
+	    }
+	    public int getIdPorfesor() {
+	    	return idProfesoPrincipal ; 
+	    }
+
+	    public void setIdAlumno(int idAlumno) {
+	        this.idAlumno = idAlumno;
+	    }
+
+	    public int getIdEntidad() {
+	        return idEntidad;
+	    }
+
+	    public void setIdEntidad(int idEntidad) {
+	        this.idEntidad = idEntidad;
+	    }
+	    public void agregarActividad(Actividad actividad) {
+	        if (this.actividades == null) {
+	            this.actividades = new ArrayList<>();
+	        }
+	        this.actividades.add(actividad);
+	    }
+
+	    @Override
+	    public String toString() {
+	        return "Propuesta{" +
+	                ", titulo='" + titulo + '\'' +
+	                ", areaInteres='" + areaInteres + '\'' +
+	                ", objetivo='" + objetivo + '\'' +
+	                ", descripcion='" + descripcion + '\'' +
+	                ", aceptada=" + aceptada +
+	                ", comentarios='" + comentarios + '\'' +
+	                ", idAlumno=" + idAlumno +
+	                ", idEntidad=" + idEntidad +
+	                ", actividades=" + actividades +
+	                '}';
+	    }
+	
 }

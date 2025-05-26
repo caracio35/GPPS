@@ -2,6 +2,7 @@ package accesos;
 
 import java.util.List;
 
+import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 import ar.edu.unrn.seminario.modelo.Rol;
 
 public interface RolDao {
@@ -15,6 +16,6 @@ public interface RolDao {
 
 	Rol find(Integer codigo);
 
-	List<Rol> findAll();
+	List<Rol> findAll()throws ConexionFallidaException;
 
 }

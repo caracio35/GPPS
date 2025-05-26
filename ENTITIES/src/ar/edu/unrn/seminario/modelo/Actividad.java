@@ -1,39 +1,50 @@
 package ar.edu.unrn.seminario.modelo;
 
 public class Actividad {
+	
+	    private String nombrePropuesta; 
+	    private String nombre;
+	    private int horas;
 
-    public Actividad(String string, int int1) {
-        //TODO Auto-generated constructor stub
-    }
+	    // Constructor con parámetros
+	    public Actividad(String nombre, int horas, String nombrePropuesta) {
+	        this.nombre = nombre;
+	        this.horas = horas;
+	        this.nombrePropuesta = nombrePropuesta;
+	    }
 
-    public String getNombre() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getNombre'");
-    }
+	    public String getNombre() {
+	        return nombre;
+	    }
 
-    public int getHoras() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getHoras'");
-    }
+	    public void setNombre(String nombre) {
+	        this.nombre = nombre;
+	    }
 
-    public int getPropuestaId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPropuestaId'");
-    }
+	    public int getHoras() {
+	        return horas;
+	    }
 
-    public int getId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getId'");
-    }
+	    public void setHoras(int horas) {
+	        this.horas = horas;
+	    }
 
-    public void setId(int int1) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setId'");
-    }
+	    public String getNombrePropuesta() {
+	        return nombrePropuesta;
+	    }
 
-    public void setPropuestaId(int int1) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setPropuestaId'");
-    }
+	    public void setNombrePropuesta(String nombrePropuesta) {
+	        this.nombrePropuesta = nombrePropuesta;
+	    }
+
+	    @Override
+	    public String toString() {
+	        return "Actividad{" +
+	                "nombre='" + nombre + '\'' +
+	                ", horas=" + horas +
+	                ", nombrePropuesta='" + nombrePropuesta + '\'' +
+	                '}';
+	    }
+  
 
 }

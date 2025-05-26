@@ -7,137 +7,117 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 import ar.edu.unrn.seminario.modelo.Actividad;
 
 public class ActividadDAOJDBC implements ActividadDao {
 
-    @Override
-    public void create(Actividad actividad) {
-        try {
-            Connection conn = ConnectionManager.getConnection();
-            PreparedStatement statement = conn.prepareStatement(
-                "INSERT INTO actividad (nombre_actividad, horas, propuesta_id) VALUES (?, ?, ?)"
-            );
+	@Override
+	public void create(Actividad actividad) throws ConexionFallidaException {
+	    String sqlBuscarId = "SELECT id FROM propuesta WHERE titulo = ?";
+	    String sqlInsert = "INSERT INTO actividad (nombre_actividad, horas, propuesta_id) VALUES (?, ?, ?)";
 
-            statement.setString(1, actividad.getNombre());
-            statement.setInt(2, actividad.getHoras());
-            statement.setInt(3, actividad.getPropuestaId());
+	    try (Connection conn = ConnectionManager.getConnection()) {
 
-            statement.executeUpdate();
+	        // 1️⃣ Buscar el id de la propuesta
+	        int idPropuesta;
+	        try (PreparedStatement buscarStmt = conn.prepareStatement(sqlBuscarId)) {
+	            buscarStmt.setString(1, actividad.getNombrePropuesta());
+	            try (ResultSet rs = buscarStmt.executeQuery()) {
+	                if (rs.next()) {
+	                    idPropuesta = rs.getInt("id");
+	                } else {
+	                    throw new SQLException();
+	                }
+	            }
+	        }
 
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al crear la actividad: " + e.getMessage());
-        } finally {
-            ConnectionManager.disconnect();
-        }
-    }
+	        // 2️⃣ Insertar la actividad
+	        try (PreparedStatement insertStmt = conn.prepareStatement(sqlInsert)) {
+	            insertStmt.setString(1, actividad.getNombre());
+	            insertStmt.setInt(2, actividad.getHoras());
+	            insertStmt.setInt(3, idPropuesta);
 
-    @Override
-    public void update(Actividad actividad) {
-        try {
-            Connection conn = ConnectionManager.getConnection();
-            PreparedStatement statement = conn.prepareStatement(
-                "UPDATE actividad SET nombre_actividad = ?, horas = ? WHERE id = ?"
-            );
+	            insertStmt.executeUpdate();
+	        }
 
-            statement.setString(1, actividad.getNombre());
-            statement.setInt(2, actividad.getHoras());
-            statement.setInt(3, actividad.getId());
+	    } catch (SQLException e) {
+	        throw new RuntimeException("Error al crear la actividad: " + e.getMessage(), e);
+	    }
+	}
 
-            statement.executeUpdate();
+	@Override
+	public void update(Actividad actividad) throws ConexionFallidaException {
+	    String sql = "UPDATE actividad SET nombre_actividad = ?, horas = ? WHERE id = ?";
 
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar la actividad: " + e.getMessage());
-        } finally {
-            ConnectionManager.disconnect();
-        }
-    }
+	    try (Connection conn = ConnectionManager.getConnection();
+	         PreparedStatement statement = conn.prepareStatement(sql)) {
 
-    @Override
-    public Actividad find(Integer id) {
-        Actividad actividad = null;
-        try {
-            Connection conn = ConnectionManager.getConnection();
-            PreparedStatement statement = conn.prepareStatement(
-                "SELECT * FROM actividad WHERE id = ?"
-            );
-            statement.setInt(1, id);
-            ResultSet rs = statement.executeQuery();
+	        statement.setString(1, actividad.getNombre());
+	        statement.setInt(2, actividad.getHoras());
+	        
 
-            if (rs.next()) {
-                actividad = new Actividad(
-                    rs.getString("nombre_actividad"),
-                    rs.getInt("horas")
-                );
-                actividad.setId(rs.getInt("id"));
-                actividad.setPropuestaId(rs.getInt("propuesta_id"));
-            }
+	        statement.executeUpdate();
 
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar la actividad: " + e.getMessage());
-        } finally {
-            ConnectionManager.disconnect();
-        }
-        return actividad;
-    }
+	    } catch (SQLException e) {
+	        throw new RuntimeException("Error al actualizar la actividad: " + e.getMessage(), e);
+	    }
+	}
 
-    @Override
-    public List<Actividad> findAll() {
-        List<Actividad> actividades = new ArrayList<>();
-        try {
-            Connection conn = ConnectionManager.getConnection();
-            PreparedStatement statement = conn.prepareStatement("SELECT * FROM actividad");
-            ResultSet rs = statement.executeQuery();
+	@Override
+	public Actividad find(String nombreActividad) throws ConexionFallidaException {
+	    Actividad actividad = null;
+	    String sql = "SELECT a.nombre_actividad, a.horas, p.titulo AS nombre_propuesta " +
+	                  "FROM actividad a " +
+	                  "JOIN propuesta p ON a.propuesta_id = p.id " +
+	                  "WHERE a.nombre_actividad = ?";
 
-            while (rs.next()) {
-                Actividad actividad = new Actividad(
-                    rs.getString("nombre_actividad"),
-                    rs.getInt("horas")
-                );
-                actividad.setId(rs.getInt("id"));
-                actividad.setPropuestaId(rs.getInt("propuesta_id"));
-                actividades.add(actividad);
-            }
+	    try (Connection conn = ConnectionManager.getConnection();
+	         PreparedStatement statement = conn.prepareStatement(sql)) {
 
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener las actividades: " + e.getMessage());
-        } finally {
-            ConnectionManager.disconnect();
-        }
-        return actividades;
-    }
+	        statement.setString(1, nombreActividad);
+	        try (ResultSet rs = statement.executeQuery()) {
+	            if (rs.next()) {
+	                actividad = new Actividad(
+	                        rs.getString("nombre_actividad"),
+	                        rs.getInt("horas"),
+	                        rs.getString("nombre_propuesta")
+	                );
+	               
+	            }
+	        }
 
-    public List<Actividad> findByPropuesta(Integer propuestaId) {
-        List<Actividad> actividades = new ArrayList<>();
-        try {
-            Connection conn = ConnectionManager.getConnection();
-            PreparedStatement statement = conn.prepareStatement(
-                "SELECT * FROM actividad WHERE propuesta_id = ?"
-            );
-            statement.setInt(1, propuestaId);
-            ResultSet rs = statement.executeQuery();
+	    } catch (SQLException e) {
+	        throw new RuntimeException("Error al buscar la actividad: " + e.getMessage(), e);
+	    }
 
-            while (rs.next()) {
-                Actividad actividad = new Actividad(
-                    rs.getString("nombre_actividad"),
-                    rs.getInt("horas")
-                );
-                actividad.setId(rs.getInt("id"));
-                actividad.setPropuestaId(rs.getInt("propuesta_id"));
-                actividades.add(actividad);
-            }
+	    return actividad;
+	}
 
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener las actividades de la propuesta: " + e.getMessage());
-        } finally {
-            ConnectionManager.disconnect();
-        }
-        return actividades;
-    }
+	@Override
+	public List<Actividad> findAll() throws ConexionFallidaException{
+	    List<Actividad> actividades = new ArrayList<>();
+	    String sql = "SELECT a.nombre_actividad, a.horas, p.titulo AS nombre_propuesta " +
+	                  "FROM actividad a " +
+	                  "JOIN propuesta p ON a.propuesta_id = p.id";
 
-    @Override
-    public String getNombre() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getNombre'");
-    }
+	    try (Connection conn = ConnectionManager.getConnection();
+	         PreparedStatement statement = conn.prepareStatement(sql);
+	         ResultSet rs = statement.executeQuery()) {
+
+	        while (rs.next()) {
+	            Actividad actividad = new Actividad(
+	                    rs.getString("nombre_actividad"),
+	                    rs.getInt("horas"),
+	                    rs.getString("nombre_propuesta")
+	            );
+	            actividades.add(actividad);
+	        }
+
+	    } catch (SQLException e) {
+	        throw new RuntimeException("Error al obtener las actividades: " + e.getMessage(), e);
+	    }
+
+	    return actividades;
+	}
 }

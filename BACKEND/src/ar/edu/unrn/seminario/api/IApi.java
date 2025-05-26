@@ -32,5 +32,9 @@ public interface IApi {
 
 	void desactivarUsuario(String username); // recuperar el objeto Usuario, implementar el comportamiento de estado.
 
-	List<PropuestaDTO> buscarPropuestas(int propuestaId);
+	List<PropuestaDTO> ObtenerTodasPropuestas(); 
+	
+	PropuestaDTO  obtenerPropuestaPorTitulo(String tituloProyecto);
+	
+	void crearConvinio(String nombre_propuesta , String nombre_alumno , String nombre_tutor , String fecha_convenio);
 }

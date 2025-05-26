@@ -2,16 +2,16 @@ package accesos;
 
 import java.util.List;
 
-import ar.edu.unrn.seminario.exception.ConexionFallidaExeption;
+import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 import ar.edu.unrn.seminario.modelo.Propuesta;
 
 public interface PropuestaDao {
-    void create(Propuesta propuesta) throws ConexionFallidaExeption;
+    void create(Propuesta propuesta) throws ConexionFallidaException;
 
-    void update(Propuesta propuesta) throws ConexionFallidaExeption;
+    void update(Propuesta propuesta) throws ConexionFallidaException;
 
-    Propuesta find(Integer id) throws ConexionFallidaExeption;
+    Propuesta find(String titulo) throws ConexionFallidaException;
 
-    List<Propuesta> findAll() throws ConexionFallidaExeption;
+    List<Propuesta> findAll() throws ConexionFallidaException;
 
 }

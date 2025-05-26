@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import ar.edu.unrn.seminario.exception.ConexionFallidaExeption;
+import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 
 public class ConnectionManager {
 	private static String DRIVER = "com.mysql.jdbc.Driver";
@@ -14,11 +14,11 @@ public class ConnectionManager {
 	protected static String pass = "";
 	protected static Connection conn = null;
 
-	public static void connect() throws ConexionFallidaExeption{
+	public static void connect() throws ConexionFallidaException{
 		try {
 			conn = DriverManager.getConnection(URL_DB + DB, user, pass);
 		} catch (SQLException sqlEx) {
-			throw new ConexionFallidaExeption();
+			throw new ConexionFallidaException(DB);
 		}
 	}
 
@@ -33,12 +33,12 @@ public class ConnectionManager {
 		}
 	}
 
-	public static void reconnect() throws ConexionFallidaExeption {
+	public static void reconnect() throws ConexionFallidaException {
 		disconnect();
 		connect();
 	}
 
-	public static Connection getConnection() throws ConexionFallidaExeption {
+	public static Connection getConnection() throws ConexionFallidaException {
 		if (conn == null) {
 			connect();
 		}

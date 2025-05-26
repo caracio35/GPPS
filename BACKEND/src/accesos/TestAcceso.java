@@ -2,12 +2,13 @@ package accesos;
 
 import java.util.List;
 
+import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 import ar.edu.unrn.seminario.modelo.Rol;
 import ar.edu.unrn.seminario.modelo.Usuario;
 
 public class TestAcceso {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ConexionFallidaException {
 		RolDao rolDao = new RolDAOJDBC();
 		List<Rol> roles = rolDao.findAll();
 
