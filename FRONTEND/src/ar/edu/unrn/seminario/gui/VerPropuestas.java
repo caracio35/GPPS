@@ -41,10 +41,13 @@ import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 
 public class VerPropuestas extends JDialog {
     private UsuarioSimplificadoDTO usuario;
+    private boolean aprobadas;
 
-    public VerPropuestas(JFrame parent, UsuarioSimplificadoDTO usuario, IApi api) {
+    public VerPropuestas(JFrame parent, UsuarioSimplificadoDTO usuario, IApi api,boolean aprobadas) {
         super(parent, "Ver Propuestas", true);
         this.usuario = usuario;
+        this.aprobadas = aprobadas;
+       
 
         // Panel principal con degradado
         JPanel panel = new JPanel() {
@@ -121,16 +124,26 @@ public class VerPropuestas extends JDialog {
 
         // Add proposals to table
         for (PropuestaDTO p : propuestasTodas) {
-            if (p.isAceptada()) {
-                propuestasAprobadas.add(p);
-                tableModel.addRow(new Object[]{
-                    p.getTitulo(),
-                    p.getAreaInteres(),
-                    p.getDescripcion()
-                });
+            if (!aprobadas) {    
+                if (p.isAceptada()) {
+                    propuestasAprobadas.add(p);
+                    tableModel.addRow(new Object[]{
+                        p.getTitulo(),
+                        p.getAreaInteres(),
+                        p.getDescripcion()
+                    });
+                }
+            } else {
+                if (!p.isAceptada()) { // Cambiado aquí: ahora muestra las NO aceptadas cuando aprobadas es false
+                    propuestasAprobadas.add(p);
+                    tableModel.addRow(new Object[]{
+                        p.getTitulo(),
+                        p.getAreaInteres(),
+                        p.getDescripcion()
+                    });
+                }
             }
         }
-
         // Create and configure table
         JTable propuestasTable = new JTable(tableModel);
         propuestasTable.setRowHeight(25);

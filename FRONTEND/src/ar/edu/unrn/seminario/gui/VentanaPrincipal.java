@@ -75,26 +75,22 @@ public class VentanaPrincipal extends JFrame {
         JMenu propuestasMenu = new JMenu("Propuestas");
         menuBar.add(propuestasMenu);
         
-        // Menú de convenios
-        JMenu conveniosMenu = new JMenu("Convenios");
-        menuBar.add(conveniosMenu);
-
-        JMenuItem gestionarConvenios = new JMenuItem("Administrar Convenios");
-        gestionarConvenios.addActionListener(e -> {
-        	
-            // Lógica para abrir la ventana de administración de convenios
-            ListadoPoyectosParaCovenios listado = new ListadoPoyectosParaCovenios(api);
-            listado.setLocationRelativeTo(this);
-            listado.setVisible(true);
-        });
-        conveniosMenu.add(gestionarConvenios);
+        // Agregar opción de ver propuestas pendientes solo para Director de Carrera
+        if (usuario.getRol().equals("Director de Carrera")) {
+            JMenuItem verPropuestasPendientes = new JMenuItem("Ver Propuestas Pendientes");
+            verPropuestasPendientes.addActionListener(e -> {
+                VerPropuestas ver = new VerPropuestas(this, usuario, api,true); // true indica que solo muestra pendientes
+                ver.setLocationRelativeTo(this);
+                ver.setVisible(true);
+            });
+            propuestasMenu.add(verPropuestasPendientes);
+        }
 
         JMenuItem verPropuestas = new JMenuItem("Ver propuestas");
         verPropuestas.addActionListener(e -> {
-            VerPropuestas ver = new VerPropuestas(this, usuario, api);
+            VerPropuestas ver = new VerPropuestas(this, usuario, api,false);
             ver.setLocationRelativeTo(this);
             ver.setVisible(true);
-
         });
         propuestasMenu.add(verPropuestas);
 
@@ -104,6 +100,20 @@ public class VentanaPrincipal extends JFrame {
             cargar.setVisible(true);
         });
         propuestasMenu.add(cargarPropuestas);
+
+        // Menú de convenios (solo para Director de Carrera y Admin)
+        if (usuario.getRol().equals("Director de Carrera") || usuario.getRol().equals("Admin")) {
+            JMenu conveniosMenu = new JMenu("Convenios");
+            menuBar.add(conveniosMenu);
+
+            JMenuItem gestionarConvenios = new JMenuItem("Administrar Convenios");
+            gestionarConvenios.addActionListener(e -> {
+                ListadoPoyectosParaCovenios listado = new ListadoPoyectosParaCovenios(api);
+                listado.setLocationRelativeTo(this);
+                listado.setVisible(true);
+            });
+            conveniosMenu.add(gestionarConvenios);
+        }
     }
 
 
