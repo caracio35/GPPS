@@ -141,14 +141,15 @@ public class MemoryApi implements IApi {
 		
 	}
 
+
 	@Override
-	public List<PropuestaDTO> ObtenerTodasPropuestas() {
+	public PropuestaDTO obtenerPropuestaPorTitulo(String tituloProyecto) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public PropuestaDTO obtenerPropuestaPorTitulo(String tituloProyecto) {
+	public List<PropuestaDTO> obtenerTodasPropuestas() {
 		// TODO Auto-generated method stub
 		return null;
 	}

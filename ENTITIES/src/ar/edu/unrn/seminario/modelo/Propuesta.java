@@ -19,13 +19,13 @@ public class Propuesta {
 
 	    // Constructor con todos los campos
 	    public Propuesta(String titulo, String areaInteres, String objetivo, String descripcion,
-	                     String comentarios, int idAlumno, int idEntidad , List<Actividad> lista , int idProfesor ) {
+	                     String comentarios, int idAlumno, boolean aceptada ,int idEntidad , List<Actividad> lista , int idProfesor ) {
 	        
 	        this.titulo = titulo;
 	        this.areaInteres = areaInteres;
 	        this.objetivo = objetivo;
 	        this.descripcion = descripcion;
-	        this.aceptada = false;
+	        this.aceptada = aceptada;
 	        this.comentarios = comentarios;
 	        this.idAlumno = idAlumno;
 	        this.idEntidad = idEntidad;

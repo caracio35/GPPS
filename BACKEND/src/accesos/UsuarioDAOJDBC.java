@@ -14,154 +14,127 @@ import ar.edu.unrn.seminario.modelo.Usuario;
 
 public class UsuarioDAOJDBC implements UsuarioDao {
 
-	@Override
-	public void create(Usuario usuario) {
-		try {
+    @Override
+    public void create(Usuario usuario) throws ConexionFallidaException {
+        String sql = "INSERT INTO usuarios(usuario, contrasena, email, nombre, activo, rol) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
 
-			Connection conn = ConnectionManager.getConnection();
-			PreparedStatement statement = conn
-					.prepareStatement("INSERT INTO usuarios(usuario, contrasena, email, nombre, activo,rol) "
-							+ "VALUES (?, ?, ?, ?, ?, ?)");
+            statement.setString(1, usuario.getUsuario());
+            statement.setString(2, usuario.getContrasena());
+            statement.setString(3, usuario.getEmail());
+            statement.setString(4, usuario.getNombre());
+            statement.setBoolean(5, usuario.isActivo());
+            statement.setInt(6, usuario.getRol().getCodigo());
 
-			statement.setString(1, usuario.getUsuario());
-			statement.setString(2, usuario.getContrasena());
-			statement.setString(3, usuario.getNombre());
-			statement.setString(4, usuario.getEmail());
-			statement.setBoolean(5, usuario.isActivo());
-			statement.setInt(6, usuario.getRol().getCodigo());
-			int cantidad = statement.executeUpdate();
-			if (cantidad > 0) {
-				// System.out.println("Modificando " + cantidad + " registros");
-			} else {
-				System.out.println("Error al actualizar");
-				// TODO: disparar Exception propia
-			}
+            int filas = statement.executeUpdate();
+            if (filas == 0) {
+                throw new ConexionFallidaException("No se pudo crear el usuario: " + usuario.getUsuario());
+            }
 
-		} catch (SQLException e) {
-			System.out.println("Error al procesar consulta");
-			// TODO: disparar Exception propia
-		} catch (Exception e) {
-			System.out.println("Error al insertar un usuario");
-			// TODO: disparar Exception propia
-		} finally {
-			ConnectionManager.disconnect();
-		}
+        } catch (SQLException e) {
+            throw new ConexionFallidaException("Error al insertar usuario: " + e.getMessage());
+        }
+    }
 
-	}
+    @Override
+    public void update(Usuario usuario) throws ConexionFallidaException {
+        String sql = "UPDATE usuarios SET contrasena=?, nombre=?, email=?, activo=?, rol=? WHERE usuario=?";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
 
-	@Override
-	public void update(Usuario usuario) throws ConexionFallidaException {
-		try {
-			Connection conn = ConnectionManager.getConnection();
-			PreparedStatement statement = conn.prepareStatement(
-					"UPDATE usuarios SET contrasena=?, nombre=?, email=?, activo=?, rol=? WHERE usuario=?");
-			statement.setString(1, usuario.getContrasena());
-			statement.setString(2, usuario.getNombre());
-			statement.setString(3, usuario.getEmail());
-			statement.setBoolean(4, usuario.isActivo());
-			statement.setInt(5, usuario.getRol().getCodigo());
-			statement.setString(6, usuario.getUsuario());
-			int cantidad = statement.executeUpdate();
-			if (cantidad == 0) {
-				System.out.println("No se encontró el usuario para actualizar.");
-			}
-		} catch (SQLException e) {
-			System.out.println("Error al actualizar usuario: " + e.getMessage());
-		} finally {
-			ConnectionManager.disconnect();
-		}
-	}
+            statement.setString(1, usuario.getContrasena());
+            statement.setString(2, usuario.getNombre());
+            statement.setString(3, usuario.getEmail());
+            statement.setBoolean(4, usuario.isActivo());
+            statement.setInt(5, usuario.getRol().getCodigo());
+            statement.setString(6, usuario.getUsuario());
 
-	@Override
-	public void remove(Long id) throws ConexionFallidaException {
-		try {
-			Connection conn = ConnectionManager.getConnection();
-			PreparedStatement statement = conn.prepareStatement(
-					"DELETE FROM usuarios WHERE usuario=?");
-			statement.setString(1, String.valueOf(id));
-			int cantidad = statement.executeUpdate();
-			if (cantidad == 0) {
-				System.out.println("No se encontró el usuario para eliminar.");
-			}
-		} catch (SQLException e) {
-			System.out.println("Error al eliminar usuario: " + e.getMessage());
-		} finally {
-			ConnectionManager.disconnect();
-		}
-	}
+            int filas = statement.executeUpdate();
+            if (filas == 0) {
+                throw new ConexionFallidaException("No se encontró el usuario para actualizar: " + usuario.getUsuario());
+            }
 
-	@Override
-	public void remove(Usuario usuario) throws ConexionFallidaException {
-		try {
-			Connection conn = ConnectionManager.getConnection();
-			PreparedStatement statement = conn.prepareStatement(
-					"DELETE FROM usuarios WHERE usuario=?");
-			statement.setString(1, usuario.getUsuario());
-			int cantidad = statement.executeUpdate();
-			if (cantidad == 0) {
-				System.out.println("No se encontró el usuario para eliminar.");
-			}
-		} catch (SQLException e) {
-			System.out.println("Error al eliminar usuario: " + e.getMessage());
-		} finally {
-			ConnectionManager.disconnect();
-		}
-	}
+        } catch (SQLException e) {
+            throw new ConexionFallidaException("Error al actualizar usuario: " + e.getMessage());
+        }
+    }
 
-	@Override
-	public Usuario find(String username) throws ConexionFallidaException {
-		Usuario usuario = null;
-		try {
-			Connection conn = ConnectionManager.getConnection();
-			PreparedStatement statement = conn.prepareStatement(
-					"SELECT u.usuario, u.contrasena, u.nombre, u.email, u.activo, r.codigo as codigo_rol, r.nombre as nombre_rol "
-							+
-							"FROM usuarios u JOIN roles r ON (u.rol = r.codigo) WHERE u.usuario = ?");
-			statement.setString(1, username);
-			ResultSet rs = statement.executeQuery();
-			if (rs.next()) {
-				Rol rol = new Rol(rs.getInt("codigo_rol"), rs.getString("nombre_rol"));
-				usuario = new Usuario(
-						rs.getString("usuario"),
-						rs.getString("contrasena"),
-						rs.getString("nombre"),
-						rs.getString("email"),
-						rol);
-			}
-		} catch (SQLException e) {
-			System.out.println("Error al procesar consulta");
-		} finally {
-			ConnectionManager.disconnect();
-		}
-		return usuario;
-	}
+    @Override
+    public void remove(Long id) throws ConexionFallidaException {
+        removeByUsername(String.valueOf(id));
+    }
 
-	@Override
-	public List<Usuario> findAll() throws ConexionFallidaException {
-		List<Usuario> usuarios = new ArrayList<Usuario>();
-		try {
-			Connection conn = ConnectionManager.getConnection();
-			Statement statement = conn.createStatement();
-			ResultSet rs = statement.executeQuery(
-					"SELECT u.usuario, u.contrasena, u.nombre, u.email, u.activo, r.codigo as codigo_rol, r.nombre as nombre_rol "
-							+
-							"FROM usuarios u JOIN roles r ON (u.rol = r.codigo)");
-			while (rs.next()) {
-				Rol rol = new Rol(rs.getInt("codigo_rol"), rs.getString("nombre_rol"));
-				Usuario usuario = new Usuario(
-						rs.getString("usuario"),
-						rs.getString("contrasena"),
-						rs.getString("nombre"),
-						rs.getString("email"),
-						rol);
-				usuarios.add(usuario);
-			}
-		} catch (SQLException e) {
-			System.out.println("Error de mySql\n" + e.toString());
-		} finally {
-			ConnectionManager.disconnect();
-		}
-		return usuarios;
-	}
+    @Override
+    public void remove(Usuario usuario) throws ConexionFallidaException {
+        removeByUsername(usuario.getUsuario());
+    }
 
+    private void removeByUsername(String username) throws ConexionFallidaException {
+        String sql = "DELETE FROM usuarios WHERE usuario=?";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
+
+            statement.setString(1, username);
+            int filas = statement.executeUpdate();
+            if (filas == 0) {
+                throw new ConexionFallidaException("No se encontró el usuario para eliminar: " + username);
+            }
+
+        } catch (SQLException e) {
+            throw new ConexionFallidaException("Error al eliminar usuario: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Usuario find(String username) throws ConexionFallidaException {
+        String sql = "SELECT u.usuario, u.contrasena, u.nombre, u.email, u.activo, r.codigo as codigo_rol, r.nombre as nombre_rol "
+                   + "FROM usuarios u JOIN roles r ON (u.rol = r.codigo) WHERE u.usuario = ?";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
+
+            statement.setString(1, username);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    Rol rol = new Rol(rs.getInt("codigo_rol"), rs.getString("nombre_rol"));
+                    return new Usuario(
+                            rs.getString("usuario"),
+                            rs.getString("contrasena"),
+                            rs.getString("nombre"),
+                            rs.getString("email"),
+                            rol);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new ConexionFallidaException("Error al buscar usuario: " + e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public List<Usuario> findAll() throws ConexionFallidaException {
+        List<Usuario> usuarios = new ArrayList<>();
+        String sql = "SELECT u.usuario, u.contrasena, u.nombre, u.email, u.activo, r.codigo as codigo_rol, r.nombre as nombre_rol "
+                   + "FROM usuarios u JOIN roles r ON (u.rol = r.codigo)";
+        try (Connection conn = ConnectionManager.getConnection();
+             Statement statement = conn.createStatement();
+             ResultSet rs = statement.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Rol rol = new Rol(rs.getInt("codigo_rol"), rs.getString("nombre_rol"));
+                Usuario usuario = new Usuario(
+                        rs.getString("usuario"),
+                        rs.getString("contrasena"),
+                        rs.getString("nombre"),
+                        rs.getString("email"),
+                        rol);
+                usuarios.add(usuario);
+            }
+
+        } catch (SQLException e) {
+            throw new ConexionFallidaException("Error al listar usuarios: " + e.getMessage());
+        }
+        return usuarios;
+    }
 }

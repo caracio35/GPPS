@@ -91,11 +91,10 @@ public class VentanaPrincipal extends JFrame {
 
         JMenuItem verPropuestas = new JMenuItem("Ver propuestas");
         verPropuestas.addActionListener(e -> {
-            // Aquí deberías añadir el código para mostrar las propuestas
-            // Por ejemplo:
-            // ListadoPropuestas listado = new ListadoPropuestas(api);
-            // listado.setLocationRelativeTo(null);
-            // listado.setVisible(true);
+            VerPropuestas ver = new VerPropuestas(this, usuario, api);
+            ver.setLocationRelativeTo(this);
+            ver.setVisible(true);
+
         });
         propuestasMenu.add(verPropuestas);
 

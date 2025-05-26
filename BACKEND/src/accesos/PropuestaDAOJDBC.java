@@ -107,28 +107,34 @@ public class PropuestaDAOJDBC implements PropuestaDao {
     public Propuesta find(String titulo) throws ConexionFallidaException {
         Propuesta propuesta = null;
 
-        try (Connection conn = ConnectionManager.getConnection()) {
+        String sql = "SELECT * FROM propuesta WHERE titulo = ?";
 
-            PreparedStatement statement = conn.prepareStatement(
-                    "SELECT * FROM propuesta WHERE titulo = ?");
-            statement.setString(1, titulo);
-            ResultSet rs = statement.executeQuery();
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            if (rs.next()) {
-                int idPropuesta = rs.getInt("id"); // Guardamos el id solo en el DAO
+            stmt.setString(1, titulo);
+            try (ResultSet rs = stmt.executeQuery()) {
 
-                propuesta = new Propuesta();
-                propuesta.setTitulo(rs.getString("titulo"));
-                propuesta.setAreaInteres(rs.getString("area_interes"));
-                propuesta.setDescripcion(rs.getString("descripcion"));
-                propuesta.setObjetivo(rs.getString("objetivo"));
-                propuesta.setAceptada(rs.getBoolean("aceptada"));
-                propuesta.setComentarios(rs.getString("comentarios"));
-                propuesta.setIdAlumno(rs.getInt("id_alumno"));
-                propuesta.setIdEntidad(rs.getInt("id_entidad"));
+                if (rs.next()) {
+                    int idPropuesta = rs.getInt("id");
 
-                // Cargar actividades usando el método modularizado
-                cargarActividades(idPropuesta, propuesta);
+                    // Ahora pasar la misma conexión a los métodos secundarios
+                    List<Actividad> actividades = cargarActividades(idPropuesta, conn);
+                    int idTutorDocente = obtenerIdTutorDocente(idPropuesta, conn);
+
+                    propuesta = new Propuesta(
+                            rs.getString("titulo"),
+                            rs.getString("area_interes"),
+                            rs.getString("objetivo"),
+                            rs.getString("descripcion"),
+                            rs.getString("comentarios"),
+                            rs.getInt("id_alumno"),
+                            rs.getBoolean("aceptada"),
+                            rs.getInt("id_entidad"),
+                            actividades,
+                            idTutorDocente
+                    );
+                }
             }
 
         } catch (SQLException e) {
@@ -138,66 +144,63 @@ public class PropuestaDAOJDBC implements PropuestaDao {
         return propuesta;
     }
 
+    
     @Override
     public List<Propuesta> findAll() throws ConexionFallidaException {
-        List<Propuesta> propuestas = new ArrayList<>();
-
+    	
+    	 List<Propuesta> propuestas = new ArrayList<>();
         String sql = "SELECT * FROM propuesta";
         try (Connection conn = ConnectionManager.getConnection();
-             PreparedStatement statement = conn.prepareStatement(sql);
-             ResultSet rs = statement.executeQuery()) {
+        	     PreparedStatement statement = conn.prepareStatement(sql);
+        	     ResultSet rs = statement.executeQuery()) {
 
-            while (rs.next()) {
-                int idPropuesta = rs.getInt("id"); // Obtenemos el id de la propuesta
+        	while (rs.next()) {
+        	    int idPropuesta = rs.getInt("id");
+        	    List<Actividad> actividades = cargarActividades(idPropuesta, conn);
 
-                Propuesta propuesta = new Propuesta();
-                propuesta.setTitulo(rs.getString("titulo"));
-                propuesta.setAreaInteres(rs.getString("area_interes"));
-                propuesta.setDescripcion(rs.getString("descripcion"));
-                propuesta.setObjetivo(rs.getString("objetivo"));
-                propuesta.setAceptada(rs.getBoolean("aceptada"));
-                propuesta.setComentarios(rs.getString("comentarios"));
-                propuesta.setIdAlumno(rs.getInt("id_alumno"));
-                propuesta.setIdEntidad(rs.getInt("id_entidad"));
+        	    int idTutorDocente = obtenerIdTutorDocente(idPropuesta, conn);
 
-                // Cargar actividades usando el método modificado
-                cargarActividades(idPropuesta, propuesta);
+        	    Propuesta propuesta = new Propuesta(
+        	        rs.getString("titulo"),
+        	        rs.getString("area_interes"),
+        	        rs.getString("objetivo"),
+        	        rs.getString("descripcion"),
+        	        rs.getString("comentarios"),
+        	        rs.getInt("id_alumno"),
+        	        rs.getBoolean("aceptada"),
+        	        rs.getInt("id_entidad"),
+        	        actividades,
+        	        idTutorDocente // Ahora lo tenés
+        	    );
 
-                propuestas.add(propuesta);
-            }
+        	    propuestas.add(propuesta);
+        	}
 
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener las propuestas: " + e.getMessage(), e);
+        	} catch (SQLException e) {
+        	    throw new RuntimeException("Error al obtener las propuestas: " + e.getMessage(), e);
+        	}
+		return propuestas;
         }
 
-        return propuestas;
-    }
+    private List<Actividad> cargarActividades(int idPropuesta, Connection conn) throws SQLException {
+        List<Actividad> actividades = new ArrayList<>();
+        String sql = "SELECT * FROM actividad WHERE propuesta_id = ?";
 
-    
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idPropuesta);
 
-	private void cargarActividades(int idPropuesta, Propuesta propuesta) throws SQLException , ConexionFallidaException {
-        String sqlActividades = "SELECT a.nombre_actividad, a.horas, p.titulo AS nombre_propuesta " +
-                                 "FROM actividad a " +
-                                 "JOIN propuesta p ON a.propuesta_id = p.id " +
-                                 "WHERE a.propuesta_id = ?";
-        try (Connection conn = ConnectionManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sqlActividades)) {
-
-            stmt.setInt(1, idPropuesta); // Buscamos por ID de la propuesta
             try (ResultSet rs = stmt.executeQuery()) {
-                if (propuesta.getActividades() == null) {
-                    propuesta.setActividades(new ArrayList<>());
-                }
                 while (rs.next()) {
                     Actividad actividad = new Actividad(
                             rs.getString("nombre_actividad"),
                             rs.getInt("horas"),
-                            rs.getString("nombre_propuesta")
+                            null
                     );
-                    propuesta.getActividades().add(actividad);
+                    actividades.add(actividad);
                 }
             }
         }
+        return actividades;
     }
    
 
@@ -244,6 +247,18 @@ public class PropuestaDAOJDBC implements PropuestaDao {
         }
         
         
+    }
+    private int obtenerIdTutorDocente(int idPropuesta, Connection conn) throws SQLException {
+        String sql = "SELECT id_tutor_docente FROM tutor_propuesta WHERE id_propuesta = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idPropuesta);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id_tutor_docente");
+                }
+            }
+        }
+        return 0; // o un valor que tenga sentido si no hay tutor
     }
     private void insertarActividades(int propuestaId, List<Actividad> actividades) throws  ConexionFallidaException,SQLException {
         try (Connection conn = ConnectionManager.getConnection()) {

@@ -14,7 +14,7 @@ public class ListadoPoyectosParaCovenios extends JFrame {
     private JTable tabla;
     private DefaultTableModel modelo;
     private IApi api;
-    private List<PropuestaDTO> propuestas;
+    List<PropuestaDTO> propuestas ;
 
     public ListadoPoyectosParaCovenios(IApi api) {
         setTitle("Proyectos Aprobados");
@@ -22,7 +22,8 @@ public class ListadoPoyectosParaCovenios extends JFrame {
         setLayout(new BorderLayout());
 
         this.api = api;
-        this.propuestas = api.ObtenerTodasPropuestas(); 
+        
+       propuestas = api.obtenerTodasPropuestas(); 
 
         modelo = new DefaultTableModel(new Object[]{"Título", "Tutor", "Entidad"}, 0);
         tabla = new JTable(modelo);

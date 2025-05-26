@@ -67,7 +67,7 @@ public class RolDAOJDBC implements RolDao {
 			// TODO: disparar Exception propia
 			// throw new AppException(e, e.getCause().getMessage(), e.getMessage());
 		} finally {
-			ConnectionManager.disconnect();
+			
 		}
 
 		return rol;
@@ -94,7 +94,7 @@ public class RolDAOJDBC implements RolDao {
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} finally {
-			ConnectionManager.disconnect();
+			
 		}
 
 		return listado;

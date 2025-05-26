@@ -183,41 +183,45 @@ public class PersistenceApi implements IApi {
 	}
 
 	@Override
-	public List<PropuestaDTO> ObtenerTodasPropuestas() {
+	public List<PropuestaDTO> obtenerTodasPropuestas() {
+	    List<PropuestaDTO> propuestasDTO = new ArrayList<>();
 
-		    List<PropuestaDTO> propuestasDTO = new ArrayList<>();
+	    PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
+	    List<Propuesta> propuestas = null;
+	    try {
+	        propuestas = dao.findAll();
+	    } catch (ConexionFallidaException e) {
+	        e.printStackTrace();
+	    }
 
-		    // DAO que trae todas las propuestas
-		    PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
-		    
-		    List<Propuesta> propuestas = null;
-			try {
-				propuestas = dao.findAll();
-			} catch (ConexionFallidaException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
+	    for (Propuesta p : propuestas) {
+	        PropuestaDTO propuestaDTO = new PropuestaDTO(
+	            p.getTitulo(),
+	            p.getAreaInteres(),
+	            p.getObjetivo(),
+	            p.getDescripcion(),
+	            p.isAceptada(),
+	            p.getComentarios(),
+	            p.getIdAlumno(),
+	            p.getIdEntidad(),
+	            p.getIdPorfesor()
+	        );
 
-		    for (Propuesta p : propuestas) {
-		        // Crear el DTO a partir de la propuesta
-		        PropuestaDTO propuestaDTO = new PropuestaDTO(
-		               p.getTitulo() , p.getAreaInteres() , p.getObjetivo() , p.getDescripcion() , 
-		               p.isAceptada() , p.getComentarios() ,  p.getIdAlumno(),
-		               p.getIdEntidad(), p.getIdPorfesor() 
-		        );
-		        // Pasar las actividades de Propuesta a PropuestaDTO
-		        for (Actividad actividad : p.getActividades()) {
-		            ActividadDTO actividadDTO = new ActividadDTO(
-		                    actividad.getNombre(),
-		                    actividad.getHoras(),
-		                    actividad.getNombrePropuesta() 
-		            );
-		            propuestaDTO.agregarActividad(actividadDTO);
-		        }
-		    }
+	        for (Actividad actividad : p.getActividades()) {
+	            ActividadDTO actividadDTO = new ActividadDTO(
+	                actividad.getNombre(),
+	                actividad.getHoras(),
+	                actividad.getNombrePropuesta()
+	            );
+	            propuestaDTO.agregarActividad(actividadDTO);
+	        }
 
-		    return propuestasDTO;
-		}
+	        
+	        propuestasDTO.add(propuestaDTO);
+	    }
+
+	    return propuestasDTO;
+	}
 
 	@Override
 	public void crearConvinio(String nombre_propuesta, String nombre_alumno, String nombre_tutor,

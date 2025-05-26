@@ -329,21 +329,24 @@ public class CargarPropuesta extends JDialog {
                     try {
                         int horas = Integer.parseInt(horasStr);
                         totalHoras += horas;
-                        actividades.add(new ActividadDTO(nombre, horas));
+                        actividades.add(new ActividadDTO(nombre, horas, null));
                     } catch (NumberFormatException e) {
                         // Ignorar filas con datos inválidos
                     }
                 }
             }
 
-            // Crear DTO de propuesta
+            // Crear DTO de propuesta con IDs temporales 0
             PropuestaDTO propuesta = new PropuestaDTO(
                 tituloField.getText().trim(),
                 areaField.getText().trim(),
                 objetivoArea.getText().trim(),
                 descripcionArea.getText().trim(),
-              //  usuario.getDni(), // Asegurate de tener este campo en UsuarioSimplificadoDTO
-                totalHoras
+                false,    // aceptada
+                null,     // comentarios
+                0,        // idAlumno (cargar real después)
+                0,        // idEntidad (cargar real después)
+                0         // idProfesoPrincipal (cargar real después)
             );
 
             // Llamar a la API de persistencia

@@ -9,66 +9,51 @@ import com.mysql.jdbc.Connection;
 import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 import ar.edu.unrn.seminario.modelo.Convenio;
 
-public class ConvenioDAOJDBC implements ConvenioDao{
+public class ConvenioDAOJDBC implements ConvenioDao {
 
-	public void create(Convenio convenio) throws ConexionFallidaException {
-	    try {
-	        Connection conn = (Connection) ConnectionManager.getConnection();
+    @Override
+    public void create(Convenio convenio) throws ConexionFallidaException {
+        String sql = "INSERT INTO convenio (fecha_generacion, estado, archivo, propuesta_id, alumno_usuario, tutor_academico_usuario) " +
+                     "VALUES (?, ?, ?, ?, ?, ?)";
 
-	        int idPropuesta = obtenerIdPropuestaPorTitulo(convenio.getPropuesta().getTitulo());
-	        
-	        PreparedStatement statement = conn.prepareStatement(
-	        	    "INSERT INTO convenio (fecha_generacion, estado, archivo, propuesta_id, alumno_usuario, tutor_academico_usuario) " +
-	        	    "VALUES (?, ?, ?, ?, ?, ?)");
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
 
-	        // Setear los valores de cada columna
-	        statement.setDate(1, new java.sql.Date(convenio.getFechaGeneracion().getTime()));
-	        statement.setString(2, convenio.getEstado());
-	        statement.setString(3, convenio.getArchivo());
-	        statement.setInt(4, idPropuesta);
-	        statement.setInt(5, convenio.getPropuesta().getIdAlumno());
-	        statement.setInt(6, convenio.getPropuesta().getIdPorfesor());
-	   
-	        // Ejecutar la inserción
-	        int affectedRows = statement.executeUpdate();
+            int idPropuesta = obtenerIdPropuestaPorTitulo(convenio.getPropuesta().getTitulo());
 
-	        if (affectedRows == 0) {
-	            throw new SQLException("La creación del convenio falló, ninguna fila afectada.");
-	        }
+            statement.setDate(1, new java.sql.Date(convenio.getFechaGeneracion().getTime()));
+            statement.setString(2, convenio.getEstado());
+            statement.setString(3, convenio.getArchivo());
+            statement.setInt(4, idPropuesta);
+            statement.setInt(5, convenio.getPropuesta().getIdAlumno());
+            statement.setInt(6, convenio.getPropuesta().getIdPorfesor());
 
-	    } catch (SQLException e) {
-	        throw new RuntimeException("Error al crear el convenio: " + e.getMessage());
-	    } finally {
-	        ConnectionManager.disconnect();
-	    
-	    }
-	    }
-	
-	
-	public int obtenerIdPropuestaPorTitulo(String tituloPropuesta) throws ConexionFallidaException {
-	    int idPropuesta = -1;
+            int filas = statement.executeUpdate();
+            if (filas == 0) {
+                throw new ConexionFallidaException("La creación del convenio falló: no se afectaron filas.");
+            }
 
-	    try {
-	        Connection conn = (Connection) ConnectionManager.getConnection();
+        } catch (SQLException e) {
+            throw new ConexionFallidaException("Error al crear el convenio: " + e.getMessage());
+        }
+    }
 
-	        PreparedStatement buscarPropuesta = conn.prepareStatement(
-	            "SELECT id FROM propuesta WHERE titulo = ?"
-	        );
-	        buscarPropuesta.setString(1, tituloPropuesta);
-	        ResultSet rs = buscarPropuesta.executeQuery();
+    public int obtenerIdPropuestaPorTitulo(String tituloPropuesta) throws ConexionFallidaException {
+        String sql = "SELECT id FROM propuesta WHERE titulo = ?";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
 
-	        if (rs.next()) {
-	            idPropuesta = rs.getInt("id");
-	        } else {
-	            throw new SQLException("No se encontró la propuesta con el título: " + tituloPropuesta);
-	        }
+            statement.setString(1, tituloPropuesta);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                } else {
+                    throw new ConexionFallidaException("No se encontró la propuesta con el título: " + tituloPropuesta);
+                }
+            }
 
-	    } catch (SQLException e) {
-	        throw new RuntimeException("Error al obtener el id de la propuesta: " + e.getMessage());
-	    } finally {
-	        ConnectionManager.disconnect();
-	    }
-
-	    return idPropuesta;
-	}
-	}
+        } catch (SQLException e) {
+            throw new ConexionFallidaException("Error al obtener el id de la propuesta: " + e.getMessage());
+        }
+    }
+}
