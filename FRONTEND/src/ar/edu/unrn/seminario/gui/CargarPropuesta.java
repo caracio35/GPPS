@@ -246,7 +246,7 @@ public class CargarPropuesta extends JDialog {
         tableModel.addRow(new Object[]{"", 0});
 
         setContentPane(panel);
-        setSize(650, 700);
+        setSize(750, 900);
         setLocationRelativeTo(parent);
         getRootPane().setDefaultButton(guardarBtn);
     }

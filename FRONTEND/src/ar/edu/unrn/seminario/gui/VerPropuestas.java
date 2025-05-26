@@ -10,10 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -110,75 +107,164 @@ public class VerPropuestas extends JDialog {
     }
 
     private void cargarTodasLasPropuestas(IApi api, JPanel panel) {
-        JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        // Create table model with columns
+        String[] columnNames = {"Título", "Área de interés", "Descripción"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         List<PropuestaDTO> propuestasTodas = api.obtenerTodasPropuestas();
-
-        // Filtrar solo las propuestas aprobadas
         List<PropuestaDTO> propuestasAprobadas = new ArrayList<>();
+
+        // Add proposals to table
         for (PropuestaDTO p : propuestasTodas) {
             if (p.isAceptada()) {
                 propuestasAprobadas.add(p);
+                tableModel.addRow(new Object[]{
+                    p.getTitulo(),
+                    p.getAreaInteres(),
+                    p.getDescripcion()
+                });
             }
         }
 
-        for (PropuestaDTO p : propuestasAprobadas) {
-            JPanel propuestaPanel = new JPanel();
-            propuestaPanel.setLayout(new BoxLayout(propuestaPanel, BoxLayout.Y_AXIS));
-            propuestaPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
-            propuestaPanel.setOpaque(false);
-
-            propuestaPanel.add(createField("Título de propuesta:", p.getTitulo()));
-            propuestaPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            propuestaPanel.add(createField("Área de interés:", p.getAreaInteres()));
-            propuestaPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            propuestaPanel.add(createTextAreaField("Objetivo del proyecto:", p.getObjetivo(), 3));
-            propuestaPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            propuestaPanel.add(createTextAreaField("Breve descripción del proyecto:", p.getDescripcion(), 4));
-            propuestaPanel.add(Box.createRigidArea(new Dimension(0, 15)));
-
-            // Actividades y total de horas
-            JLabel actividadesLabel = new JLabel("Actividades y horas:");
-            actividadesLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            actividadesLabel.setForeground(new Color(70, 70, 70));
-            propuestaPanel.add(actividadesLabel);
-            propuestaPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-
-            String[] columnNames = {"Actividad", "Horas"};
-            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    return false;
-                }
-            };
-
-            int totalHoras = 0;
-            for (ActividadDTO act : p.getActividades()) {
-                tableModel.addRow(new Object[]{act.getnombre(), act.getHoras()});
-                totalHoras += act.getHoras();
-            }
-
-            JTable actividadesTable = new JTable(tableModel);
-            actividadesTable.setRowHeight(25);
-            actividadesTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
-            JScrollPane tableScroll = new JScrollPane(actividadesTable);
-            tableScroll.setPreferredSize(new Dimension(400, 150));
-            propuestaPanel.add(tableScroll);
-
-            JLabel totalLabel = new JLabel("Total de horas: " + totalHoras);
-            totalLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            totalLabel.setForeground(new Color(33, 150, 243));
-            propuestaPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            propuestaPanel.add(totalLabel);
-
-            tabbedPane.addTab(p.getTitulo(), propuestaPanel);
-        }
-
-        JScrollPane scrollPane = new JScrollPane(tabbedPane);
+        // Create and configure table
+        JTable propuestasTable = new JTable(tableModel);
+        propuestasTable.setRowHeight(25);
+        propuestasTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        
+        // Add table to scroll pane
+        JScrollPane scrollPane = new JScrollPane(propuestasTable);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        
+        // Add detail button
+        JButton verDetalleBtn = new JButton("Ver Detalle");
+        verDetalleBtn.setBackground(new Color(33, 150, 243));
+        verDetalleBtn.setForeground(Color.WHITE);
+        verDetalleBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        verDetalleBtn.setFocusPainted(false);
+        verDetalleBtn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        verDetalleBtn.setEnabled(false);
+
+        // Add selection listener to enable/disable button
+        propuestasTable.getSelectionModel().addListSelectionListener(e -> {
+            verDetalleBtn.setEnabled(propuestasTable.getSelectedRow() != -1);
+        });
+
+        // Add button action
+        verDetalleBtn.addActionListener(e -> {
+            int selectedRow = propuestasTable.getSelectedRow();
+            if (selectedRow != -1) {
+                PropuestaDTO propuesta = propuestasAprobadas.get(selectedRow);
+                mostrarDetallePropuesta(propuesta);
+            }
+        });
+
+        // Button panel
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setOpaque(false);
+        buttonPanel.add(verDetalleBtn);
+
+        // Add components to main panel using BorderLayout
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setOpaque(false);
+        contentPanel.add(scrollPane, BorderLayout.CENTER);
+        contentPanel.add(buttonPanel, BorderLayout.SOUTH);
+        panel.add(contentPanel, BorderLayout.CENTER);
+    }
+
+    private void mostrarDetallePropuesta(PropuestaDTO propuesta) {
+        JDialog detalleDialog = new JDialog(this, "Detalle de Propuesta", true);
+        detalleDialog.setLayout(new BorderLayout(10, 10));
+
+        // Panel con fondo degradado
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                int w = getWidth();
+                int h = getHeight();
+                Color color1 = new Color(240, 248, 255);
+                Color color2 = new Color(248, 248, 255);
+                GradientPaint gp = new GradientPaint(0, 0, color1, 0, h, color2);
+                g2d.setPaint(gp);
+                g2d.fillRect(0, 0, w, h);
+            }
+        };
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        // Add fields
+        panel.add(createField("Título de propuesta:", propuesta.getTitulo()));
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.add(createField("Área de interés:", propuesta.getAreaInteres()));
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.add(createTextAreaField("Objetivo del proyecto:", propuesta.getObjetivo(), 3));
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.add(createTextAreaField("Breve descripción del proyecto:", propuesta.getDescripcion(), 4));
+        panel.add(Box.createRigidArea(new Dimension(0, 15)));
+
+        // Actividades
+        JLabel actividadesLabel = new JLabel("Actividades y horas:");
+        actividadesLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        actividadesLabel.setForeground(new Color(70, 70, 70));
+        panel.add(actividadesLabel);
+        panel.add(Box.createRigidArea(new Dimension(0, 5)));
+
+        // Tabla de actividades
+        String[] columnNames = {"Actividad", "Horas"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        int totalHoras = 0;
+        for (ActividadDTO act : propuesta.getActividades()) {
+            tableModel.addRow(new Object[]{act.getnombre(), act.getHoras()});
+            totalHoras += act.getHoras();
+        }
+
+        JTable actividadesTable = new JTable(tableModel);
+        actividadesTable.setRowHeight(25);
+        actividadesTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JScrollPane tableScroll = new JScrollPane(actividadesTable);
+        tableScroll.setPreferredSize(new Dimension(400, 150));
+        panel.add(tableScroll);
+
+        // Total de horas
+        JLabel totalLabel = new JLabel("Total de horas: " + totalHoras);
+        totalLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        totalLabel.setForeground(new Color(33, 150, 243));
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.add(totalLabel);
+
+        // Scroll pane for the main panel
+        JScrollPane scrollPane = new JScrollPane(panel);
+        scrollPane.setBorder(null);
+        detalleDialog.add(scrollPane, BorderLayout.CENTER);
+
+        // Close button
+        JButton cerrarBtn = new JButton("Cerrar");
+        cerrarBtn.setBackground(new Color(244, 67, 54));
+        cerrarBtn.setForeground(Color.WHITE);
+        cerrarBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        cerrarBtn.addActionListener(e -> detalleDialog.dispose());
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(cerrarBtn);
+        detalleDialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        detalleDialog.setSize(750, 900);
+        detalleDialog.setLocationRelativeTo(this);
+        detalleDialog.setVisible(true);
     }
 
     private JPanel createField(String labelText, String fieldValue) {
