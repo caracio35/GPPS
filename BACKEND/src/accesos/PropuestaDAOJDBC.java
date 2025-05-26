@@ -194,7 +194,7 @@ public class PropuestaDAOJDBC implements PropuestaDao {
                     Actividad actividad = new Actividad(
                             rs.getString("nombre_actividad"),
                             rs.getInt("horas"),
-                            null
+                            rs.getString("nombre_actividad")
                     );
                     actividades.add(actividad);
                 }
