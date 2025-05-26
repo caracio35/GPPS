@@ -228,10 +228,4 @@ public class SeudoLogin extends JFrame {
 		});
 	}
 
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(() -> {
-			SeudoLogin loginScreen = new SeudoLogin(null); // Puedes pasar la API real aquí
-			loginScreen.setVisible(true);
-		});
-	}
 }
