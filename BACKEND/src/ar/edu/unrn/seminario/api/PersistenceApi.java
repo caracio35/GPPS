@@ -4,19 +4,29 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import accesos.AlumnoDAOJDBC;
+import accesos.EntidadDAOJDBC;
 import accesos.PropuestaDAOJDBC;
 import accesos.RolDAOJDBC;
 import accesos.RolDao;
+import accesos.TutorProfesorDAOJDBC;
 import accesos.UsuarioDAOJDBC;
 import accesos.UsuarioDao;
 import ar.edu.unrn.seminario.dto.ActividadDTO;
+import ar.edu.unrn.seminario.dto.AlumnoDTO;
+import ar.edu.unrn.seminario.dto.EntidadDTO;
+import ar.edu.unrn.seminario.dto.PersonaDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.RolDTO;
+import ar.edu.unrn.seminario.dto.TutorProfesorDTO;
 import ar.edu.unrn.seminario.dto.UsuarioDTO;
 import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 import ar.edu.unrn.seminario.modelo.Actividad;
+import ar.edu.unrn.seminario.modelo.Alumno;
+import ar.edu.unrn.seminario.modelo.Entidad;
 import ar.edu.unrn.seminario.modelo.Propuesta;
 import ar.edu.unrn.seminario.modelo.Rol;
+import ar.edu.unrn.seminario.modelo.TutorProfesor;
 import ar.edu.unrn.seminario.modelo.Usuario;
 
 public class PersistenceApi implements IApi {
@@ -271,6 +281,82 @@ public class PersistenceApi implements IApi {
 		    }
 
 		    return null;
+		}
+
+	@Override
+	public EntidadDTO obtenerEntidad(int id) {
+		 
+		 EntidadDAOJDBC dao = new EntidadDAOJDBC();
+		 
+		 Entidad entidad = null ; 
+		 EntidadDTO entidadDTO = null ;
+		 
+		 try {
+			entidad = dao.find(id);
+		} catch (ConexionFallidaException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 if (entidad != null) {
+			    entidadDTO = new EntidadDTO(
+			        entidad.getNombre(),
+			        entidad.getTelefono(),
+			        entidad.getCorreo(),
+			        entidad.getCuit()
+			    );
+			}
+		 
+		return entidadDTO;
+	}
+
+	@Override
+	public AlumnoDTO obtenerAlumno(int id) {
+		AlumnoDAOJDBC dao = new AlumnoDAOJDBC();
+
+		Alumno alumno = null;
+		AlumnoDTO alumnoDTO = null;
+
+		try {
+		    alumno = dao.find(id);  	
+		} catch (ConexionFallidaException e) {
+		    e.printStackTrace();
+		}
+
+		if (alumno != null) {
+		    alumnoDTO = new AlumnoDTO(
+		        alumno.getNombre(),
+		        alumno.getApellido(),
+		        alumno.getDni(),
+		        alumno.getCorreo()
+		    );
+		}
+
+		return alumnoDTO;
+		}
+
+	@Override
+	public TutorProfesorDTO obtenerProfeso(int id) {
+		  TutorProfesorDAOJDBC dao = new TutorProfesorDAOJDBC();
+
+		    TutorProfesor profesor = null;
+		    TutorProfesorDTO profesorDTO = null; // Cambié de PersonaDTO a TutorProfesorDTO
+
+		    try {
+		        profesor = dao.find(id);
+		    } catch (ConexionFallidaException e) {
+		        e.printStackTrace();
+		    }
+
+		    if (profesor != null) {
+		        profesorDTO = new TutorProfesorDTO(
+		            profesor.getNombre(),
+		            profesor.getApellido(),
+		            profesor.getDni(),
+		            profesor.getCorreo()
+		        );
+		    }
+
+		    return profesorDTO;
 		}
 
 }

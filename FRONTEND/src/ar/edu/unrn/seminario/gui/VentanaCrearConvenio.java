@@ -6,94 +6,144 @@ import java.util.List;
 
 import ar.edu.unrn.seminario.api.IApi;
 import ar.edu.unrn.seminario.api.PersistenceApi;
+import ar.edu.unrn.seminario.dto.AlumnoDTO;
+import ar.edu.unrn.seminario.dto.EntidadDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
+import ar.edu.unrn.seminario.dto.TutorProfesorDTO;
 
 public class VentanaCrearConvenio extends JFrame {
-    private JTextField tfEntidad, tfRepresentante, tfDniRep;
-    private JTextField tfEstudiante, tfDniEst, tfCarrera;
-    private JTextField tfTutor, tfDniTutor, tfSupervisor, tfDniSupervisor;
+	
+	 private JTextField tfEntidad, tfCuitEntidad;
+	    private JTextField tfEstudiante, tfDniEst;
+	    private JTextField tfTutor, tfDniTutor;
 
-    private IApi api;
-    private PropuestaDTO propuestaSeleccionada;
+	    private IApi api;
+	    private PropuestaDTO propuestaSeleccionada;
+	    private EntidadDTO entidadDto;
+	    private AlumnoDTO alumnoDto;
+	    private TutorProfesorDTO turorDto;
 
-    public VentanaCrearConvenio(IApi api ,String tituloProyecto) {
-        setTitle("Generar Acta Acuerdo");
-        setSize(600, 500);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new GridLayout(12, 2, 5, 5));
+	    public VentanaCrearConvenio(IApi api, String tituloProyecto) {
+	        setTitle("Generar Acta Acuerdo");
+	        setSize(600, 400);
+	        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	        setLocationRelativeTo(null); // Centrar ventana
+	        setLayout(new GridBagLayout());
 
-        propuestaSeleccionada = api.obtenerPropuestaPorTitulo(tituloProyecto); 
-        
-        
-        tfEntidad = new JTextField(); 
-        tfEntidad.setEditable(false);
-        tfRepresentante = new JTextField();
-        tfRepresentante.setEditable(false);
-        tfDniRep = new JTextField(); 
-        tfDniRep.setEditable(false);
-        tfEstudiante = new JTextField(); 
-        tfEstudiante.setEditable(false);
-        tfDniEst = new JTextField(); 
-        tfDniEst.setEditable(false);
-        tfCarrera = new JTextField(); 
-        tfCarrera.setEditable(false);
-        tfTutor = new JTextField(); 
-        tfTutor.setEditable(false);
-        tfDniTutor = new JTextField(); 
-        tfDniTutor.setEditable(false);
-        tfSupervisor = new JTextField(); 
-        tfSupervisor.setEditable(false);
-        tfDniSupervisor = new JTextField(); 
-        tfDniSupervisor.setEditable(false);
+	        propuestaSeleccionada = api.obtenerPropuestaPorTitulo(tituloProyecto);
+	        entidadDto = api.obtenerEntidad(propuestaSeleccionada.getIdEntidad());
+	        alumnoDto = api.obtenerAlumno(propuestaSeleccionada.getIdAlumno());
+	        turorDto = api.obtenerProfeso(propuestaSeleccionada.getIdProfesoPrincipal());
 
-        add(new JLabel("Título Proyecto:"));
-        add(new JLabel(propuestaSeleccionada.getTitulo()));
-        add(new JLabel("Entidad:")); 
-        add(tfEntidad);
-        add(new JLabel("Representante:")); 
-        add(tfRepresentante);
-        add(new JLabel("DNI Representante:")); 
-        add(tfDniRep);
-        add(new JLabel("Estudiante:"));
-        add(tfEstudiante);
-        add(new JLabel("DNI Estudiante:")); 
-        add(tfDniEst);
-        add(new JLabel("Carrera:")); 
-        add(tfCarrera);
-        add(new JLabel("Tutor Académico:")); 
-        add(tfTutor);
-        add(new JLabel("DNI Tutor:"));
-        add(tfDniTutor);
-        add(new JLabel("Docente Supervisor:")); 
-        add(tfSupervisor);
-        add(new JLabel("DNI Supervisor:")); 
-        add(tfDniSupervisor);
+	        GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(10, 10, 10, 10);
+	        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JButton btnGenerar = new JButton("Generar Acta");
-        btnGenerar.addActionListener(e -> generarConvenio());
-        add(btnGenerar); add(new JLabel()); 
-        cargarDatos();
-        setVisible(true);
-    }
+	        // ===== ENTIDAD =====
+	        gbc.gridx = 0;
+	        gbc.gridy = 0;
+	        add(new JLabel("Entidad:"), gbc);
 
-    private void cargarDatos() {
-        // ⚠️ Acá tenés que usar tu DTO real. Ejemplo:
-        tfEntidad.setText("Entidad vinculada (ejemplo)"); // Podés agregar el nombre real de la entidad
-        tfRepresentante.setText("Representante Ejemplo");
-        tfDniRep.setText("30111222");
-        tfEstudiante.setText("Alumno Ejemplo");
-        tfDniEst.setText("44111222");
-        tfCarrera.setText("Carrera Ejemplo");
-        tfTutor.setText("Tutor Ejemplo");
-        tfDniTutor.setText("22111000");
-        tfSupervisor.setText("Supervisor Ejemplo");
-        tfDniSupervisor.setText("25111444");
+	        tfEntidad = new JTextField();
+	        tfEntidad.setEditable(false);
+	        gbc.gridx = 1;
+	        gbc.gridy = 0;
+	        add(tfEntidad, gbc);
 
-        // 🔹 En la práctica, todos estos valores deberían salir de `propuestaSeleccionada` o de tu base de datos.
-    }
+	        gbc.gridx = 0;
+	        gbc.gridy = 1;
+	        add(new JLabel("CUIT:"), gbc);
+
+	        tfCuitEntidad = new JTextField();
+	        tfCuitEntidad.setEditable(false);
+	        gbc.gridx = 1;
+	        gbc.gridy = 1;
+	        add(tfCuitEntidad, gbc);
+
+	        // ===== ESTUDIANTE =====
+	        gbc.gridx = 0;
+	        gbc.gridy = 2;
+	        add(new JLabel("Estudiante:"), gbc);
+
+	        tfEstudiante = new JTextField();
+	        tfEstudiante.setEditable(false);
+	        gbc.gridx = 1;
+	        gbc.gridy = 2;
+	        add(tfEstudiante, gbc);
+
+	        gbc.gridx = 0;
+	        gbc.gridy = 3;
+	        add(new JLabel("DNI Estudiante:"), gbc);
+
+	        tfDniEst = new JTextField();
+	        tfDniEst.setEditable(false);
+	        gbc.gridx = 1;
+	        gbc.gridy = 3;
+	        add(tfDniEst, gbc);
+
+	        // ===== TUTOR ACADÉMICO =====
+	        gbc.gridx = 0;
+	        gbc.gridy = 4;
+	        add(new JLabel("Tutor Académico:"), gbc);
+
+	        tfTutor = new JTextField();
+	        tfTutor.setEditable(false);
+	        gbc.gridx = 1;
+	        gbc.gridy = 4;
+	        add(tfTutor, gbc);
+
+	        gbc.gridx = 0;
+	        gbc.gridy = 5;
+	        add(new JLabel("DNI Tutor:"), gbc);
+
+	        tfDniTutor = new JTextField();
+	        tfDniTutor.setEditable(false);
+	        gbc.gridx = 1;
+	        gbc.gridy = 5;
+	        add(tfDniTutor, gbc);
+
+	        // ===== BOTONES =====
+	        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+	        JButton btnGenerar = new JButton("Generar Acta");
+	        btnGenerar.addActionListener(e -> generarConvenio());
+	        JButton btnCancelar = new JButton("Cancelar");
+	        btnCancelar.addActionListener(e -> dispose());
+
+	        panelBotones.add(btnGenerar);
+	        panelBotones.add(btnCancelar);
+
+	        gbc.gridx = 0;
+	        gbc.gridy = 6;
+	        gbc.gridwidth = 2;
+	        add(panelBotones, gbc);
+
+	        cargarDatos();
+	        setVisible(true);
+	    }
+
+	    private void cargarDatos() {
+	        // Cargar datos de la Entidad
+	        if (entidadDto != null) {
+	            tfEntidad.setText(entidadDto.getNombre());
+	            tfCuitEntidad.setText(entidadDto.getCuit());
+	        }
+
+	        // Cargar datos del Estudiante
+	        if (alumnoDto != null) {
+	            tfEstudiante.setText(alumnoDto.getNombre() + " " + alumnoDto.getApellido());
+	            tfDniEst.setText(alumnoDto.getDni());
+	        }
+
+	        // Cargar datos del Tutor Académico
+	        if (turorDto != null) {
+	            tfTutor.setText(turorDto.getNombre() + " " + turorDto.getApellido());
+	            tfDniTutor.setText(turorDto.getDni());
+	        }
+	    }
+
 
     private void generarConvenio() {
-        // Lógica para generar el acta de convenio en la base de datos
+        api.crearConvinio(getName(), getTitle(), getWarningString(), getName());
         JOptionPane.showMessageDialog(this, "¡Acta generada con éxito!");
         // ⚠️ Podés implementar la lógica de persistencia real acá
     }

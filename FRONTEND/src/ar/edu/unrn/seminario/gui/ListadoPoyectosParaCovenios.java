@@ -17,55 +17,54 @@ public class ListadoPoyectosParaCovenios extends JFrame {
     List<PropuestaDTO> propuestas ;
 
     public ListadoPoyectosParaCovenios(IApi api) {
-        setTitle("Proyectos Aprobados");
-        setSize(600, 400);
-        setLayout(new BorderLayout());
+    	   setTitle("Proyectos Aprobados");
+    	    setSize(600, 400);
+    	    setLayout(new BorderLayout());
 
-        this.api = api;
-        
-       propuestas = api.obtenerTodasPropuestas(); 
+    	    this.api = api;
 
-        modelo = new DefaultTableModel(new Object[]{"Título", "Tutor", "Entidad"}, 0);
-        tabla = new JTable(modelo);
-        cargarDatos();
+    	    propuestas = api.obtenerTodasPropuestas();
 
-        add(new JScrollPane(tabla), BorderLayout.CENTER);
+    	    // Cambiamos las columnas para mostrar Título y Área de Interés
+    	    modelo = new DefaultTableModel(new Object[]{"Título", "Área de Interés"}, 0);
+    	    tabla = new JTable(modelo);
+    	    cargarDatos();
 
-        JButton btnGenerar = new JButton("Generar Convenio");
-        btnGenerar.addActionListener(this::abrirVentanaConvenio);
-        add(btnGenerar, BorderLayout.SOUTH);
+    	    add(new JScrollPane(tabla), BorderLayout.CENTER);
 
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setVisible(true);
-    }
+    	    JButton btnGenerar = new JButton("Generar Convenio");
+    	    btnGenerar.addActionListener(this::abrirVentanaConvenio);
+    	    add(btnGenerar, BorderLayout.SOUTH);
 
-   
-    private void cargarDatos() {
-        modelo.setRowCount(0); 
-        for (PropuestaDTO p : propuestas) {
-            
-            String tutor = (p.getIdProfesoPrincipal() != 0) ? String.valueOf(p.getIdProfesoPrincipal()) : "No asignado";
-            String entidad = (p.getIdEntidad() != 0) ? String.valueOf(p.getIdEntidad()) : "No asignada";
-            modelo.addRow(new Object[]{
-                    p.getTitulo(),
-                    tutor,
-                    entidad
-            });
-        }
-    }
+    	    setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    	    setVisible(true);
+    	}
 
-    private void abrirVentanaConvenio(ActionEvent e) {
-        int filaSeleccionada = tabla.getSelectedRow();
-        if (filaSeleccionada == -1) {
-            JOptionPane.showMessageDialog(this, "Seleccioná un proyecto.");
-            return;
-        }
+    	private void cargarDatos() {
+    	    modelo.setRowCount(0);
+    	    for (PropuestaDTO p : propuestas) {
+    	        // Filtrar solo las aprobadas
+    	        if (p.isAceptada()) { // o p.getEstado().equals("Aprobada")
+    	            String areaInteres = (p.getAreaInteres() != null) ? p.getAreaInteres() : "Sin área asignada";
+    	            modelo.addRow(new Object[]{
+    	                    p.getTitulo(),
+    	                    areaInteres
+    	            });
+    	        }
+    	    }
+    	}
+    	
 
-        
-        String tituloPropuesta = (String) modelo.getValueAt(filaSeleccionada, 0);
+    	private void abrirVentanaConvenio(ActionEvent e) {
+    	    int filaSeleccionada = tabla.getSelectedRow();
+    	    if (filaSeleccionada == -1) {
+    	        JOptionPane.showMessageDialog(this, "Seleccioná un proyecto.");
+    	        return;
+    	    }
 
-       
-        new VentanaCrearConvenio(api ,tituloPropuesta);
-    }
+    	    String tituloPropuesta = (String) modelo.getValueAt(filaSeleccionada, 0);
+
+    	    new VentanaCrearConvenio(api, tituloPropuesta);
+    	}
 }
 

@@ -2,9 +2,13 @@ package ar.edu.unrn.seminario.api;
 
 import java.util.List;
 
+import ar.edu.unrn.seminario.dto.AlumnoDTO;
+import ar.edu.unrn.seminario.dto.EntidadDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.RolDTO;
+import ar.edu.unrn.seminario.dto.TutorProfesorDTO;
 import ar.edu.unrn.seminario.dto.UsuarioDTO;
+import ar.edu.unrn.seminario.modelo.TutorProfesor;
 
 public interface IApi {
 
@@ -37,4 +41,10 @@ public interface IApi {
 	PropuestaDTO  obtenerPropuestaPorTitulo(String tituloProyecto);
 	
 	void crearConvinio(String nombre_propuesta , String nombre_alumno , String nombre_tutor , String fecha_convenio);
+	
+	EntidadDTO obtenerEntidad(int id);
+	
+	AlumnoDTO obtenerAlumno(int id);
+	
+	TutorProfesorDTO obtenerProfeso(int id);
 }
