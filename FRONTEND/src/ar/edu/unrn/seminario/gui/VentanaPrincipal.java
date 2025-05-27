@@ -60,7 +60,6 @@ public class VentanaPrincipal extends JFrame {
         if (pendientes > 0) {
             welcomeLabel.setForeground(Color.RED);
         }
-
         welcomeLabel.setOpaque(true);
         welcomeLabel.setBackground(Color.LIGHT_GRAY);
         welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
