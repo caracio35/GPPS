@@ -1,21 +1,22 @@
 package ar.edu.unrn.seminario.dto;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class PropuestaDTO {
     private String titulo;
     private String areaInteres;
     private String objetivo;
     private String descripcion;
-    private boolean aceptada;
+    private int aceptada; // 0 = no aceptada, 1 = aceptada ,-1 = rechazada
     private String comentarios;
     private List<ActividadDTO> actividades;
     private int idAlumno; // FK a Alumno
     private int idEntidad; // FK a Entidad
-    private int idProfesoPrincipal ; 
+    private int idProfesoPrincipal;
 
-    public PropuestaDTO(String titulo, String areaInteres, String objetivo, String descripcion, boolean aceptada, String comentarios, int idAlumno, int idEntidad, int idProfesoPrincipal) {
+    public PropuestaDTO(String titulo, String areaInteres, String objetivo, String descripcion, int aceptada,
+            String comentarios, int idAlumno, int idEntidad, int idProfesoPrincipal) {
         this.titulo = titulo;
         this.areaInteres = areaInteres;
         this.objetivo = objetivo;
@@ -45,7 +46,7 @@ public class PropuestaDTO {
         return descripcion;
     }
 
-    public boolean isAceptada() {
+    public int isAceptada() {
         return aceptada;
     }
 
@@ -86,7 +87,7 @@ public class PropuestaDTO {
         this.descripcion = descripcion;
     }
 
-    public void setAceptada(boolean aceptada) {
+    public void setAceptada(int aceptada) {
         this.aceptada = aceptada;
     }
 

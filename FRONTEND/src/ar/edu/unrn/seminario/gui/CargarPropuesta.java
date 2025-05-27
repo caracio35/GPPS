@@ -1,30 +1,41 @@
 package ar.edu.unrn.seminario.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-
-
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 
 import ar.edu.unrn.seminario.api.PersistenceApi;
 import ar.edu.unrn.seminario.dto.ActividadDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CargarPropuesta extends JDialog {
     private JTextField tituloField;
@@ -35,7 +46,7 @@ public class CargarPropuesta extends JDialog {
     private DefaultTableModel tableModel;
     private JLabel totalHorasLabel;
     private int totalHoras = 0;
-    private UsuarioSimplificadoDTO usuario; 
+    private UsuarioSimplificadoDTO usuario;
 
     public CargarPropuesta(JFrame parent, UsuarioSimplificadoDTO usuario) {
         super(parent, "Cargar Propuesta", true);
@@ -72,7 +83,7 @@ public class CargarPropuesta extends JDialog {
         JPanel formPanel = new JPanel();
         formPanel.setOpaque(false);
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
-        
+
         // Estilo para las etiquetas
         Font labelFont = new Font("Segoe UI", Font.BOLD, 14);
         Color labelColor = new Color(70, 70, 70);
@@ -118,30 +129,30 @@ public class CargarPropuesta extends JDialog {
         formPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
         // Modelo de tabla
-        String[] columnNames = {"Actividad", "Horas"};
+        String[] columnNames = { "Actividad", "Horas" };
         tableModel = new DefaultTableModel(columnNames, 0);
         actividadesTable = new JTable(tableModel);
         actividadesTable.setRowHeight(25);
         actividadesTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
-        
+
         JScrollPane tableScroll = new JScrollPane(actividadesTable);
         tableScroll.setPreferredSize(new Dimension(400, 150));
         formPanel.add(tableScroll);
-        
+
         // Panel para botones de la tabla
         JPanel tableButtonPanel = new JPanel();
         tableButtonPanel.setOpaque(false);
         tableButtonPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
-        
+
         JButton addRowButton = new JButton("Agregar Actividad");
         addRowButton.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         addRowButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                tableModel.addRow(new Object[]{"", 0});
+                tableModel.addRow(new Object[] { "", 0 });
             }
         });
-        
+
         JButton removeRowButton = new JButton("Eliminar Actividad");
         removeRowButton.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         removeRowButton.addActionListener(new ActionListener() {
@@ -154,30 +165,30 @@ public class CargarPropuesta extends JDialog {
                 }
             }
         });
-        
+
         tableButtonPanel.add(addRowButton);
         tableButtonPanel.add(removeRowButton);
         formPanel.add(tableButtonPanel);
-        
+
         // Total de horas
         JPanel totalPanel = new JPanel();
         totalPanel.setOpaque(false);
         totalPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
-        
+
         JLabel totalLabel = new JLabel("Total de horas:");
         totalLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         totalHorasLabel = new JLabel("0");
         totalHorasLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         totalHorasLabel.setForeground(new Color(33, 150, 243));
-        
+
         totalPanel.add(totalLabel);
         totalPanel.add(totalHorasLabel);
         formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(totalPanel);
-        
+
         // Agregar listener para actualizar total de horas
         tableModel.addTableModelListener(e -> calcularTotalHoras());
-        
+
         // Agregar panel de formulario al panel principal
         JScrollPane formScrollPane = new JScrollPane(formPanel);
         formScrollPane.setBorder(null);
@@ -187,26 +198,26 @@ public class CargarPropuesta extends JDialog {
         // Panel inferior con botones
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
-        
+
         JButton guardarBtn = new JButton("Subir Propuesta");
         guardarBtn.setBackground(new Color(76, 175, 80));
         guardarBtn.setForeground(Color.WHITE);
         guardarBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         guardarBtn.setFocusPainted(false);
         guardarBtn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-        
+
         guardarBtn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 guardarBtn.setBackground(new Color(56, 142, 60));
             }
-            
+
             @Override
             public void mouseExited(MouseEvent e) {
                 guardarBtn.setBackground(new Color(76, 175, 80));
             }
         });
-        
+
         guardarBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -221,53 +232,53 @@ public class CargarPropuesta extends JDialog {
         cancelarBtn.setFocusPainted(false);
         cancelarBtn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         cancelarBtn.addActionListener(e -> dispose());
-        
+
         cancelarBtn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 cancelarBtn.setBackground(new Color(211, 47, 47));
             }
-            
+
             @Override
             public void mouseExited(MouseEvent e) {
                 cancelarBtn.setBackground(new Color(244, 67, 54));
             }
         });
-        
+
         buttonPanel.add(guardarBtn);
         buttonPanel.add(Box.createRigidArea(new Dimension(20, 0)));
         buttonPanel.add(cancelarBtn);
-        
+
         panel.add(buttonPanel, BorderLayout.SOUTH);
 
         // Agregar filas iniciales a la tabla
-        tableModel.addRow(new Object[]{"", 0});
-        tableModel.addRow(new Object[]{"", 0});
-        tableModel.addRow(new Object[]{"", 0});
+        tableModel.addRow(new Object[] { "", 0 });
+        tableModel.addRow(new Object[] { "", 0 });
+        tableModel.addRow(new Object[] { "", 0 });
 
         setContentPane(panel);
         setSize(750, 900);
         setLocationRelativeTo(parent);
         getRootPane().setDefaultButton(guardarBtn);
     }
-    
+
     private JPanel createFieldPanel(String labelText, Font labelFont, Color labelColor) {
         JPanel panel = new JPanel();
         panel.setOpaque(false);
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
-        
+
         JLabel label = new JLabel(labelText);
         label.setFont(labelFont);
         label.setForeground(labelColor);
         label.setAlignmentX(JLabel.LEFT_ALIGNMENT);
-        
+
         panel.add(label);
         panel.add(Box.createRigidArea(new Dimension(0, 5)));
-        
+
         return panel;
     }
-    
+
     private JTextField createTextField() {
         JTextField field = new JTextField();
         field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -278,7 +289,7 @@ public class CargarPropuesta extends JDialog {
         field.setMaximumSize(new Dimension(Integer.MAX_VALUE, field.getPreferredSize().height));
         return field;
     }
-    
+
     private JTextArea createTextArea(int rows) {
         JTextArea area = new JTextArea(rows, 20);
         area.setLineWrap(true);
@@ -289,7 +300,7 @@ public class CargarPropuesta extends JDialog {
                 BorderFactory.createEmptyBorder(8, 8, 8, 8)));
         return area;
     }
-    
+
     private void calcularTotalHoras() {
         totalHoras = 0;
         for (int i = 0; i < tableModel.getRowCount(); i++) {
@@ -304,18 +315,18 @@ public class CargarPropuesta extends JDialog {
         }
         totalHorasLabel.setText(String.valueOf(totalHoras));
     }
-    
+
     void recogerDatos() {
         try {
             // Validar campos obligatorios
-            if (tituloField.getText().trim().isEmpty() || 
-                areaField.getText().trim().isEmpty() || 
-                objetivoArea.getText().trim().isEmpty() || 
-                descripcionArea.getText().trim().isEmpty()) {
+            if (tituloField.getText().trim().isEmpty() ||
+                    areaField.getText().trim().isEmpty() ||
+                    objetivoArea.getText().trim().isEmpty() ||
+                    descripcionArea.getText().trim().isEmpty()) {
                 JOptionPane.showMessageDialog(this,
-                    "Por favor complete todos los campos obligatorios",
-                    "Error de validación",
-                    JOptionPane.ERROR_MESSAGE);
+                        "Por favor complete todos los campos obligatorios",
+                        "Error de validación",
+                        JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -338,15 +349,15 @@ public class CargarPropuesta extends JDialog {
 
             // Crear DTO de propuesta con IDs temporales 0
             PropuestaDTO propuesta = new PropuestaDTO(
-                tituloField.getText().trim(),
-                areaField.getText().trim(),
-                objetivoArea.getText().trim(),
-                descripcionArea.getText().trim(),
-                false,    // aceptada
-                null,     // comentarios
-                0,        // idAlumno (cargar real después)
-                0,        // idEntidad (cargar real después)
-                0         // idProfesoPrincipal (cargar real después)
+                    tituloField.getText().trim(),
+                    areaField.getText().trim(),
+                    objetivoArea.getText().trim(),
+                    descripcionArea.getText().trim(),
+                    0, // aceptada
+                    null, // comentarios
+                    0, // idAlumno (cargar real después)
+                    0, // idEntidad (cargar real después)
+                    0 // idProfesoPrincipal (cargar real después)
             );
 
             // Llamar a la API de persistencia
@@ -354,23 +365,23 @@ public class CargarPropuesta extends JDialog {
             api.guardarPropuesta(propuesta, actividades);
 
             JOptionPane.showMessageDialog(this,
-                "La propuesta se ha guardado exitosamente",
-                "Éxito",
-                JOptionPane.INFORMATION_MESSAGE);
-            
+                    "La propuesta se ha guardado exitosamente",
+                    "Éxito",
+                    JOptionPane.INFORMATION_MESSAGE);
+
             // Actualizar el contador de propuestas pendientes en VentanaPrincipal
             if (getOwner() instanceof VentanaPrincipal) {
                 VentanaPrincipal ventana = (VentanaPrincipal) getOwner();
                 ventana.actualizarContadorPropuestas();
             }
-            
+
             dispose();
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
-                "Error al guardar la propuesta: " + e.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
+                    "Error al guardar la propuesta: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
     }

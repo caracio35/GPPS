@@ -1,17 +1,24 @@
 package ar.edu.unrn.seminario.gui;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 import ar.edu.unrn.seminario.api.IApi;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 
 public class ListadoPoyectosParaCovenios extends JFrame {
 
-	private JTable tabla;
+    private JTable tabla;
     private DefaultTableModel modelo;
     private IApi api;
     List<PropuestaDTO> propuestas;
@@ -26,7 +33,7 @@ public class ListadoPoyectosParaCovenios extends JFrame {
         propuestas = api.obtenerTodasPropuestas();
 
         // Cambiamos las columnas para mostrar Título y Área de Interés
-        modelo = new DefaultTableModel(new Object[]{"Título", "Área de Interés"}, 0);
+        modelo = new DefaultTableModel(new Object[] { "Título", "Área de Interés" }, 0);
         tabla = new JTable(modelo);
         cargarDatos();
 
@@ -54,9 +61,9 @@ public class ListadoPoyectosParaCovenios extends JFrame {
         modelo.setRowCount(0);
         for (PropuestaDTO p : propuestas) {
             // Filtrar solo las aprobadas
-            if (p.isAceptada()) { // o p.getEstado().equals("Aprobada")
+            if (p.isAceptada() == 0) { // 0 = no aceptada, 1 = aceptada,-1 = rechazada
                 String areaInteres = (p.getAreaInteres() != null) ? p.getAreaInteres() : "Sin área asignada";
-                modelo.addRow(new Object[]{
+                modelo.addRow(new Object[] {
                         p.getTitulo(),
                         areaInteres
                 });
@@ -77,4 +84,3 @@ public class ListadoPoyectosParaCovenios extends JFrame {
     }
 
 }
-

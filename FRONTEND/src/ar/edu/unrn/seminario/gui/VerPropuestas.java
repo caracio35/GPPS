@@ -10,7 +10,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,19 +20,15 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-import accesos.ConnectionManager;
 import ar.edu.unrn.seminario.api.IApi;
 import ar.edu.unrn.seminario.dto.ActividadDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
@@ -43,11 +38,10 @@ public class VerPropuestas extends JDialog {
     private UsuarioSimplificadoDTO usuario;
     private boolean aprobadas;
 
-    public VerPropuestas(JFrame parent, UsuarioSimplificadoDTO usuario, IApi api,boolean aprobadas) {
+    public VerPropuestas(JFrame parent, UsuarioSimplificadoDTO usuario, IApi api, boolean aprobadas) {
         super(parent, "Ver Propuestas", true);
         this.usuario = usuario;
         this.aprobadas = aprobadas;
-       
 
         // Panel principal con degradado
         JPanel panel = new JPanel() {
@@ -111,7 +105,7 @@ public class VerPropuestas extends JDialog {
 
     private void cargarTodasLasPropuestas(IApi api, JPanel panel) {
         // Create table model with columns
-        String[] columnNames = {"Título", "Área de interés", "Descripción"};
+        String[] columnNames = { "Título", "Área de interés", "Descripción" };
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -124,22 +118,22 @@ public class VerPropuestas extends JDialog {
 
         // Add proposals to table
         for (PropuestaDTO p : propuestasTodas) {
-            if (!aprobadas) {    // Si aprobadas es true, mostrar las propuestas aceptadas
-                if (p.isAceptada()) {
+            if (!aprobadas) { // Si aprobadas es true, mostrar las propuestas aceptadas
+                if (p.isAceptada() == 1) {
                     propuestasAprobadas.add(p);
-                    tableModel.addRow(new Object[]{
-                        p.getTitulo(),
-                        p.getAreaInteres(),
-                        p.getDescripcion()
+                    tableModel.addRow(new Object[] {
+                            p.getTitulo(),
+                            p.getAreaInteres(),
+                            p.getDescripcion()
                     });
                 }
-            } else {            // Si aprobadas es false, mostrar las propuestas pendientes
-                if (!p.isAceptada()) {
+            } else { // Si aprobadas es false, mostrar las propuestas pendientes
+                if (p.isAceptada() == 0) {
                     propuestasAprobadas.add(p);
-                    tableModel.addRow(new Object[]{
-                        p.getTitulo(),
-                        p.getAreaInteres(),
-                        p.getDescripcion()
+                    tableModel.addRow(new Object[] {
+                            p.getTitulo(),
+                            p.getAreaInteres(),
+                            p.getDescripcion()
                     });
                 }
             }
@@ -148,12 +142,12 @@ public class VerPropuestas extends JDialog {
         JTable propuestasTable = new JTable(tableModel);
         propuestasTable.setRowHeight(25);
         propuestasTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
-        
+
         // Add table to scroll pane
         JScrollPane scrollPane = new JScrollPane(propuestasTable);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        
+
         // Add detail button
         JButton verDetalleBtn = new JButton("Ver Detalle");
         verDetalleBtn.setBackground(new Color(33, 150, 243));
@@ -231,7 +225,7 @@ public class VerPropuestas extends JDialog {
         panel.add(Box.createRigidArea(new Dimension(0, 5)));
 
         // Tabla de actividades
-        String[] columnNames = {"Actividad", "Horas"};
+        String[] columnNames = { "Actividad", "Horas" };
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -241,7 +235,7 @@ public class VerPropuestas extends JDialog {
 
         int totalHoras = 0;
         for (ActividadDTO act : propuesta.getActividades()) {
-            tableModel.addRow(new Object[]{act.getnombre(), act.getHoras()});
+            tableModel.addRow(new Object[] { act.getnombre(), act.getHoras() });
             totalHoras += act.getHoras();
         }
 
