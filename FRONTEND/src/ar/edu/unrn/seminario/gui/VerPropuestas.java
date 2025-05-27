@@ -124,7 +124,7 @@ public class VerPropuestas extends JDialog {
 
         // Add proposals to table
         for (PropuestaDTO p : propuestasTodas) {
-            if (!aprobadas) {    
+            if (!aprobadas) {    // Si aprobadas es true, mostrar las propuestas aceptadas
                 if (p.isAceptada()) {
                     propuestasAprobadas.add(p);
                     tableModel.addRow(new Object[]{
@@ -133,8 +133,8 @@ public class VerPropuestas extends JDialog {
                         p.getDescripcion()
                     });
                 }
-            } else {
-                if (!p.isAceptada()) { // Cambiado aquí: ahora muestra las NO aceptadas cuando aprobadas es false
+            } else {            // Si aprobadas es false, mostrar las propuestas pendientes
+                if (!p.isAceptada()) {
                     propuestasAprobadas.add(p);
                     tableModel.addRow(new Object[]{
                         p.getTitulo(),

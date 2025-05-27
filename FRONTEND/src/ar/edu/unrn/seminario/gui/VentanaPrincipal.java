@@ -43,14 +43,7 @@ public class VentanaPrincipal extends JFrame {
 
         String mensaje = "Bienvenido/a - " + usuario.getNombre();
         if (usuario.getRol().equals("Director de Carrera")) {
-            try {
-                for (PropuestaDTO p : api.obtenerTodasPropuestas()) {
-                    if (!p.isAceptada())
-                        pendientes++;
-                }
-            } catch (Exception e) {
-                // Manejo de error si la API falla
-            }
+            pendientes = obtenerPropuestasPendientes();
             if (pendientes > 0)
                 mensaje = "bienvenido director  | Propuestas pendientes por revisar: " + pendientes;
             else
@@ -98,23 +91,27 @@ public class VentanaPrincipal extends JFrame {
         // Menú de propuestas (común para todos)
         JMenu propuestasMenu = new JMenu("Propuestas");
         menuBar.add(propuestasMenu);
-        int pendientes = 0;
-        if (usuario.getRol().equals("Director de Carrera")) {
-            try {
-                for (PropuestaDTO p : api.obtenerTodasPropuestas()) {
-                    if (!p.isAceptada())
-                        pendientes++;
-                }
-            } catch (Exception e) {
-                // Manejo de error si la API falla
-            }
-        }
         JMenuItem verPropuestasPendientes = null;
+        // Solo colorear el menú en rojo si hay propuestas pendientes
         if (usuario.getRol().equals("Director de Carrera")) {
+            // Eliminar esta redeclaración de pendientes que está causando el problema
+            // int pendientes = 0;
+            // try {
+            //     for (PropuestaDTO p : api.obtenerTodasPropuestas()) {
+            //         if (!p.isAceptada())
+            //             pendientes++;
+            //     }
+            // } catch (Exception e) {
+            //     // Manejo de error si la API falla
+            //    }
+            
             verPropuestasPendientes = new JMenuItem("Ver Propuestas Pendientes");
-            if (pendientes > 0)
+            if (pendientes > 0) {
                 verPropuestasPendientes.setForeground(Color.RED);
-            propuestasMenu.setForeground(Color.RED);
+                propuestasMenu.setForeground(Color.RED); // Mover esta línea dentro del if
+            }
+            // Eliminar esta línea que siempre pone el menú en rojo
+            // propuestasMenu.setForeground(Color.RED);
             verPropuestasPendientes.addActionListener(e -> {
                 VerPropuestas ver = new VerPropuestas(this, usuario, api, true);
                 ver.setLocationRelativeTo(this);
@@ -123,13 +120,14 @@ public class VentanaPrincipal extends JFrame {
             propuestasMenu.add(verPropuestasPendientes);
         }
         JMenuItem verPropuestas = new JMenuItem("Ver propuestas");
-        if (pendientes > 0)
+        if (pendientes > 0) {
             // verPropuestas.setForeground(Color.RED);
-            verPropuestas.addActionListener(e -> {
-                VerPropuestas ver = new VerPropuestas(this, usuario, api, false);
-                ver.setLocationRelativeTo(this);
-                ver.setVisible(true);
-            });
+        }
+        verPropuestas.addActionListener(e -> {
+            VerPropuestas ver = new VerPropuestas(this, usuario, api, false);
+            ver.setLocationRelativeTo(this);
+            ver.setVisible(true);
+        });
         propuestasMenu.add(verPropuestas);
 
         JMenuItem cargarPropuestas = new JMenuItem("Cargar propuestas");
@@ -181,5 +179,56 @@ public class VentanaPrincipal extends JFrame {
 
     private void agregarMenuUsuarioRegular(JMenuBar menuBar) {
         // ... existing code ...
+    }
+
+
+private int obtenerPropuestasPendientes() {
+    int pendientes = 0;
+    try {
+        for (PropuestaDTO p : api.obtenerTodasPropuestas()) {
+            if (!p.isAceptada())
+                pendientes++;
+        }
+    } catch (Exception e) {
+        // Manejo de error si la API falla
+    }
+    return pendientes;
+}
+    public void actualizarContadorPropuestas() {
+        if (usuario.getRol().equals("Director de Carrera")) {
+            pendientes = obtenerPropuestasPendientes();
+            String mensaje = pendientes > 0 ?
+                "bienvenido director  | Propuestas pendientes por revisar: " + pendientes :
+                "bienvenido director de carrear ";
+
+            // Actualizar el mensaje de bienvenida
+            for (java.awt.Component comp : contentPane.getComponents()) {
+                if (comp instanceof JLabel) {
+                    JLabel label = (JLabel) comp;
+                    label.setText(mensaje);
+                    label.setForeground(pendientes > 0 ? Color.RED : Color.BLACK);
+                    break;
+                }
+            }
+
+            // Actualizar el color del menú de propuestas y el ítem Ver Propuestas Pendientes
+            for (java.awt.Component comp : getJMenuBar().getComponents()) {
+                if (comp instanceof JMenu && ((JMenu) comp).getText().equals("Propuestas")) {
+                    JMenu menu = (JMenu) comp;
+                    // Solo colorear en rojo si hay propuestas pendientes, sino usar el color por defecto
+                    menu.setForeground(pendientes > 0 ? Color.RED : null);
+                    
+                    // Buscar y actualizar el ítem Ver Propuestas Pendientes
+                    for (int i = 0; i < menu.getItemCount(); i++) {
+                        JMenuItem item = menu.getItem(i);
+                        if (item != null && item.getText().equals("Ver Propuestas Pendientes")) {
+                            item.setForeground(pendientes > 0 ? Color.RED : null);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
     }
 }

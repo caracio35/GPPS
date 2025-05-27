@@ -358,6 +358,12 @@ public class CargarPropuesta extends JDialog {
                 "Éxito",
                 JOptionPane.INFORMATION_MESSAGE);
             
+            // Actualizar el contador de propuestas pendientes en VentanaPrincipal
+            if (getOwner() instanceof VentanaPrincipal) {
+                VentanaPrincipal ventana = (VentanaPrincipal) getOwner();
+                ventana.actualizarContadorPropuestas();
+            }
+            
             dispose();
 
         } catch (Exception e) {
