@@ -135,14 +135,6 @@ public class MemoryApi implements IApi {
 		return null;
 	}
 
-	
-
-	@Override
-	public void crearConvinio(String nombre_propuesta, String nombre_alumno, String nombre_tutor,
-			String fecha_convenio) {
-		// TODO Auto-generated method stub
-		
-	}
 
 
 	@Override
@@ -173,5 +165,12 @@ public class MemoryApi implements IApi {
 	public TutorProfesorDTO obtenerProfeso(int id) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void crearConvenio(String fechaGeneracion, String archivo, String tituloPropuesta, int idAlumno,
+			int idProfesor) {
+		// TODO Auto-generated method stub
+		
 	}
 }

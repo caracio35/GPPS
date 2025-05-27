@@ -2,6 +2,8 @@ package ar.edu.unrn.seminario.gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import ar.edu.unrn.seminario.api.IApi;
@@ -105,7 +107,10 @@ public class VentanaCrearConvenio extends JFrame {
 	        // ===== BOTONES =====
 	        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 	        JButton btnGenerar = new JButton("Generar Acta");
-	        btnGenerar.addActionListener(e -> generarConvenio());
+	        btnGenerar.addActionListener(e -> {
+	            generarConvenio(api);
+	            dispose();
+	        });
 	        JButton btnCancelar = new JButton("Cancelar");
 	        btnCancelar.addActionListener(e -> dispose());
 
@@ -142,10 +147,18 @@ public class VentanaCrearConvenio extends JFrame {
 	    }
 
 
-    private void generarConvenio() {
-        api.crearConvinio(getName(), getTitle(), getWarningString(), getName());
+    private void generarConvenio(IApi api) {
+    	
+    	 LocalDate horaCreado = LocalDate.now();
+    	 String hora = parsearLocalDateAString(horaCreado);
+        api.crearConvenio(hora, "nada", propuestaSeleccionada.getTitulo(), propuestaSeleccionada.getIdAlumno(), propuestaSeleccionada.getIdProfesoPrincipal());
         JOptionPane.showMessageDialog(this, "¡Acta generada con éxito!");
-        // ⚠️ Podés implementar la lógica de persistencia real acá
+        
+    }
+    public String parsearLocalDateAString(LocalDate fecha) {
+        
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return fecha.format(formatter);
     }
 }
 	   

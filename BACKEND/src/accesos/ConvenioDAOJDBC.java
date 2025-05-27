@@ -13,20 +13,20 @@ public class ConvenioDAOJDBC implements ConvenioDao {
 
     @Override
     public void create(Convenio convenio) throws ConexionFallidaException {
-        String sql = "INSERT INTO convenio (fecha_generacion, estado, archivo, propuesta_id, alumno_usuario, tutor_academico_usuario) " +
-                     "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO convenio (fecha_generacion, estado, archivo, propuesta_id, id_alumno, id_profesor) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement statement = conn.prepareStatement(sql)) {
 
-            int idPropuesta = obtenerIdPropuestaPorTitulo(convenio.getPropuesta().getTitulo());
+            int idPropuesta = obtenerIdPropuestaPorTitulo(convenio.getPropuesta());
 
-            statement.setDate(1, new java.sql.Date(convenio.getFechaGeneracion().getTime()));
-            statement.setString(2, convenio.getEstado());
+            statement.setDate(1, java.sql.Date.valueOf(convenio.getFechaGeneracion()));
+            statement.setBoolean(2, convenio.getEstado()) ; 
             statement.setString(3, convenio.getArchivo());
             statement.setInt(4, idPropuesta);
-            statement.setInt(5, convenio.getPropuesta().getIdAlumno());
-            statement.setInt(6, convenio.getPropuesta().getIdPorfesor());
+            statement.setInt(5, convenio.getIdAlumno());
+            statement.setInt(6, convenio.getIdProfesor());
 
             int filas = statement.executeUpdate();
             if (filas == 0) {

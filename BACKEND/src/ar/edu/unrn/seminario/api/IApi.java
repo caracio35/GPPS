@@ -40,7 +40,7 @@ public interface IApi {
 	
 	PropuestaDTO  obtenerPropuestaPorTitulo(String tituloProyecto);
 	
-	void crearConvinio(String nombre_propuesta , String nombre_alumno , String nombre_tutor , String fecha_convenio);
+	void crearConvenio( String fechaGeneracion, String archivo, String  tituloPropuesta, int idAlumno, int idProfesor);
 	
 	EntidadDTO obtenerEntidad(int id);
 	

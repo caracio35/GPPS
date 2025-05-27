@@ -13,9 +13,9 @@ public class AlumnoDAOJDBC implements AlumnoDao{
 
 	@Override
 	public Alumno find(int id) throws ConexionFallidaException {
-		String sql = "SELECT nombre, apellido, dni, correo FROM alumno WHERE id_alumno = ?";
+	    String sql = "SELECT nombre, apellido, dni, correo FROM alumno WHERE id_alumno = ?";
 
-	    try (Connection conn = ConnectionManager.getConnection();
+	    try (Connection conn = ConnectionManager.getConnectionSiuGuarani();
 	         PreparedStatement statement = conn.prepareStatement(sql)) {
 
 	        statement.setInt(1, id);
@@ -26,7 +26,6 @@ public class AlumnoDAOJDBC implements AlumnoDao{
 	                String dni = rs.getString("dni");
 	                String correo = rs.getString("correo");
 
-	                
 	                return new Alumno(nombre, apellido, dni, correo);
 	            } else {
 	                throw new ConexionFallidaException("No se encontró ningún alumno con el id: " + id);
@@ -36,6 +35,4 @@ public class AlumnoDAOJDBC implements AlumnoDao{
 	    } catch (SQLException e) {
 	        throw new ConexionFallidaException("Error al obtener los datos del alumno: " + e.getMessage());
 	    }
-	}
-
-}
+	}}

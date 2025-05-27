@@ -1,10 +1,13 @@
 package ar.edu.unrn.seminario.api;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 import accesos.AlumnoDAOJDBC;
+import accesos.ConvenioDAOJDBC;
 import accesos.EntidadDAOJDBC;
 import accesos.PropuestaDAOJDBC;
 import accesos.RolDAOJDBC;
@@ -23,6 +26,7 @@ import ar.edu.unrn.seminario.dto.UsuarioDTO;
 import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 import ar.edu.unrn.seminario.modelo.Actividad;
 import ar.edu.unrn.seminario.modelo.Alumno;
+import ar.edu.unrn.seminario.modelo.Convenio;
 import ar.edu.unrn.seminario.modelo.Entidad;
 import ar.edu.unrn.seminario.modelo.Propuesta;
 import ar.edu.unrn.seminario.modelo.Rol;
@@ -233,12 +237,7 @@ public class PersistenceApi implements IApi {
 	    return propuestasDTO;
 	}
 
-	@Override
-	public void crearConvinio(String nombre_propuesta, String nombre_alumno, String nombre_tutor,
-			String fecha_convenio) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 
 	@Override
 	public PropuestaDTO obtenerPropuestaPorTitulo(String tituloProyecto) {
@@ -358,5 +357,28 @@ public class PersistenceApi implements IApi {
 
 		    return profesorDTO;
 		}
+
+	@Override
+	public void crearConvenio(String fechaGeneracion, String archivo, String tituloPropuesta, int idAlumno,
+			int idProfesor) {
+		
+		ConvenioDAOJDBC dao = new ConvenioDAOJDBC();
+		LocalDate fecha = parsearStringALocalDate(fechaGeneracion);
+		Convenio convenio = new Convenio(fecha, false , archivo, tituloPropuesta, idAlumno ,idProfesor);
+		
+		try {
+			dao.create(convenio);
+		} catch (ConexionFallidaException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	private LocalDate parsearStringALocalDate(String fechaStr) {
+      
+       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+       return LocalDate.parse(fechaStr, formatter);
+      
+    }
 
 }

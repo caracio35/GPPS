@@ -13,12 +13,14 @@ public class TutorProfesorDAOJDBC implements TutorProfesorDao {
 
 	@Override
 	public TutorProfesor find(int id) throws ConexionFallidaException {
-		String sql =  "SELECT nombre, apellido, dni, correo FROM tutor WHERE id_tutor_docente = ?";
+	    // Usamos la base 'siu_guarani'
+	    String sql = "SELECT nombre, apellido, dni, correo FROM docentes_sistema WHERE id_tutor_docente = ?";
 
-	    try (Connection conn = ConnectionManager.getConnection();
+	    try (Connection conn = ConnectionManager.getConnectionSiuGuarani();
 	         PreparedStatement statement = conn.prepareStatement(sql)) {
 
 	        statement.setInt(1, id);
+
 	        try (ResultSet rs = statement.executeQuery()) {
 	            if (rs.next()) {
 	                String nombre = rs.getString("nombre");
@@ -26,7 +28,6 @@ public class TutorProfesorDAOJDBC implements TutorProfesorDao {
 	                String dni = rs.getString("dni");
 	                String correo = rs.getString("correo");
 
-	                
 	                return new TutorProfesor(nombre, apellido, dni, correo);
 	            } else {
 	                throw new ConexionFallidaException("No se encontró ningún profesor con el id: " + id);
@@ -37,5 +38,4 @@ public class TutorProfesorDAOJDBC implements TutorProfesorDao {
 	        throw new ConexionFallidaException("Error al obtener los datos del profesor: " + e.getMessage());
 	    }
 	}
-
 }

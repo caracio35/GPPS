@@ -1,48 +1,49 @@
 package ar.edu.unrn.seminario.modelo;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class Convenio {
 	
-	    private int idConvenio;
-	    private Date fechaGeneracion;
-	    private String estado;
+	    
+	    private LocalDate fechaGenerado;
+	    private boolean estado;
 	    private String archivo; 
-	    private Propuesta propuesta; 
+	    private String propuesta; 
+	    private int idAlumno; 
+	    private int idProfesor;
 
 
 	  
-	    public Convenio(int idConvenio, Date fechaGeneracion, String estado, String archivo, Propuesta propuesta) {
-	        this.idConvenio = idConvenio;
-	        this.fechaGeneracion = fechaGeneracion;
+	    public Convenio( LocalDate fechaGeneracion, boolean estado, String archivo, String propuesta , int idAlumno , int idProfesor) {
+	        
+	        this.fechaGenerado = fechaGeneracion;
 	        this.estado = estado;
 	        this.archivo = archivo;
 	        this.propuesta = propuesta;
+	        this.idAlumno = idAlumno ;
+	        this.idProfesor = idProfesor ; 
 	     
 	    }
 
-	    // Getters y Setters
-	    public int getIdConvenio() {
-	        return idConvenio;
+	    public LocalDate getFechaGeneracion() {
+	        return fechaGenerado;
+	    }
+	    public int getIdAlumno() {
+	    	return idAlumno ; 
+	    }
+	    public int getIdProfesor() {
+	    	return idProfesor; 
+	    }
+	    public void setFechaGeneracion(LocalDate fechaGeneracion) {
+	        this.fechaGenerado = fechaGeneracion;
 	    }
 
-	    public void setIdConvenio(int idConvenio) {
-	        this.idConvenio = idConvenio;
-	    }
-
-	    public Date getFechaGeneracion() {
-	        return fechaGeneracion;
-	    }
-
-	    public void setFechaGeneracion(Date fechaGeneracion) {
-	        this.fechaGeneracion = fechaGeneracion;
-	    }
-
-	    public String getEstado() {
+	    public boolean getEstado() {
 	        return estado;
 	    }
 
-	    public void setEstado(String estado) {
+	    public void setEstado(boolean estado) {
 	        this.estado = estado;
 	    }
 
@@ -53,7 +54,7 @@ public class Convenio {
 	    public void setArchivo(String archivo) {
 	        this.archivo = archivo;
 	    }
-	    public Propuesta getPropuesta() {
+	    public String getPropuesta() {
 	    	return this.propuesta;
 	    }
 
@@ -61,8 +62,8 @@ public class Convenio {
 	    @Override
 	    public String toString() {
 	        return "Convenio{" +
-	                "idConvenio=" + idConvenio +
-	                ", fechaGeneracion=" + fechaGeneracion +
+	                "idConvenio=" + 
+	                ", fechaGeneracion=" + fechaGenerado +
 	                ", estado='" + estado + '\'' +
 	                ", archivo='" + archivo + '\'' +
 	                '}';

@@ -11,60 +11,70 @@ import ar.edu.unrn.seminario.dto.PropuestaDTO;
 
 public class ListadoPoyectosParaCovenios extends JFrame {
 
-    private JTable tabla;
+	private JTable tabla;
     private DefaultTableModel modelo;
     private IApi api;
-    List<PropuestaDTO> propuestas ;
+    List<PropuestaDTO> propuestas;
 
     public ListadoPoyectosParaCovenios(IApi api) {
-    	   setTitle("Proyectos Aprobados");
-    	    setSize(600, 400);
-    	    setLayout(new BorderLayout());
+        setTitle("Proyectos Aprobados");
+        setSize(600, 400);
+        setLayout(new BorderLayout());
 
-    	    this.api = api;
+        this.api = api;
 
-    	    propuestas = api.obtenerTodasPropuestas();
+        propuestas = api.obtenerTodasPropuestas();
 
-    	    // Cambiamos las columnas para mostrar Título y Área de Interés
-    	    modelo = new DefaultTableModel(new Object[]{"Título", "Área de Interés"}, 0);
-    	    tabla = new JTable(modelo);
-    	    cargarDatos();
+        // Cambiamos las columnas para mostrar Título y Área de Interés
+        modelo = new DefaultTableModel(new Object[]{"Título", "Área de Interés"}, 0);
+        tabla = new JTable(modelo);
+        cargarDatos();
 
-    	    add(new JScrollPane(tabla), BorderLayout.CENTER);
+        add(new JScrollPane(tabla), BorderLayout.CENTER);
 
-    	    JButton btnGenerar = new JButton("Generar Convenio");
-    	    btnGenerar.addActionListener(this::abrirVentanaConvenio);
-    	    add(btnGenerar, BorderLayout.SOUTH);
+        // Panel de botones: Generar y Cancelar
+        JPanel panelBotones = new JPanel();
+        panelBotones.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
-    	    setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    	    setVisible(true);
-    	}
+        JButton btnGenerar = new JButton("Generar Convenio");
+        btnGenerar.addActionListener(this::abrirVentanaConvenio);
+        panelBotones.add(btnGenerar);
 
-    	private void cargarDatos() {
-    	    modelo.setRowCount(0);
-    	    for (PropuestaDTO p : propuestas) {
-    	        // Filtrar solo las aprobadas
-    	        if (p.isAceptada()) { // o p.getEstado().equals("Aprobada")
-    	            String areaInteres = (p.getAreaInteres() != null) ? p.getAreaInteres() : "Sin área asignada";
-    	            modelo.addRow(new Object[]{
-    	                    p.getTitulo(),
-    	                    areaInteres
-    	            });
-    	        }
-    	    }
-    	}
-    	
+        JButton btnCancelar = new JButton("Cancelar");
+        btnCancelar.addActionListener(e -> dispose());
+        panelBotones.add(btnCancelar);
 
-    	private void abrirVentanaConvenio(ActionEvent e) {
-    	    int filaSeleccionada = tabla.getSelectedRow();
-    	    if (filaSeleccionada == -1) {
-    	        JOptionPane.showMessageDialog(this, "Seleccioná un proyecto.");
-    	        return;
-    	    }
+        add(panelBotones, BorderLayout.SOUTH);
 
-    	    String tituloPropuesta = (String) modelo.getValueAt(filaSeleccionada, 0);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setVisible(true);
+    }
 
-    	    new VentanaCrearConvenio(api, tituloPropuesta);
-    	}
+    private void cargarDatos() {
+        modelo.setRowCount(0);
+        for (PropuestaDTO p : propuestas) {
+            // Filtrar solo las aprobadas
+            if (p.isAceptada()) { // o p.getEstado().equals("Aprobada")
+                String areaInteres = (p.getAreaInteres() != null) ? p.getAreaInteres() : "Sin área asignada";
+                modelo.addRow(new Object[]{
+                        p.getTitulo(),
+                        areaInteres
+                });
+            }
+        }
+    }
+
+    private void abrirVentanaConvenio(ActionEvent e) {
+        int filaSeleccionada = tabla.getSelectedRow();
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccioná un proyecto.");
+            return;
+        }
+
+        String tituloPropuesta = (String) modelo.getValueAt(filaSeleccionada, 0);
+
+        new VentanaCrearConvenio(api, tituloPropuesta);
+    }
+
 }
 
