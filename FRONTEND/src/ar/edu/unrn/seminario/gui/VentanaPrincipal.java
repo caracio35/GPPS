@@ -1,6 +1,7 @@
 package ar.edu.unrn.seminario.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 
 import javax.swing.JFrame;
@@ -13,12 +14,14 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import ar.edu.unrn.seminario.api.IApi;
+import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 
 public class VentanaPrincipal extends JFrame {
     private JPanel contentPane;
     private IApi api;
     private UsuarioSimplificadoDTO usuario;
+    private int pendientes = 0;
 
     public VentanaPrincipal(UsuarioSimplificadoDTO usuario, IApi api) {
         this.api = api;
@@ -38,9 +41,31 @@ public class VentanaPrincipal extends JFrame {
         contentPane.setLayout(new BorderLayout(0, 0));
         setContentPane(contentPane);
 
-        // Añadir un mensaje de bienvenida
-        JLabel welcomeLabel = new JLabel("Bienvenido/a - " + usuario.getNombre(), SwingConstants.CENTER);
+        String mensaje = "Bienvenido/a - " + usuario.getNombre();
+        if (usuario.getRol().equals("Director de Carrera")) {
+            try {
+                for (PropuestaDTO p : api.obtenerTodasPropuestas()) {
+                    if (!p.isAceptada())
+                        pendientes++;
+                }
+            } catch (Exception e) {
+                // Manejo de error si la API falla
+            }
+            if (pendientes > 0)
+                mensaje = "bienvenido director  | Propuestas pendientes por revisar: " + pendientes;
+            else
+                mensaje = "bienvenido director de carrear ";
+        }
+        JLabel welcomeLabel = new JLabel(mensaje, SwingConstants.CENTER);
+        if (pendientes > 0) {
+            welcomeLabel.setForeground(Color.RED);
+        }
+
+        welcomeLabel.setOpaque(true);
+        welcomeLabel.setBackground(Color.LIGHT_GRAY);
+        welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
+
         contentPane.add(welcomeLabel, BorderLayout.CENTER);
     }
 
@@ -56,7 +81,7 @@ public class VentanaPrincipal extends JFrame {
         menuBar.add(menuArchivo);
 
         // Configurar menús específicos según el rol
-        switch(usuario.getRol()) {
+        switch (usuario.getRol()) {
             case "Director de Carrera":
                 agregarMenuDirector(menuBar);
                 break;
@@ -74,24 +99,38 @@ public class VentanaPrincipal extends JFrame {
         // Menú de propuestas (común para todos)
         JMenu propuestasMenu = new JMenu("Propuestas");
         menuBar.add(propuestasMenu);
-        
-        // Agregar opción de ver propuestas pendientes solo para Director de Carrera
+        int pendientes = 0;
         if (usuario.getRol().equals("Director de Carrera")) {
-            JMenuItem verPropuestasPendientes = new JMenuItem("Ver Propuestas Pendientes");
+            try {
+                for (PropuestaDTO p : api.obtenerTodasPropuestas()) {
+                    if (!p.isAceptada())
+                        pendientes++;
+                }
+            } catch (Exception e) {
+                // Manejo de error si la API falla
+            }
+        }
+        JMenuItem verPropuestasPendientes = null;
+        if (usuario.getRol().equals("Director de Carrera")) {
+            verPropuestasPendientes = new JMenuItem("Ver Propuestas Pendientes");
+            if (pendientes > 0)
+                verPropuestasPendientes.setForeground(Color.RED);
+            propuestasMenu.setForeground(Color.RED);
             verPropuestasPendientes.addActionListener(e -> {
-                VerPropuestas ver = new VerPropuestas(this, usuario, api,true); // true indica que solo muestra pendientes
+                VerPropuestas ver = new VerPropuestas(this, usuario, api, true);
                 ver.setLocationRelativeTo(this);
                 ver.setVisible(true);
             });
             propuestasMenu.add(verPropuestasPendientes);
         }
-
         JMenuItem verPropuestas = new JMenuItem("Ver propuestas");
-        verPropuestas.addActionListener(e -> {
-            VerPropuestas ver = new VerPropuestas(this, usuario, api,false);
-            ver.setLocationRelativeTo(this);
-            ver.setVisible(true);
-        });
+        if (pendientes > 0)
+            // verPropuestas.setForeground(Color.RED);
+            verPropuestas.addActionListener(e -> {
+                VerPropuestas ver = new VerPropuestas(this, usuario, api, false);
+                ver.setLocationRelativeTo(this);
+                ver.setVisible(true);
+            });
         propuestasMenu.add(verPropuestas);
 
         JMenuItem cargarPropuestas = new JMenuItem("Cargar propuestas");
@@ -115,7 +154,6 @@ public class VentanaPrincipal extends JFrame {
             conveniosMenu.add(gestionarConvenios);
         }
     }
-
 
     private void agregarMenuDirector(JMenuBar menuBar) {
         JMenu menuGestion = new JMenu("Gestión");
