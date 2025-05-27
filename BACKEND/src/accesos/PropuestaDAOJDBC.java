@@ -124,6 +124,7 @@ public class PropuestaDAOJDBC implements PropuestaDao {
                     int idTutorDocente = obtenerIdTutorDocente(idPropuesta, conn);
 
                     propuesta = new Propuesta(
+                            rs.getInt ("id"),
                             rs.getString("titulo"),
                             rs.getString("area_interes"),
                             rs.getString("objetivo"),
@@ -160,6 +161,7 @@ public class PropuestaDAOJDBC implements PropuestaDao {
                 int idTutorDocente = obtenerIdTutorDocente(idPropuesta, conn);
 
                 Propuesta propuesta = new Propuesta(
+                        rs.getInt("id"),
                         rs.getString("titulo"),
                         rs.getString("area_interes"),
                         rs.getString("objetivo"),

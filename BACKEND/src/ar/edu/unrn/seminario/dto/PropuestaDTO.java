@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PropuestaDTO {
+    private int id;
     private String titulo;
     private String areaInteres;
     private String objetivo;
@@ -15,8 +16,9 @@ public class PropuestaDTO {
     private int idEntidad; // FK a Entidad
     private int idProfesoPrincipal;
 
-    public PropuestaDTO(String titulo, String areaInteres, String objetivo, String descripcion, int aceptada,
+    public PropuestaDTO(int id ,String titulo, String areaInteres, String objetivo, String descripcion, int aceptada,
             String comentarios, int idAlumno, int idEntidad, int idProfesoPrincipal) {
+        this.id = id;
         this.titulo = titulo;
         this.areaInteres = areaInteres;
         this.objetivo = objetivo;
@@ -28,7 +30,13 @@ public class PropuestaDTO {
         this.idProfesoPrincipal = idProfesoPrincipal;
         this.actividades = new ArrayList<>(); // Inicializo la lista vacía
     }
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
     // Getters
     public String getTitulo() {
         return titulo;

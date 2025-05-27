@@ -47,4 +47,6 @@ public interface IApi {
 	AlumnoDTO obtenerAlumno(int id);
 	
 	TutorProfesorDTO obtenerProfeso(int id);
+
+    void actualizarEstadoPropuesta(int id, int i);
 }

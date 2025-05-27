@@ -349,6 +349,7 @@ public class CargarPropuesta extends JDialog {
 
             // Crear DTO de propuesta con IDs temporales 0
             PropuestaDTO propuesta = new PropuestaDTO(
+                    0, // id    
                     tituloField.getText().trim(),
                     areaField.getText().trim(),
                     objetivoArea.getText().trim(),

@@ -20,6 +20,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -37,11 +38,13 @@ import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 public class VerPropuestas extends JDialog {
     private UsuarioSimplificadoDTO usuario;
     private boolean aprobadas;
+    private IApi api;
 
     public VerPropuestas(JFrame parent, UsuarioSimplificadoDTO usuario, IApi api, boolean aprobadas) {
         super(parent, "Ver Propuestas", true);
         this.usuario = usuario;
         this.aprobadas = aprobadas;
+        this.api = api;
 
         // Panel principal con degradado
         JPanel panel = new JPanel() {
@@ -258,15 +261,69 @@ public class VerPropuestas extends JDialog {
         scrollPane.setBorder(null);
         detalleDialog.add(scrollPane, BorderLayout.CENTER);
 
-        // Close button
+        // Panel de botones
+        JPanel buttonPanel = new JPanel();
+        
+        // Solo mostrar botones de Aceptar/Rechazar para Director de Carrera y propuestas pendientes
+        if (usuario.getRol().equals("Director de Carrera") && propuesta.isAceptada() == 0) {
+            JButton aceptarBtn = new JButton("Aceptar");
+            aceptarBtn.setBackground(new Color(76, 175, 80));
+            aceptarBtn.setForeground(Color.WHITE);
+            aceptarBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            aceptarBtn.addActionListener(e -> {
+                try {
+                    // Actualizar en la base de datos usando el api
+                    api.actualizarEstadoPropuesta(propuesta.getId(), 1);
+                    // Actualizar el objeto local
+                    propuesta.setAceptada(1);
+                    detalleDialog.dispose();
+                    // Actualizar la ventana principal
+                    ((VentanaPrincipal)getParent()).actualizarContadorPropuestas();
+                } catch (Exception ex) {
+                    // Mostrar mensaje de error si falla la actualización
+                    JOptionPane.showMessageDialog(this,
+                        "Error al actualizar el estado de la propuesta: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            });
+            
+            JButton rechazarBtn = new JButton("Rechazar");
+            rechazarBtn.setBackground(new Color(244, 67, 54));
+            rechazarBtn.setForeground(Color.WHITE);
+            rechazarBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            rechazarBtn.addActionListener(e -> {
+                try {
+                    // Actualizar en la base de datos usando el api
+                    api.actualizarEstadoPropuesta(propuesta.getId(), -1);
+                    // Actualizar el objeto local
+                    propuesta.setAceptada(-1);
+                    detalleDialog.dispose();
+                    // Actualizar la ventana principal
+                    ((VentanaPrincipal)getParent()).actualizarContadorPropuestas();
+                } catch (Exception ex) {
+                    // Mostrar mensaje de error si falla la actualización
+                    JOptionPane.showMessageDialog(this,
+                        "Error al actualizar el estado de la propuesta: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            });
+            
+            buttonPanel.add(aceptarBtn);
+            buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+            buttonPanel.add(rechazarBtn);
+            buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        }
+
+        // Botón de cerrar (existente)
         JButton cerrarBtn = new JButton("Cerrar");
         cerrarBtn.setBackground(new Color(244, 67, 54));
         cerrarBtn.setForeground(Color.WHITE);
         cerrarBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         cerrarBtn.addActionListener(e -> detalleDialog.dispose());
-
-        JPanel buttonPanel = new JPanel();
         buttonPanel.add(cerrarBtn);
+
         detalleDialog.add(buttonPanel, BorderLayout.SOUTH);
 
         detalleDialog.setSize(750, 900);

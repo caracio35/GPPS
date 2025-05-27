@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Propuesta {
-
+	private int id;
 	private String titulo;
 	private String areaInteres;
 	private String objetivo;
@@ -17,9 +17,9 @@ public class Propuesta {
 	private int idProfesoPrincipal;
 
 	// Constructor con todos los campos
-	public Propuesta(String titulo, String areaInteres, String objetivo, String descripcion,
+	public Propuesta(int id ,String titulo, String areaInteres, String objetivo, String descripcion,
 			String comentarios, int idAlumno, int aceptada, int idEntidad, List<Actividad> lista, int idProfesor) {
-
+		this.id = id;
 		this.titulo = titulo;
 		this.areaInteres = areaInteres;
 		this.objetivo = objetivo;
@@ -31,7 +31,13 @@ public class Propuesta {
 		this.actividades = lista;
 		this.idProfesoPrincipal = idProfesor;
 	}
+	public int getId() {
+		return id;
+	}
 
+	public void setId(int id) {
+		this.id = id;
+	}
 	public String getTitulo() {
 		return titulo;
 	}

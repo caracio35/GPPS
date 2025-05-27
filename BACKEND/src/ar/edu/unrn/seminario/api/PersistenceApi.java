@@ -210,6 +210,7 @@ public class PersistenceApi implements IApi {
 
 	    for (Propuesta p : propuestas) {
 	        PropuestaDTO propuestaDTO = new PropuestaDTO(
+				p.getId(),
 	            p.getTitulo(),
 	            p.getAreaInteres(),
 	            p.getObjetivo(),
@@ -255,6 +256,7 @@ public class PersistenceApi implements IApi {
 
 		    if (propuesta != null) {
 		        PropuestaDTO propuestaDTO = new PropuestaDTO(
+		                propuesta.getId(),	
 		                propuesta.getTitulo(),
 		                propuesta.getAreaInteres(),
 		                propuesta.getObjetivo(),
@@ -380,5 +382,12 @@ public class PersistenceApi implements IApi {
        return LocalDate.parse(fechaStr, formatter);
       
     }
+
+	@Override
+	public void actualizarEstadoPropuesta(int id, int i) {
+		// bruno falta esto 
+		
+		throw new UnsupportedOperationException("Unimplemented method 'actualizarEstadoPropuesta'");
+	}
 
 }
