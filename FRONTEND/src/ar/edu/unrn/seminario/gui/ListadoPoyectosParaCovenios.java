@@ -32,10 +32,13 @@ public class ListadoPoyectosParaCovenios extends JFrame {
         this.api = api;
 
         try {
-            propuestas = api.obtenerTodasPropuestas();
+            propuestas = api.obtenerTodasPropuestas();// a ver deveria tener solo las aprobadas?
         } catch (InvalidCantHorasExcepcion e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // rulo
+            JOptionPane.showMessageDialog(this,
+                    "Error al guardar la propuesta: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
 
         // Cambiamos las columnas para mostrar Título y Área de Interés
@@ -67,7 +70,7 @@ public class ListadoPoyectosParaCovenios extends JFrame {
         modelo.setRowCount(0);
         for (PropuestaDTO p : propuestas) {
             // Filtrar solo las aprobadas
-            if (p.isAceptada() == 0) { // 0 = no aceptada, 1 = aceptada,-1 = rechazada
+            if (p.isAceptada() == 1) { // 0 = no aceptada, 1 = aceptada,-1 = rechazada
                 String areaInteres = (p.getAreaInteres() != null) ? p.getAreaInteres() : "Sin área asignada";
                 modelo.addRow(new Object[] {
                         p.getTitulo(),

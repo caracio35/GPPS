@@ -179,12 +179,11 @@ public class PropuestaDAOJDBC implements PropuestaDao {
                             rs.getInt("aceptada"),
                             rs.getInt("id_entidad"),
                             actividades,
-                            idTutorDocente // Ahora lo tenés
-                    );
+                            idTutorDocente);
                     propuestas.add(propuesta);
                 } catch (InvalidCantHorasExcepcion e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    // rulo
+                    System.out.println(e.getMessage());
                 }
             }
 

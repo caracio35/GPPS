@@ -212,25 +212,23 @@ public class PersistenceApi implements IApi {
 			List<ActividadDTO> actividadesDTO = new ArrayList<>();
 			for (Actividad actividad : p.getActividades()) {
 				ActividadDTO actividadDTO = new ActividadDTO(
-					actividad.getNombrePropuesta(),
-					actividad.getHoras(),
-					actividad.getNombre()
-				);
+						actividad.getNombrePropuesta(),
+						actividad.getHoras(),
+						actividad.getNombre());
 				actividadesDTO.add(actividadDTO);
 			}
 			PropuestaDTO propuestaDTO = new PropuestaDTO(
-				p.getId(),
-				p.getTitulo(),
-				p.getAreaInteres(),
-				p.getObjetivo(),
-				p.getDescripcion(),
-				p.isAceptada(),
-				p.getComentarios(),
-				p.getIdAlumno(),
-				p.getIdEntidad(),
-				p.getIdPorfesor(),
-				actividadesDTO
-			);
+					p.getId(),
+					p.getTitulo(),
+					p.getAreaInteres(),
+					p.getObjetivo(),
+					p.getDescripcion(),
+					p.isAceptada(),
+					p.getComentarios(),
+					p.getIdAlumno(),
+					p.getIdEntidad(),
+					p.getIdPorfesor(),
+					actividadesDTO);
 			propuestasDTO.add(propuestaDTO);
 		}
 
@@ -250,7 +248,14 @@ public class PersistenceApi implements IApi {
 		} catch (ConexionFallidaException e) {
 			e.printStackTrace();
 		}
-
+		ArrayList<ActividadDTO> actividadsDTO = new ArrayList<>();
+		for (Actividad actividad : propuesta.getActividades()) {
+			ActividadDTO actividadDTO = new ActividadDTO(
+					actividad.getNombre(),
+					actividad.getHoras(),
+					actividad.getNombrePropuesta());
+			actividadsDTO.add(actividadDTO);
+		}
 		if (propuesta != null) {
 			PropuestaDTO propuestaDTO = new PropuestaDTO(
 					propuesta.getId(),
@@ -262,7 +267,7 @@ public class PersistenceApi implements IApi {
 					propuesta.getComentarios(),
 					propuesta.getIdAlumno(),
 					propuesta.getIdEntidad(),
-					propuesta.getIdPorfesor(), null);
+					propuesta.getIdPorfesor(), actividadsDTO);
 
 			// Agregar las actividades (convertidas a DTO)
 			for (Actividad actividad : propuesta.getActividades()) {
