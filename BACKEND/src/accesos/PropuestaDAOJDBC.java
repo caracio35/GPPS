@@ -272,4 +272,20 @@ public class PropuestaDAOJDBC implements PropuestaDao {
             }
         }
     }
+    public void actualizarEstadoPropuesta(String id, int estado) throws ConexionFallidaException {
+        try (Connection conn = ConnectionManager.getConnection()) {
+            PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE propuesta SET aceptada = ? WHERE titulo = ?");
+            stmt.setInt(1, estado);
+            stmt.setString(2, id);
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("No se encontró ninguna propuesta con el id: " + id);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al actualizar el estado de la propuesta: " + e.getMessage(), e);
+        }
+    }
 }
+
+

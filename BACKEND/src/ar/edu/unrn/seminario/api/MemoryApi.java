@@ -173,4 +173,10 @@ public class MemoryApi implements IApi {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void actualizarEstadoPropuesta(String id, int i) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'actualizarEstadoPropuesta'");
+	}
 }

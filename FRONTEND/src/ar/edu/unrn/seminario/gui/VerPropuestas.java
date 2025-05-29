@@ -273,7 +273,7 @@ public class VerPropuestas extends JDialog {
             aceptarBtn.addActionListener(e -> {
                 try {
                     // Actualizar en la base de datos usando el api
-                    api.actualizarEstadoPropuesta(propuesta.getId(), 1);
+                    api.actualizarEstadoPropuesta(propuesta.getTitulo(), 1);
                     // Actualizar el objeto local
                     propuesta.setAceptada(1);
                     detalleDialog.dispose();
@@ -295,7 +295,7 @@ public class VerPropuestas extends JDialog {
             rechazarBtn.addActionListener(e -> {
                 try {
                     // Actualizar en la base de datos usando el api
-                    api.actualizarEstadoPropuesta(propuesta.getId(), -1);
+                    api.actualizarEstadoPropuesta(propuesta.getTitulo(), -1);
                     // Actualizar el objeto local
                     propuesta.setAceptada(-1);
                     detalleDialog.dispose();

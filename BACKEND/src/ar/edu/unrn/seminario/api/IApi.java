@@ -8,6 +8,7 @@ import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.RolDTO;
 import ar.edu.unrn.seminario.dto.TutorProfesorDTO;
 import ar.edu.unrn.seminario.dto.UsuarioDTO;
+import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 import ar.edu.unrn.seminario.modelo.TutorProfesor;
 
 public interface IApi {
@@ -48,5 +49,7 @@ public interface IApi {
 	
 	TutorProfesorDTO obtenerProfeso(int id);
 
-    void actualizarEstadoPropuesta(int id, int i);
+    void actualizarEstadoPropuesta(String id, int i) throws ConexionFallidaException;
+
+    
 }

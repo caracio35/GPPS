@@ -384,10 +384,10 @@ public class PersistenceApi implements IApi {
     }
 
 	@Override
-	public void actualizarEstadoPropuesta(int id, int i) {
-		// bruno falta esto 
-		
-		throw new UnsupportedOperationException("Unimplemented method 'actualizarEstadoPropuesta'");
+	public void actualizarEstadoPropuesta(String id, int estado) throws ConexionFallidaException {
+	    PropuestaDAOJDBC propuestaDao = new PropuestaDAOJDBC();
+		propuestaDao.find(id);
+		propuestaDao.actualizarEstadoPropuesta(id, estado);
 	}
 
 }
