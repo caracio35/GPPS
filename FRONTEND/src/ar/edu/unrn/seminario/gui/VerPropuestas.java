@@ -34,6 +34,7 @@ import ar.edu.unrn.seminario.api.IApi;
 import ar.edu.unrn.seminario.dto.ActividadDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
+import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 
 public class VerPropuestas extends JDialog {
     private UsuarioSimplificadoDTO usuario;
@@ -263,8 +264,9 @@ public class VerPropuestas extends JDialog {
 
         // Panel de botones
         JPanel buttonPanel = new JPanel();
-        
-        // Solo mostrar botones de Aceptar/Rechazar para Director de Carrera y propuestas pendientes
+
+        // Solo mostrar botones de Aceptar/Rechazar para Director de Carrera y
+        // propuestas pendientes
         if (usuario.getRol().equals("Director de Carrera") && propuesta.isAceptada() == 0) {
             JButton aceptarBtn = new JButton("Aceptar");
             aceptarBtn.setBackground(new Color(76, 175, 80));
@@ -278,16 +280,16 @@ public class VerPropuestas extends JDialog {
                     propuesta.setAceptada(1);
                     detalleDialog.dispose();
                     // Actualizar la ventana principal
-                    ((VentanaPrincipal)getParent()).actualizarContadorPropuestas();
-                } catch (Exception ex) {
+                    ((VentanaPrincipal) getParent()).actualizarContadorPropuestas();
+                } catch (ConexionFallidaException ex) {
                     // Mostrar mensaje de error si falla la actualización
                     JOptionPane.showMessageDialog(this,
-                        "Error al actualizar el estado de la propuesta: " + ex.getMessage(),
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                            "Error al actualizar el estado de la propuesta: " + ex.getMessage(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             });
-            
+
             JButton rechazarBtn = new JButton("Rechazar");
             rechazarBtn.setBackground(new Color(244, 67, 54));
             rechazarBtn.setForeground(Color.WHITE);
@@ -300,16 +302,16 @@ public class VerPropuestas extends JDialog {
                     propuesta.setAceptada(-1);
                     detalleDialog.dispose();
                     // Actualizar la ventana principal
-                    ((VentanaPrincipal)getParent()).actualizarContadorPropuestas();
+                    ((VentanaPrincipal) getParent()).actualizarContadorPropuestas();
                 } catch (Exception ex) {
                     // Mostrar mensaje de error si falla la actualización
                     JOptionPane.showMessageDialog(this,
-                        "Error al actualizar el estado de la propuesta: " + ex.getMessage(),
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                            "Error al actualizar el estado de la propuesta: " + ex.getMessage(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             });
-            
+
             buttonPanel.add(aceptarBtn);
             buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
             buttonPanel.add(rechazarBtn);
