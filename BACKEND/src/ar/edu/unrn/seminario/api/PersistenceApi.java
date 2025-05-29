@@ -18,12 +18,12 @@ import accesos.UsuarioDao;
 import ar.edu.unrn.seminario.dto.ActividadDTO;
 import ar.edu.unrn.seminario.dto.AlumnoDTO;
 import ar.edu.unrn.seminario.dto.EntidadDTO;
-import ar.edu.unrn.seminario.dto.PersonaDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.RolDTO;
 import ar.edu.unrn.seminario.dto.TutorProfesorDTO;
 import ar.edu.unrn.seminario.dto.UsuarioDTO;
 import ar.edu.unrn.seminario.exception.ConexionFallidaException;
+import ar.edu.unrn.seminario.exception.InvalidCantHorasExcepcion;
 import ar.edu.unrn.seminario.modelo.Actividad;
 import ar.edu.unrn.seminario.modelo.Alumno;
 import ar.edu.unrn.seminario.modelo.Convenio;
@@ -197,116 +197,110 @@ public class PersistenceApi implements IApi {
 	}
 
 	@Override
-	public List<PropuestaDTO> obtenerTodasPropuestas() {
-	    List<PropuestaDTO> propuestasDTO = new ArrayList<>();
+	public List<PropuestaDTO> obtenerTodasPropuestas() throws InvalidCantHorasExcepcion {
+		List<PropuestaDTO> propuestasDTO = new ArrayList<>();
 
-	    PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
-	    List<Propuesta> propuestas = null;
-	    try {
-	        propuestas = dao.findAll();
-	    } catch (ConexionFallidaException e) {
-	        e.printStackTrace();
-	    }
-
-	    for (Propuesta p : propuestas) {
-	        PropuestaDTO propuestaDTO = new PropuestaDTO(
-				p.getId(),
-	            p.getTitulo(),
-	            p.getAreaInteres(),
-	            p.getObjetivo(),
-	            p.getDescripcion(),
-	            p.isAceptada(),
-	            p.getComentarios(),
-	            p.getIdAlumno(),
-	            p.getIdEntidad(),
-	            p.getIdPorfesor()
-	        );
-
-	        for (Actividad actividad : p.getActividades()) {
-	            ActividadDTO actividadDTO = new ActividadDTO(
-	                actividad.getNombre(),
-	                actividad.getHoras(),
-	                actividad.getNombrePropuesta()
-	            );
-	            propuestaDTO.agregarActividad(actividadDTO);
-	        }
-
-	        
-	        propuestasDTO.add(propuestaDTO);
-	    }
-
-	    return propuestasDTO;
-	}
-
-	
-
-	@Override
-	public PropuestaDTO obtenerPropuestaPorTitulo(String tituloProyecto) {
-		
-		  PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
-		  
-		  Propuesta propuesta = null;
+		PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
+		List<Propuesta> propuestas = null;
 		try {
-			
-			propuesta = dao.find(tituloProyecto);
-			
+			propuestas = dao.findAll();
 		} catch (ConexionFallidaException e) {
 			e.printStackTrace();
-		} 
-
-		    if (propuesta != null) {
-		        PropuestaDTO propuestaDTO = new PropuestaDTO(
-		                propuesta.getId(),	
-		                propuesta.getTitulo(),
-		                propuesta.getAreaInteres(),
-		                propuesta.getObjetivo(),
-		                propuesta.getDescripcion(),
-		                propuesta.isAceptada(),
-		                propuesta.getComentarios(),
-		                propuesta.getIdAlumno(),
-		                propuesta.getIdEntidad(),
-		                propuesta.getIdPorfesor()
-		        );
-
-		        // Agregar las actividades (convertidas a DTO)
-		        for (Actividad actividad : propuesta.getActividades()) {
-		            ActividadDTO actividadDTO = new ActividadDTO(
-		                    actividad.getNombre(),
-		                    actividad.getHoras(),
-		                    actividad.getNombrePropuesta()
-		            );
-		            propuestaDTO.agregarActividad(actividadDTO);
-		        }
-
-		        return propuestaDTO;
-		    }
-
-		    return null;
 		}
+
+		for (Propuesta p : propuestas) {
+			List<ActividadDTO> actividadesDTO = new ArrayList<>();
+			for (Actividad actividad : p.getActividades()) {
+				ActividadDTO actividadDTO = new ActividadDTO(
+					actividad.getNombrePropuesta(),
+					actividad.getHoras(),
+					actividad.getNombre()
+				);
+				actividadesDTO.add(actividadDTO);
+			}
+			PropuestaDTO propuestaDTO = new PropuestaDTO(
+				p.getId(),
+				p.getTitulo(),
+				p.getAreaInteres(),
+				p.getObjetivo(),
+				p.getDescripcion(),
+				p.isAceptada(),
+				p.getComentarios(),
+				p.getIdAlumno(),
+				p.getIdEntidad(),
+				p.getIdPorfesor(),
+				actividadesDTO
+			);
+			propuestasDTO.add(propuestaDTO);
+		}
+
+		return propuestasDTO;
+	}
+
+	@Override
+	public PropuestaDTO obtenerPropuestaPorTitulo(String tituloProyecto) throws InvalidCantHorasExcepcion {
+
+		PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
+
+		Propuesta propuesta = null;
+		try {
+
+			propuesta = dao.find(tituloProyecto);
+
+		} catch (ConexionFallidaException e) {
+			e.printStackTrace();
+		}
+
+		if (propuesta != null) {
+			PropuestaDTO propuestaDTO = new PropuestaDTO(
+					propuesta.getId(),
+					propuesta.getTitulo(),
+					propuesta.getAreaInteres(),
+					propuesta.getObjetivo(),
+					propuesta.getDescripcion(),
+					propuesta.isAceptada(),
+					propuesta.getComentarios(),
+					propuesta.getIdAlumno(),
+					propuesta.getIdEntidad(),
+					propuesta.getIdPorfesor(), null);
+
+			// Agregar las actividades (convertidas a DTO)
+			for (Actividad actividad : propuesta.getActividades()) {
+				ActividadDTO actividadDTO = new ActividadDTO(
+						actividad.getNombre(),
+						actividad.getHoras(),
+						actividad.getNombrePropuesta());
+				propuestaDTO.agregarActividad(actividadDTO);
+			}
+
+			return propuestaDTO;
+		}
+
+		return null;
+	}
 
 	@Override
 	public EntidadDTO obtenerEntidad(int id) {
-		 
-		 EntidadDAOJDBC dao = new EntidadDAOJDBC();
-		 
-		 Entidad entidad = null ; 
-		 EntidadDTO entidadDTO = null ;
-		 
-		 try {
+
+		EntidadDAOJDBC dao = new EntidadDAOJDBC();
+
+		Entidad entidad = null;
+		EntidadDTO entidadDTO = null;
+
+		try {
 			entidad = dao.find(id);
 		} catch (ConexionFallidaException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		 if (entidad != null) {
-			    entidadDTO = new EntidadDTO(
-			        entidad.getNombre(),
-			        entidad.getTelefono(),
-			        entidad.getCorreo(),
-			        entidad.getCuit()
-			    );
-			}
-		 
+		if (entidad != null) {
+			entidadDTO = new EntidadDTO(
+					entidad.getNombre(),
+					entidad.getTelefono(),
+					entidad.getCorreo(),
+					entidad.getCuit());
+		}
+
 		return entidadDTO;
 	}
 
@@ -318,74 +312,73 @@ public class PersistenceApi implements IApi {
 		AlumnoDTO alumnoDTO = null;
 
 		try {
-		    alumno = dao.find(id);  	
+			alumno = dao.find(id);
 		} catch (ConexionFallidaException e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		}
 
 		if (alumno != null) {
-		    alumnoDTO = new AlumnoDTO(
-		        alumno.getNombre(),
-		        alumno.getApellido(),
-		        alumno.getDni(),
-		        alumno.getCorreo()
-		    );
+			alumnoDTO = new AlumnoDTO(
+					alumno.getNombre(),
+					alumno.getApellido(),
+					alumno.getDni(),
+					alumno.getCorreo());
 		}
 
 		return alumnoDTO;
-		}
+	}
 
 	@Override
 	public TutorProfesorDTO obtenerProfeso(int id) {
-		  TutorProfesorDAOJDBC dao = new TutorProfesorDAOJDBC();
+		TutorProfesorDAOJDBC dao = new TutorProfesorDAOJDBC();
 
-		    TutorProfesor profesor = null;
-		    TutorProfesorDTO profesorDTO = null; // Cambié de PersonaDTO a TutorProfesorDTO
+		TutorProfesor profesor = null;
+		TutorProfesorDTO profesorDTO = null; // Cambié de PersonaDTO a TutorProfesorDTO
 
-		    try {
-		        profesor = dao.find(id);
-		    } catch (ConexionFallidaException e) {
-		        e.printStackTrace();
-		    }
-
-		    if (profesor != null) {
-		        profesorDTO = new TutorProfesorDTO(
-		            profesor.getNombre(),
-		            profesor.getApellido(),
-		            profesor.getDni(),
-		            profesor.getCorreo()
-		        );
-		    }
-
-		    return profesorDTO;
+		try {
+			profesor = dao.find(id);
+		} catch (ConexionFallidaException e) {
+			e.printStackTrace();
 		}
+
+		if (profesor != null) {
+			profesorDTO = new TutorProfesorDTO(
+					profesor.getNombre(),
+					profesor.getApellido(),
+					profesor.getDni(),
+					profesor.getCorreo());
+		}
+
+		return profesorDTO;
+	}
 
 	@Override
 	public void crearConvenio(String fechaGeneracion, String archivo, String tituloPropuesta, int idAlumno,
 			int idProfesor) {
-		
+
 		ConvenioDAOJDBC dao = new ConvenioDAOJDBC();
 		LocalDate fecha = parsearStringALocalDate(fechaGeneracion);
-		Convenio convenio = new Convenio(fecha, false , archivo, tituloPropuesta, idAlumno ,idProfesor);
-		
+		Convenio convenio = new Convenio(fecha, false, archivo, tituloPropuesta, idAlumno, idProfesor);
+
 		try {
 			dao.create(convenio);
 		} catch (ConexionFallidaException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
+
 	private LocalDate parsearStringALocalDate(String fechaStr) {
-      
-       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-       return LocalDate.parse(fechaStr, formatter);
-      
-    }
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		return LocalDate.parse(fechaStr, formatter);
+
+	}
 
 	@Override
 	public void actualizarEstadoPropuesta(String id, int estado) throws ConexionFallidaException {
-	    PropuestaDAOJDBC propuestaDao = new PropuestaDAOJDBC();
+		PropuestaDAOJDBC propuestaDao = new PropuestaDAOJDBC();
 		propuestaDao.find(id);
 		propuestaDao.actualizarEstadoPropuesta(id, estado);
 	}

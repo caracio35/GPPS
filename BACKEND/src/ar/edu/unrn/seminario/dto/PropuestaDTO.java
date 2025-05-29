@@ -3,6 +3,8 @@ package ar.edu.unrn.seminario.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import ar.edu.unrn.seminario.exception.InvalidCantHorasExcepcion;
+
 public class PropuestaDTO {
     private int id;
     private String titulo;
@@ -16,8 +18,9 @@ public class PropuestaDTO {
     private int idEntidad; // FK a Entidad
     private int idProfesoPrincipal;
 
-    public PropuestaDTO(int id ,String titulo, String areaInteres, String objetivo, String descripcion, int aceptada,
-            String comentarios, int idAlumno, int idEntidad, int idProfesoPrincipal) {
+    public PropuestaDTO(int id, String titulo, String areaInteres, String objetivo, String descripcion, int aceptada,
+            String comentarios, int idAlumno, int idEntidad, int idProfesoPrincipal, List<ActividadDTO> actividades)
+            throws InvalidCantHorasExcepcion {
         this.id = id;
         this.titulo = titulo;
         this.areaInteres = areaInteres;
@@ -28,8 +31,18 @@ public class PropuestaDTO {
         this.idAlumno = idAlumno;
         this.idEntidad = idEntidad;
         this.idProfesoPrincipal = idProfesoPrincipal;
-        this.actividades = new ArrayList<>(); // Inicializo la lista vacía
+        this.actividades = actividades; // Inicializo la lista vacía
+        int totalHoras = 0;
+        if (actividades != null) {
+            for (ActividadDTO actividad : actividades) {
+                totalHoras += actividad.getHoras();
+            }
+        }
+        if (totalHoras < 100 || totalHoras > 200) {
+            throw new InvalidCantHorasExcepcion("La propuesta debe tener entre 100 y 200 horas. Total: " + totalHoras);
+        }
     }
+
     public int getId() {
         return id;
     }
@@ -37,6 +50,7 @@ public class PropuestaDTO {
     public void setId(int id) {
         this.id = id;
     }
+
     // Getters
     public String getTitulo() {
         return titulo;

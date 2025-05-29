@@ -12,6 +12,7 @@ import com.mysql.jdbc.Statement;
 import ar.edu.unrn.seminario.dto.ActividadDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.exception.ConexionFallidaException;
+import ar.edu.unrn.seminario.exception.InvalidCantHorasExcepcion;
 import ar.edu.unrn.seminario.modelo.Actividad;
 import ar.edu.unrn.seminario.modelo.Propuesta;
 
@@ -123,18 +124,23 @@ public class PropuestaDAOJDBC implements PropuestaDao {
                     List<Actividad> actividades = cargarActividades(idPropuesta, conn);
                     int idTutorDocente = obtenerIdTutorDocente(idPropuesta, conn);
 
-                    propuesta = new Propuesta(
-                            rs.getInt ("id"),
-                            rs.getString("titulo"),
-                            rs.getString("area_interes"),
-                            rs.getString("objetivo"),
-                            rs.getString("descripcion"),
-                            rs.getString("comentarios"),
-                            rs.getInt("id_alumno"),
-                            rs.getInt("aceptada"),
-                            rs.getInt("id_entidad"),
-                            actividades,
-                            idTutorDocente);
+                    try {
+                        propuesta = new Propuesta(
+                                rs.getInt("id"),
+                                rs.getString("titulo"),
+                                rs.getString("area_interes"),
+                                rs.getString("objetivo"),
+                                rs.getString("descripcion"),
+                                rs.getString("comentarios"),
+                                rs.getInt("id_alumno"),
+                                rs.getInt("aceptada"),
+                                rs.getInt("id_entidad"),
+                                actividades,
+                                idTutorDocente);
+                    } catch (InvalidCantHorasExcepcion e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -160,21 +166,26 @@ public class PropuestaDAOJDBC implements PropuestaDao {
 
                 int idTutorDocente = obtenerIdTutorDocente(idPropuesta, conn);
 
-                Propuesta propuesta = new Propuesta(
-                        rs.getInt("id"),
-                        rs.getString("titulo"),
-                        rs.getString("area_interes"),
-                        rs.getString("objetivo"),
-                        rs.getString("descripcion"),
-                        rs.getString("comentarios"),
-                        rs.getInt("id_alumno"),
-                        rs.getInt("aceptada"),
-                        rs.getInt("id_entidad"),
-                        actividades,
-                        idTutorDocente // Ahora lo tenés
-                );
-
-                propuestas.add(propuesta);
+                Propuesta propuesta;
+                try {
+                    propuesta = new Propuesta(
+                            rs.getInt("id"),
+                            rs.getString("titulo"),
+                            rs.getString("area_interes"),
+                            rs.getString("objetivo"),
+                            rs.getString("descripcion"),
+                            rs.getString("comentarios"),
+                            rs.getInt("id_alumno"),
+                            rs.getInt("aceptada"),
+                            rs.getInt("id_entidad"),
+                            actividades,
+                            idTutorDocente // Ahora lo tenés
+                    );
+                    propuestas.add(propuesta);
+                } catch (InvalidCantHorasExcepcion e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
 
         } catch (SQLException e) {
@@ -272,10 +283,11 @@ public class PropuestaDAOJDBC implements PropuestaDao {
             }
         }
     }
+
     public void actualizarEstadoPropuesta(String id, int estado) throws ConexionFallidaException {
         try (Connection conn = ConnectionManager.getConnection()) {
             PreparedStatement stmt = conn.prepareStatement(
-                "UPDATE propuesta SET aceptada = ? WHERE titulo = ?");
+                    "UPDATE propuesta SET aceptada = ? WHERE titulo = ?");
             stmt.setInt(1, estado);
             stmt.setString(2, id);
             int affectedRows = stmt.executeUpdate();
@@ -287,5 +299,3 @@ public class PropuestaDAOJDBC implements PropuestaDao {
         }
     }
 }
-
-

@@ -15,6 +15,7 @@ import javax.swing.table.DefaultTableModel;
 
 import ar.edu.unrn.seminario.api.IApi;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
+import ar.edu.unrn.seminario.exception.InvalidCantHorasExcepcion;
 
 public class ListadoPoyectosParaCovenios extends JFrame {
 
@@ -30,7 +31,12 @@ public class ListadoPoyectosParaCovenios extends JFrame {
 
         this.api = api;
 
-        propuestas = api.obtenerTodasPropuestas();
+        try {
+            propuestas = api.obtenerTodasPropuestas();
+        } catch (InvalidCantHorasExcepcion e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         // Cambiamos las columnas para mostrar Título y Área de Interés
         modelo = new DefaultTableModel(new Object[] { "Título", "Área de Interés" }, 0);

@@ -349,7 +349,7 @@ public class CargarPropuesta extends JDialog {
 
             // Crear DTO de propuesta con IDs temporales 0
             PropuestaDTO propuesta = new PropuestaDTO(
-                    0, // id    
+                    0, // id
                     tituloField.getText().trim(),
                     areaField.getText().trim(),
                     objetivoArea.getText().trim(),
@@ -359,7 +359,7 @@ public class CargarPropuesta extends JDialog {
                     0, // idAlumno (cargar real después)
                     0, // idEntidad (cargar real después)
                     0 // idProfesoPrincipal (cargar real después)
-            );
+                    , actividades);
 
             // Llamar a la API de persistencia
             PersistenceApi api = new PersistenceApi();

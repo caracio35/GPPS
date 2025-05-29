@@ -9,7 +9,7 @@ import ar.edu.unrn.seminario.dto.RolDTO;
 import ar.edu.unrn.seminario.dto.TutorProfesorDTO;
 import ar.edu.unrn.seminario.dto.UsuarioDTO;
 import ar.edu.unrn.seminario.exception.ConexionFallidaException;
-import ar.edu.unrn.seminario.modelo.TutorProfesor;
+import ar.edu.unrn.seminario.exception.InvalidCantHorasExcepcion;
 
 public interface IApi {
 
@@ -37,19 +37,18 @@ public interface IApi {
 
 	void desactivarUsuario(String username); // recuperar el objeto Usuario, implementar el comportamiento de estado.
 
-	List<PropuestaDTO> obtenerTodasPropuestas(); 
-	
-	PropuestaDTO  obtenerPropuestaPorTitulo(String tituloProyecto);
-	
-	void crearConvenio( String fechaGeneracion, String archivo, String  tituloPropuesta, int idAlumno, int idProfesor);
-	
+	List<PropuestaDTO> obtenerTodasPropuestas() throws InvalidCantHorasExcepcion;
+
+	PropuestaDTO obtenerPropuestaPorTitulo(String tituloProyecto) throws InvalidCantHorasExcepcion;
+
+	void crearConvenio(String fechaGeneracion, String archivo, String tituloPropuesta, int idAlumno, int idProfesor);
+
 	EntidadDTO obtenerEntidad(int id);
-	
+
 	AlumnoDTO obtenerAlumno(int id);
-	
+
 	TutorProfesorDTO obtenerProfeso(int id);
 
-    void actualizarEstadoPropuesta(String id, int i) throws ConexionFallidaException;
+	void actualizarEstadoPropuesta(String id, int i) throws ConexionFallidaException;
 
-    
 }

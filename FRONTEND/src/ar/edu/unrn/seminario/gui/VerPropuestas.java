@@ -40,6 +40,7 @@ public class VerPropuestas extends JDialog {
     private UsuarioSimplificadoDTO usuario;
     private boolean aprobadas;
     private IApi api;
+    private List<PropuestaDTO> propuestasAprobadas = new ArrayList<>();
 
     public VerPropuestas(JFrame parent, UsuarioSimplificadoDTO usuario, IApi api, boolean aprobadas) {
         super(parent, "Ver Propuestas", true);
@@ -116,31 +117,33 @@ public class VerPropuestas extends JDialog {
                 return false;
             }
         };
+        try {
 
-        List<PropuestaDTO> propuestasTodas = api.obtenerTodasPropuestas();
-        List<PropuestaDTO> propuestasAprobadas = new ArrayList<>();
-
-        // Add proposals to table
-        for (PropuestaDTO p : propuestasTodas) {
-            if (!aprobadas) { // Si aprobadas es true, mostrar las propuestas aceptadas
-                if (p.isAceptada() == 1) {
-                    propuestasAprobadas.add(p);
-                    tableModel.addRow(new Object[] {
-                            p.getTitulo(),
-                            p.getAreaInteres(),
-                            p.getDescripcion()
-                    });
-                }
-            } else { // Si aprobadas es false, mostrar las propuestas pendientes
-                if (p.isAceptada() == 0) {
-                    propuestasAprobadas.add(p);
-                    tableModel.addRow(new Object[] {
-                            p.getTitulo(),
-                            p.getAreaInteres(),
-                            p.getDescripcion()
-                    });
+            List<PropuestaDTO> propuestasTodas = api.obtenerTodasPropuestas();
+            // Add proposals to table
+            for (PropuestaDTO p : propuestasTodas) {
+                if (!aprobadas) { // Si aprobadas es true, mostrar las propuestas aceptadas
+                    if (p.isAceptada() == 1) {
+                        propuestasAprobadas.add(p);
+                        tableModel.addRow(new Object[] {
+                                p.getTitulo(),
+                                p.getAreaInteres(),
+                                p.getDescripcion()
+                        });
+                    }
+                } else { // Si aprobadas es false, mostrar las propuestas pendientes
+                    if (p.isAceptada() == 0) {
+                        propuestasAprobadas.add(p);
+                        tableModel.addRow(new Object[] {
+                                p.getTitulo(),
+                                p.getAreaInteres(),
+                                p.getDescripcion()
+                        });
+                    }
                 }
             }
+        } catch (Exception e) {
+            // rulo
         }
         // Create and configure table
         JTable propuestasTable = new JTable(tableModel);

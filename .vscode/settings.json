@@ -3,7 +3,11 @@
     "BACKEND/src",
     "FRONTEND/src",
     "COMMONS/src",
-    "ENTITIES/src"
+    "ENTITIES/src",
+    "REPOSITORIES/src",
+    "SERVICES/src",
+    "UTILS/src",
+    "COMMONS/src"
   ],
   "java.project.referencedLibraries": [
     //"lib/**/*.jar",
