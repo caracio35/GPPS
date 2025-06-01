@@ -179,4 +179,28 @@ public class MemoryApi implements IApi {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'actualizarEstadoPropuesta'");
 	}
+
+	@Override
+	public EntidadDTO obtenerIdEntidad(String nombre) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AlumnoDTO obtenerIdAlumno(String nombre) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void guardarPropuesta(PropuestaDTO propuesta) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void registrarInscripcionAlumno(int idAlumno, String nombreDePropuesta) {
+		// TODO Auto-generated method stub
+		
+	}
 }

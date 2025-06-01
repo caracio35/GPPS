@@ -13,5 +13,7 @@ public interface PropuestaDao {
     Propuesta find(String titulo) throws ConexionFallidaException;
 
     List<Propuesta> findAll() throws ConexionFallidaException;
+    
+    void registrarAlumnoApropuesta(String nombrePropuesta , int idAlumno) throws ConexionFallidaException ;
 
 }

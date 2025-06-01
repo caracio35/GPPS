@@ -32,6 +32,7 @@ import javax.swing.table.DefaultTableModel;
 
 import ar.edu.unrn.seminario.api.IApi;
 import ar.edu.unrn.seminario.dto.ActividadDTO;
+import ar.edu.unrn.seminario.dto.AlumnoDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 import ar.edu.unrn.seminario.exception.ConexionFallidaException;
@@ -291,8 +292,10 @@ public class VerPropuestas extends JDialog {
                             "Error",
                             JOptionPane.ERROR_MESSAGE);
                 }
-            });
 
+             
+            });
+            
             JButton rechazarBtn = new JButton("Rechazar");
             rechazarBtn.setBackground(new Color(244, 67, 54));
             rechazarBtn.setForeground(Color.WHITE);
@@ -318,6 +321,36 @@ public class VerPropuestas extends JDialog {
             buttonPanel.add(aceptarBtn);
             buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
             buttonPanel.add(rechazarBtn);
+            buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        }
+        
+        if(usuario.getRol().equals("Alumno")) {
+            JButton inscribirseBtn = new JButton("Inscribirse");
+            inscribirseBtn.setBackground(new Color(33, 150, 243));
+            inscribirseBtn.setForeground(Color.WHITE);
+            inscribirseBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            inscribirseBtn.addActionListener(f -> {
+                try {
+                    AlumnoDTO alumno = api.obtenerIdAlumno(usuario.getNombre());
+                    String tituloPropuesta = propuesta.getTitulo();
+
+                    
+                    api.registrarInscripcionAlumno(alumno.getId(), tituloPropuesta);
+
+                    JOptionPane.showMessageDialog(this,
+                            "Te has inscrito correctamente en la propuesta.",
+                            "Inscripción exitosa",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    detalleDialog.dispose();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this,
+                            "Error al inscribirse: " + ex.getMessage(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            });
+
+            buttonPanel.add(inscribirseBtn);
             buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
         }
 

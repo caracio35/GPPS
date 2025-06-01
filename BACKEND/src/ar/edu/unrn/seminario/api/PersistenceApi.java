@@ -186,15 +186,6 @@ public class PersistenceApi implements IApi {
 		}
 	}
 
-	public void guardarPropuesta(PropuestaDTO propuesta, List<ActividadDTO> actividades) throws SQLException {
-		PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
-		try {
-			dao.insertarPropuestaConActividades(propuesta, actividades);
-		} catch (ConexionFallidaException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 
 	@Override
 	public List<PropuestaDTO> obtenerTodasPropuestas() throws InvalidCantHorasExcepcion {
@@ -269,7 +260,7 @@ public class PersistenceApi implements IApi {
 					propuesta.getIdEntidad(),
 					propuesta.getIdPorfesor(), actividadsDTO);
 
-			// Agregar las actividades (convertidas a DTO)
+			
 			for (Actividad actividad : propuesta.getActividades()) {
 				ActividadDTO actividadDTO = new ActividadDTO(
 						actividad.getNombre(),
@@ -280,7 +271,6 @@ public class PersistenceApi implements IApi {
 
 			return propuestaDTO;
 		}
-
 		return null;
 	}
 
@@ -338,7 +328,7 @@ public class PersistenceApi implements IApi {
 		TutorProfesorDAOJDBC dao = new TutorProfesorDAOJDBC();
 
 		TutorProfesor profesor = null;
-		TutorProfesorDTO profesorDTO = null; // Cambié de PersonaDTO a TutorProfesorDTO
+		TutorProfesorDTO profesorDTO = null; 
 
 		try {
 			profesor = dao.find(id);
@@ -375,7 +365,6 @@ public class PersistenceApi implements IApi {
 	}
 
 	private LocalDate parsearStringALocalDate(String fechaStr) {
-
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		return LocalDate.parse(fechaStr, formatter);
 
@@ -388,4 +377,89 @@ public class PersistenceApi implements IApi {
 		propuestaDao.actualizarEstadoPropuesta(id, estado);
 	}
 
-}
+	@Override
+	public EntidadDTO obtenerIdEntidad(String nombre) {
+
+		EntidadDAOJDBC dao = new EntidadDAOJDBC();
+		Entidad entidad = null ;
+		try {
+			entidad = dao.find(nombre);
+		} catch (ConexionFallidaException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		EntidadDTO entidadDao = new EntidadDTO(entidad.getNombre(), entidad.getTelefono(), entidad.getCorreo(), entidad.getCuit());
+		entidadDao.setId(entidad.getId());
+		
+		return entidadDao;
+	}
+
+	@Override
+	public AlumnoDTO obtenerIdAlumno(String nombre) {
+		AlumnoDAOJDBC dao = new AlumnoDAOJDBC();
+		Alumno alumno = null ; 
+		try {
+			alumno = dao.find(nombre);
+		} catch (ConexionFallidaException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		AlumnoDTO alumnoDao = new AlumnoDTO(alumno.getNombre(), alumno.getApellido(), alumno.getDni(), alumno.getCorreo());
+		alumnoDao.setId(alumno.getId());
+		return alumnoDao;
+	}
+
+	@Override
+	public void guardarPropuesta(PropuestaDTO propuestaDto) {
+
+	    PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
+
+	    
+	    List<Actividad> actividades = new ArrayList<>();
+	    for (ActividadDTO actDTO : propuestaDto.getActividades()) {
+	        Actividad actividad = new Actividad( actDTO.getnombre() , actDTO.getHoras() , null
+	        );
+	        actividades.add(actividad);
+	    }
+
+	    
+	    Propuesta propuesta = null;
+	    try {
+	        propuesta = new Propuesta(
+	                0, // id
+	                propuestaDto.getTitulo(),
+	                propuestaDto.getAreaInteres(),
+	                propuestaDto.getObjetivo(),
+	                propuestaDto.getDescripcion(),
+	                null, // comentarios
+	                propuestaDto.getIdAlumno(),
+	                0, // aceptada
+	                propuestaDto.getIdEntidad(),
+	                actividades,
+	                propuestaDto.getIdProfesoPrincipal() 
+	        );
+	    } catch (InvalidCantHorasExcepcion e) {
+	        e.printStackTrace();
+	        
+	    }
+
+	    try {
+	        dao.create(propuesta);
+	    } catch (ConexionFallidaException e) {
+	        e.printStackTrace();
+	        
+	    }
+	    }
+
+	@Override
+	public void registrarInscripcionAlumno(int idAlumno, String nombreDePropuesta) {
+	
+		PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
+		try {
+			dao.registrarAlumnoApropuesta(nombreDePropuesta, idAlumno);
+		} catch (ConexionFallidaException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	}

@@ -11,6 +11,7 @@ import ar.edu.unrn.seminario.dto.UsuarioDTO;
 import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 import ar.edu.unrn.seminario.exception.InvalidCantHorasExcepcion;
 
+
 public interface IApi {
 
 	void registrarUsuario(String username, String password, String email, String nombre, Integer rol);
@@ -44,11 +45,18 @@ public interface IApi {
 	void crearConvenio(String fechaGeneracion, String archivo, String tituloPropuesta, int idAlumno, int idProfesor);
 
 	EntidadDTO obtenerEntidad(int id);
-
+	
+	EntidadDTO obtenerIdEntidad(String nombre); 
+	
 	AlumnoDTO obtenerAlumno(int id);
+	
+	AlumnoDTO obtenerIdAlumno(String nombre);
 
 	TutorProfesorDTO obtenerProfeso(int id);
 
 	void actualizarEstadoPropuesta(String id, int i) throws ConexionFallidaException;
 
+	void guardarPropuesta(PropuestaDTO propuesta);
+	
+	void registrarInscripcionAlumno(int idAlumno , String nombreDePropuesta );
 }

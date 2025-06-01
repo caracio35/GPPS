@@ -212,50 +212,7 @@ public class PropuestaDAOJDBC implements PropuestaDao {
         }
         return actividades;
     }
-
-    public void insertarPropuestaConActividades(PropuestaDTO propuesta, List<ActividadDTO> actividades)
-            throws ConexionFallidaException, SQLException {
-        Connection conn = ConnectionManager.getConnection();
-
-        // Sin total_horas, y con nombre correcto de tabla 'actividad'
-        String sqlPropuesta = "INSERT INTO propuesta (titulo, area_interes, objetivo, descripcion) VALUES (?, ?, ? , ?)";
-        String sqlActividad = "INSERT INTO actividad (nombre_actividad, horas, propuesta_id) VALUES (?, ?, ?)";
-
-        try (
-                PreparedStatement stmtPropuesta = conn.prepareStatement(sqlPropuesta, Statement.RETURN_GENERATED_KEYS);
-                PreparedStatement stmtActividad = conn.prepareStatement(sqlActividad)) {
-            // Insertar propuesta
-            stmtPropuesta.setString(1, propuesta.getTitulo());
-            stmtPropuesta.setString(2, propuesta.getAreaInteres());
-            stmtPropuesta.setString(3, propuesta.getObjetivo());
-            stmtPropuesta.setString(4, propuesta.getDescripcion());
-            stmtPropuesta.executeUpdate();
-
-            // Obtener ID generado
-            ResultSet rs = stmtPropuesta.getGeneratedKeys();
-            int idPropuesta = -1;
-            if (rs.next()) {
-                idPropuesta = rs.getInt(1);
-            } else {
-                throw new SQLException("No se pudo obtener el ID de la propuesta");// exepcion a cambiar por rulo
-            }
-
-            // Insertar actividades
-            for (ActividadDTO act : actividades) {
-                stmtActividad.setString(1, act.getnombre());
-                stmtActividad.setInt(2, act.getHoras());
-                stmtActividad.setInt(3, idPropuesta);
-                stmtActividad.executeUpdate();
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al insertar propuesta y actividades: " + e.getMessage(), e);
-        } finally {
-            conn.close();
-        }
-
-    }
-
+    
     private int obtenerIdTutorDocente(int idPropuesta, Connection conn) throws SQLException {
         String sql = "SELECT id_tutor_docente FROM tutor_propuesta WHERE id_propuesta = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -295,6 +252,37 @@ public class PropuestaDAOJDBC implements PropuestaDao {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error al actualizar el estado de la propuesta: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void registrarAlumnoApropuesta(String nombrePropuesta, int idAlumno) throws ConexionFallidaException {
+        try (Connection conn = ConnectionManager.getConnection()) {
+
+            
+            String selectSql = "SELECT id FROM propuesta WHERE titulo = ?";
+            
+            try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+                selectStmt.setString(1, nombrePropuesta);
+                try (ResultSet rs = selectStmt.executeQuery()) {
+                    if (rs.next()) {
+                        int propuestaId = rs.getInt("id");
+
+                        String updateSql = "UPDATE propuesta SET id_alumno = ? WHERE id = ?";
+                        try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                            updateStmt.setInt(1, idAlumno);
+                            updateStmt.setInt(2, propuestaId);
+                            updateStmt.executeUpdate();
+                        }
+
+                    } else {
+                        throw new ConexionFallidaException("No se encontró ninguna propuesta con el título: " + nombrePropuesta);
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new ConexionFallidaException("Error al registrar al alumno en la propuesta: " + e.getMessage());
         }
     }
 }

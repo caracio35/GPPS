@@ -1,5 +1,4 @@
 package ar.edu.unrn.seminario.gui;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -31,9 +30,10 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-
-import ar.edu.unrn.seminario.api.PersistenceApi;
+import ar.edu.unrn.seminario.api.IApi;
 import ar.edu.unrn.seminario.dto.ActividadDTO;
+import ar.edu.unrn.seminario.dto.AlumnoDTO;
+import ar.edu.unrn.seminario.dto.EntidadDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 
@@ -47,10 +47,13 @@ public class CargarPropuesta extends JDialog {
     private JLabel totalHorasLabel;
     private int totalHoras = 0;
     private UsuarioSimplificadoDTO usuario;
+    private IApi api;
 
-    public CargarPropuesta(JFrame parent, UsuarioSimplificadoDTO usuario) {
+    public CargarPropuesta(JFrame parent, UsuarioSimplificadoDTO usuario , IApi api) {
         super(parent, "Cargar Propuesta", true);
-        this.usuario = usuario; // Guardar el usuario que está subiendo la propuesta
+        this.usuario = usuario;
+        this.api = api ;
+        
 
         // Panel con fondo degradado
         JPanel panel = new JPanel() {
@@ -221,7 +224,7 @@ public class CargarPropuesta extends JDialog {
         guardarBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                recogerDatos();
+                recogerDatos(api);
             }
         });
 
@@ -316,7 +319,7 @@ public class CargarPropuesta extends JDialog {
         totalHorasLabel.setText(String.valueOf(totalHoras));
     }
 
-    void recogerDatos() {
+    void recogerDatos(IApi api) {
         try {
             // Validar campos obligatorios
             if (tituloField.getText().trim().isEmpty() ||
@@ -340,14 +343,26 @@ public class CargarPropuesta extends JDialog {
                     try {
                         int horas = Integer.parseInt(horasStr);
                         totalHoras += horas;
-                        actividades.add(new ActividadDTO(nombre, horas, null));
+                        actividades.add(new ActividadDTO(null , horas,nombre));
                     } catch (NumberFormatException e) {
-                        // Ignorar filas con datos inválidos
+                        // Ignorar valores no numéricos
                     }
                 }
             }
 
-            // Crear DTO de propuesta con IDs temporales 0
+            // Determinar IDs según el rol
+            int idAlumno = 0;
+            int idEntidad = 0;
+
+            if (usuario.getRol().equals("Alumno")) {
+                AlumnoDTO alumno = api.obtenerIdAlumno(usuario.getNombre());
+                idAlumno = alumno.getId();
+            } else if (usuario.getRol().equals("Institución")) {
+                EntidadDTO entidad = api.obtenerIdEntidad(usuario.getNombre());
+                idEntidad = entidad.getId();
+            }
+
+            // Crear DTO de propuesta
             PropuestaDTO propuesta = new PropuestaDTO(
                     0, // id
                     tituloField.getText().trim(),
@@ -356,21 +371,21 @@ public class CargarPropuesta extends JDialog {
                     descripcionArea.getText().trim(),
                     0, // aceptada
                     null, // comentarios
-                    0, // idAlumno (cargar real después)
-                    0, // idEntidad (cargar real después)
-                    0 // idProfesoPrincipal (cargar real después)
-                    , actividades);
+                    idAlumno,
+                    idEntidad,
+                    0, // idProfesorPrincipal
+                    actividades
+            );
 
-            // Llamar a la API de persistencia
-            PersistenceApi api = new PersistenceApi();
-            api.guardarPropuesta(propuesta, actividades);
+            // Llamada a la API para guardar la propuesta
+            api.guardarPropuesta(propuesta);
 
             JOptionPane.showMessageDialog(this,
                     "La propuesta se ha guardado exitosamente",
                     "Éxito",
                     JOptionPane.INFORMATION_MESSAGE);
 
-            // Actualizar el contador de propuestas pendientes en VentanaPrincipal
+            // Actualizar contador en la ventana principal si corresponde
             if (getOwner() instanceof VentanaPrincipal) {
                 VentanaPrincipal ventana = (VentanaPrincipal) getOwner();
                 ventana.actualizarContadorPropuestas();
