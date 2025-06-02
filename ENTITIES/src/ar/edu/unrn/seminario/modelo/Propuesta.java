@@ -6,25 +6,26 @@ import java.util.List;
 import ar.edu.unrn.seminario.exception.InvalidCantHorasExcepcion;
 
 public class Propuesta {
-	private int id;
 	private String titulo;
+	private String descripcion;
 	private String areaInteres;
 	private String objetivo;
-	private String descripcion;
-	private int aceptada; // 0 = no aceptada, 1 = aceptada,-1 = rechazada
 	private String comentarios;
-	private List<Actividad> actividades;
-	private int idAlumno; // FK a Alumno
-	private int idEntidad; // FK a Entidad
-	private int idProfesoPrincipal;
+	private Boolean aceptada;
+	private Usuario creador; // usuario.usuario
+	private Usuario alumno; // usuario.usuario
+	private Usuario tutor; // usuario.usuario
+	private Usuario profesor; // usuario.usuario
+	private List<Actividad> actividades = new ArrayList<>();
 
 	// Constructor con todos los campos
-	public Propuesta(int id, String titulo, String areaInteres, String objetivo, String descripcion,
-			String comentarios, int idAlumno, int aceptada, int idEntidad, List<Actividad> lista, int idProfesor)
+	public Propuesta(String titulo, String descripcion, String areaInteres, String objetivo, String comentarios,
+			Boolean aceptada, Usuario creador, Usuario alumno, Usuario tutor, Usuario profesor,
+			List<Actividad> actividades)
 			throws InvalidCantHorasExcepcion {
 		int totalHoras = 0;
-		if (lista != null) {
-			for (Actividad a : lista) {
+		if (actividades != null) {
+			for (Actividad a : actividades) {
 				totalHoras += a.getHoras();
 			}
 		}
@@ -32,25 +33,17 @@ public class Propuesta {
 			throw new InvalidCantHorasExcepcion(
 					"La propuesta debe tener entre 100 y 200 horas. Total: " + totalHoras);
 		}
-		this.id = id;
+
 		this.titulo = titulo;
+		this.descripcion = descripcion;
 		this.areaInteres = areaInteres;
 		this.objetivo = objetivo;
-		this.descripcion = descripcion;
-		this.aceptada = aceptada;
 		this.comentarios = comentarios;
-		this.idAlumno = idAlumno;
-		this.idEntidad = idEntidad;
-		this.actividades = lista;
-		this.idProfesoPrincipal = idProfesor;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
+		this.aceptada = aceptada;
+		this.creador = creador;
+		this.alumno = alumno;
+		this.tutor = tutor;
+		this.profesor = profesor;
 	}
 
 	public String getTitulo() {
@@ -59,6 +52,14 @@ public class Propuesta {
 
 	public void setTitulo(String titulo) {
 		this.titulo = titulo;
+	}
+
+	public String getDescripcion() {
+		return descripcion;
+	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
 	}
 
 	public String getAreaInteres() {
@@ -73,32 +74,8 @@ public class Propuesta {
 		return objetivo;
 	}
 
-	public List<Actividad> getActividades() {
-		return actividades;
-	}
-
-	public void setActividades(List<Actividad> actividades) {
-		this.actividades = actividades;
-	}
-
 	public void setObjetivo(String objetivo) {
 		this.objetivo = objetivo;
-	}
-
-	public String getDescripcion() {
-		return descripcion;
-	}
-
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
-	}
-
-	public int isAceptada() {
-		return aceptada;
-	}
-
-	public void setAceptada(int aceptada) {
-		this.aceptada = aceptada;
 	}
 
 	public String getComentarios() {
@@ -109,44 +86,71 @@ public class Propuesta {
 		this.comentarios = comentarios;
 	}
 
-	public int getIdAlumno() {
-		return idAlumno;
+	public Boolean isAceptada() {
+		return aceptada;
 	}
 
-	public int getIdPorfesor() {
-		return idProfesoPrincipal;
+	public void setAceptada(Boolean aceptada) {
+		this.aceptada = aceptada;
 	}
 
-	public void setIdAlumno(int idAlumno) {
-		this.idAlumno = idAlumno;
+	public Usuario getCreador() {
+		return creador;
 	}
 
-	public int getIdEntidad() {
-		return idEntidad;
+	public void setCreador(Usuario creador) {
+		this.creador = creador;
 	}
 
-	public void setIdEntidad(int idEntidad) {
-		this.idEntidad = idEntidad;
+	public Usuario getAlumno() {
+		return alumno;
+	}
+
+	public void setAlumno(Usuario alumno) {
+		this.alumno = alumno;
+	}
+
+	public Usuario getTutor() {
+		return tutor;
+	}
+
+	public void setTutor(Usuario tutor) {
+		this.tutor = tutor;
+	}
+
+	public Usuario getProfesor() {
+		return profesor;
+	}
+
+	public void setProfesor(Usuario profesor) {
+		this.profesor = profesor;
+	}
+
+	public List<Actividad> getActividades() {
+		return actividades;
+	}
+
+	public void setActividades(List<Actividad> actividades) {
+		this.actividades = actividades;
 	}
 
 	public void agregarActividad(Actividad actividad) {
-		if (this.actividades == null) {
-			this.actividades = new ArrayList<>();
-		}
-		this.actividades.add(actividad);
+		actividades.add(actividad);
 	}
 
 	@Override
 	public String toString() {
 		return "Propuesta{" +
 				", titulo='" + titulo + '\'' +
+				", descripcion='" + descripcion + '\'' +
 				", areaInteres='" + areaInteres + '\'' +
 				", objetivo='" + objetivo + '\'' +
-				", descripcion='" + descripcion + '\'' +
-				", aceptada=" + aceptada +
 				", comentarios='" + comentarios + '\'' +
-				", idAlumno=" + idAlumno +
-				", idEntidad=" + idEntidad +
+				", aceptada=" + aceptada +
+				", creador='" + creador + '\'' +
+				", alumno='" + alumno + '\'' +
+				", tutor='" + tutor + '\'' +
+				", profesor='" + profesor + '\'' +
 				", actividades=" + actividades +
 				'}';
 	}

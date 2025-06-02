@@ -1,38 +1,26 @@
 package ar.edu.unrn.seminario.dto;
 
 public class ActividadDTO {
-	
-	private String nombrePropuesta;
-    private String nombre;
+
+    private String nombreActividad;
     private int horas;
 
-    public ActividadDTO(String nombrePropuesta , int horas, String nombre) {
-    	
-    	this.nombrePropuesta = nombrePropuesta ;
-        this.nombre = nombre;
+    public ActividadDTO(String nombreActividad, int horas) {
+
+        this.nombreActividad = nombreActividad;
         this.horas = horas;
     }
 
-    
-	public String getnombrePropuesta() {
-        return nombrePropuesta;
-    }
-    
-    public void setnombrePropuesta(String nombre) {
-        this.nombrePropuesta = nombre;
+    public String getNombreActividad() {
+        return nombreActividad;
     }
 
-    public String getnombre() {
-        return nombre;
+    public void setNombreActividad(String nombreActividad) {
+        this.nombreActividad = nombreActividad;
     }
 
     public int getHoras() {
         return horas;
-    }
-
-  
-    public void setnombre(String nombre) {
-        this.nombre = nombre;
     }
 
     public void setHoras(int horas) {
@@ -42,8 +30,10 @@ public class ActividadDTO {
     @Override
     public String toString() {
         return "ActividadDTO{" +
-                "nombre='" + nombre + '\'' +
+                "id=" +
+                ", nombreActividad='" + nombreActividad + '\'' +
                 ", horas=" + horas +
+                ", propuestaId=" +
                 '}';
     }
 }

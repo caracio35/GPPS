@@ -1,50 +1,42 @@
 package ar.edu.unrn.seminario.modelo;
 
 public class Actividad {
-	
-	    private String nombrePropuesta; 
-	    private String nombre;
-	    private int horas;
+	private String nombreActividad;
+	private int horas;
 
-	    // Constructor con parámetros
-	    public Actividad(String nombre, int horas, String nombrePropuesta) {
-	        this.nombre = nombre;
-	        this.horas = horas;
-	        this.nombrePropuesta = nombrePropuesta;
-	    }
+	public Actividad(String nombreActividad, int horas) {
 
-	    public String getNombre() {
-	        return nombre;
-	    }
+		this.nombreActividad = nombreActividad;
+		this.horas = horas;
+	}
 
-	    public void setNombre(String nombre) {
-	        this.nombre = nombre;
-	    }
+	public String getNombreActividad() {
+		return nombreActividad;
+	}
 
-	    public int getHoras() {
-	        return horas;
-	    }
+	public void setNombreActividad(String nombreActividad) {
+		this.nombreActividad = nombreActividad;
+	}
 
-	    public void setHoras(int horas) {
-	        this.horas = horas;
-	    }
+	public int getHoras() {
+		return horas;
+	}
 
-	    public String getNombrePropuesta() {
-	        return nombrePropuesta;
-	    }
+	public void setHoras(int horas) {
+		this.horas = horas;
+	}
 
-	    public void setNombrePropuesta(String nombrePropuesta) {
-	        this.nombrePropuesta = nombrePropuesta;
-	    }
+	@Override
+	public String toString() {
+		return "Actividad{" +
+				"id=" +
+				", nombreActividad='" + nombreActividad + '\'' +
+				", horas=" + horas +
+				'}';
+	}
 
-	    @Override
-	    public String toString() {
-	        return "Actividad{" +
-	                "nombre='" + nombre + '\'' +
-	                ", horas=" + horas +
-	                ", nombrePropuesta='" + nombrePropuesta + '\'' +
-	                '}';
-	    }
-  
-
+	public int getNombrePropuesta() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'getNombrePropuesta'");
+	}
 }

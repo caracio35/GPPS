@@ -5,32 +5,28 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import accesos.AlumnoDAOJDBC;
 import accesos.ConvenioDAOJDBC;
 import accesos.EntidadDAOJDBC;
 import accesos.PropuestaDAOJDBC;
 import accesos.RolDAOJDBC;
 import accesos.RolDao;
-import accesos.TutorProfesorDAOJDBC;
 import accesos.UsuarioDAOJDBC;
 import accesos.UsuarioDao;
 import ar.edu.unrn.seminario.dto.ActividadDTO;
-import ar.edu.unrn.seminario.dto.AlumnoDTO;
 import ar.edu.unrn.seminario.dto.EntidadDTO;
+import ar.edu.unrn.seminario.dto.PersonaDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.RolDTO;
-import ar.edu.unrn.seminario.dto.TutorProfesorDTO;
 import ar.edu.unrn.seminario.dto.UsuarioDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 import ar.edu.unrn.seminario.exception.InvalidCantHorasExcepcion;
 import ar.edu.unrn.seminario.modelo.Actividad;
-import ar.edu.unrn.seminario.modelo.Alumno;
 import ar.edu.unrn.seminario.modelo.Convenio;
 import ar.edu.unrn.seminario.modelo.Entidad;
+import ar.edu.unrn.seminario.modelo.Persona;
 import ar.edu.unrn.seminario.modelo.Propuesta;
 import ar.edu.unrn.seminario.modelo.Rol;
-import ar.edu.unrn.seminario.modelo.TutorProfesor;
 import ar.edu.unrn.seminario.modelo.Usuario;
 
 public class PersistenceApi implements IApi {
@@ -46,15 +42,11 @@ public class PersistenceApi implements IApi {
 	}
 
 	@Override
-	public void registrarUsuario(String username, String password, String email, String nombre, Integer codigoRol) {
+	public void registrarUsuario(String username, String password, String email, String nombre, Integer codigoRol)
+			throws ConexionFallidaException {
 		Rol rol = rolDao.find(codigoRol);
-		Usuario usuario = new Usuario(username, password, nombre, email, rol);
-		try {
-			this.usuarioDao.create(usuario);
-		} catch (ConexionFallidaException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Persona persona = null;
+		Usuario usuario = new Usuario(username, password, email, rol, persona);
 	}
 
 	@Override
@@ -67,17 +59,50 @@ public class PersistenceApi implements IApi {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		Rol rol = null;
+		PersonaDTO personaDTO = null;
 		for (Usuario u : usuarios) {
-			dtos.add(new UsuarioDTO(u.getUsuario(), u.getContrasena(), u.getNombre(), u.getEmail(),
-					u.getRol().getNombre(), u.isActivo(), u.obtenerEstado()));
+			if (u.getPersona() == null) {
+				Persona persona = u.getPersona();
+				rol = u.getRol();
+				personaDTO = new PersonaDTO(persona.getDni(), persona.getApellido(), persona.getDni());
+
+				continue;
+			}
+
+			dtos.add(new UsuarioDTO(u.getUsuario(), u.getContrasena(), u.getEmail(), u.isActivo(), rol.getNombre(),
+					personaDTO));
+
 		}
 		return dtos;
 	}
 
-	@Override
-	public UsuarioDTO obtenerUsuario(String username) {
-		// TODO Auto-generated method stub
+	public UsuarioDTO obtenerUsuarioDTO(String username) {
+		Usuario usuario = null;
+		try {
+			usuario = usuarioDao.find(username);
+		} catch (ConexionFallidaException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (usuario != null) {
+			Rol rol = usuario.getRol();
+			Persona persona = usuario.getPersona();
+			PersonaDTO personaDTO = new PersonaDTO(persona.getDni(), persona.getApellido(), persona.getNombre());
+			return new UsuarioDTO(usuario.getUsuario(), usuario.getContrasena(), usuario.getEmail(), usuario.isActivo(),
+					rol.getNombre(), personaDTO);
+		}
 		return null;
+	}
+
+	public Usuario obtenerUsuario(String username) {
+		Usuario usuario = null;
+		try {
+			usuario = usuarioDao.find(username);
+		} catch (ConexionFallidaException e) {
+			e.printStackTrace();
+		}
+		return usuario;
 	}
 
 	@Override
@@ -128,7 +153,7 @@ public class PersistenceApi implements IApi {
 	}
 
 	@Override
-	public RolDTO obtenerRolPorCodigo(Integer codigo) {
+	public RolDTO obtenerRolPorCodigo(Integer codigo) throws ConexionFallidaException {
 		Rol rol = rolDao.find(codigo);
 		RolDTO rolDTO = new RolDTO(rol.getCodigo(), rol.getNombre(), rol.isActivo());
 		return rolDTO;
@@ -201,23 +226,11 @@ public class PersistenceApi implements IApi {
 		for (Propuesta p : propuestas) {
 			List<ActividadDTO> actividadesDTO = new ArrayList<>();
 			for (Actividad actividad : p.getActividades()) {
-				ActividadDTO actividadDTO = new ActividadDTO(
-						actividad.getNombrePropuesta(),
-						actividad.getHoras(),
-						actividad.getNombre());
+				ActividadDTO actividadDTO = new ActividadDTO(actividad.getNombreActividad(), actividad.getHoras());
 				actividadesDTO.add(actividadDTO);
 			}
-			PropuestaDTO propuestaDTO = new PropuestaDTO(
-					p.getId(),
-					p.getTitulo(),
-					p.getAreaInteres(),
-					p.getObjetivo(),
-					p.getDescripcion(),
-					p.isAceptada(),
-					p.getComentarios(),
-					p.getIdAlumno(),
-					p.getIdEntidad(),
-					p.getIdPorfesor(),
+			PropuestaDTO propuestaDTO = new PropuestaDTO(p.getTitulo(), p.getDescripcion(), p.getAreaInteres(),
+					p.getObjetivo(), p.getComentarios(), p.isAceptada(), p.getCreador().getUsuario(), null, null, null,
 					actividadesDTO);
 			propuestasDTO.add(propuestaDTO);
 		}
@@ -241,33 +254,18 @@ public class PersistenceApi implements IApi {
 		ArrayList<ActividadDTO> actividadsDTO = new ArrayList<>();
 		for (Actividad actividad : propuesta.getActividades()) {
 			ActividadDTO actividadDTO = new ActividadDTO(
-					actividad.getNombre(),
-					actividad.getHoras(),
-					actividad.getNombrePropuesta());
+					actividad.getNombreActividad(),
+					actividad.getHoras());
 			actividadsDTO.add(actividadDTO);
 		}
+
 		if (propuesta != null) {
-			PropuestaDTO propuestaDTO = new PropuestaDTO(
-					propuesta.getId(),
-					propuesta.getTitulo(),
+			PropuestaDTO p = new PropuestaDTO(propuesta.getTitulo(), propuesta.getDescripcion(),
 					propuesta.getAreaInteres(),
-					propuesta.getObjetivo(),
-					propuesta.getDescripcion(),
-					propuesta.isAceptada(),
-					propuesta.getComentarios(),
-					propuesta.getIdAlumno(),
-					propuesta.getIdEntidad(),
-					propuesta.getIdPorfesor(), actividadsDTO);
+					propuesta.getObjetivo(), propuesta.getComentarios(), propuesta.isAceptada(),
+					propuesta.getCreador().getUsuario(), null, null, null, actividadsDTO);
 
-			for (Actividad actividad : propuesta.getActividades()) {
-				ActividadDTO actividadDTO = new ActividadDTO(
-						actividad.getNombre(),
-						actividad.getHoras(),
-						actividad.getNombrePropuesta());
-				propuestaDTO.agregarActividad(actividadDTO);
-			}
-
-			return propuestaDTO;
+			return p;
 		}
 		return null;
 	}
@@ -295,54 +293,6 @@ public class PersistenceApi implements IApi {
 		}
 
 		return entidadDTO;
-	}
-
-	@Override
-	public AlumnoDTO obtenerAlumno(int id) {
-		AlumnoDAOJDBC dao = new AlumnoDAOJDBC();
-
-		Alumno alumno = null;
-		AlumnoDTO alumnoDTO = null;
-
-		try {
-			alumno = dao.find(id);
-		} catch (ConexionFallidaException e) {
-			e.printStackTrace();
-		}
-
-		if (alumno != null) {
-			alumnoDTO = new AlumnoDTO(
-					alumno.getNombre(),
-					alumno.getApellido(),
-					alumno.getDni(),
-					alumno.getCorreo());
-		}
-
-		return alumnoDTO;
-	}
-
-	@Override
-	public TutorProfesorDTO obtenerProfeso(int id) {
-		TutorProfesorDAOJDBC dao = new TutorProfesorDAOJDBC();
-
-		TutorProfesor profesor = null;
-		TutorProfesorDTO profesorDTO = null;
-
-		try {
-			profesor = dao.find(id);
-		} catch (ConexionFallidaException e) {
-			e.printStackTrace();
-		}
-
-		if (profesor != null) {
-			profesorDTO = new TutorProfesorDTO(
-					profesor.getNombre(),
-					profesor.getApellido(),
-					profesor.getDni(),
-					profesor.getCorreo());
-		}
-
-		return profesorDTO;
 	}
 
 	@Override
@@ -394,46 +344,32 @@ public class PersistenceApi implements IApi {
 	}
 
 	@Override
-	public AlumnoDTO obtenerIdAlumno(String nombre) {
-		AlumnoDAOJDBC dao = new AlumnoDAOJDBC();
-		Alumno alumno = null;
-		try {
-			alumno = dao.find(nombre);
-		} catch (ConexionFallidaException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		AlumnoDTO alumnoDao = new AlumnoDTO(alumno.getNombre(), alumno.getApellido(), alumno.getDni(),
-				alumno.getCorreo());
-		alumnoDao.setId(alumno.getId());
-		return alumnoDao;
-	}
-
-	@Override
 	public void guardarPropuesta(PropuestaDTO propuestaDto) {
 
 		PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
 
 		List<Actividad> actividades = new ArrayList<>();
 		for (ActividadDTO actDTO : propuestaDto.getActividades()) {
-			Actividad actividad = new Actividad(actDTO.getnombre(), actDTO.getHoras(), null);
+			Actividad actividad = new Actividad(actDTO.getNombreActividad(), actDTO.getHoras());
 			actividades.add(actividad);
 		}
 
 		Propuesta propuesta = null;
+		Usuario creador = obtenerUsuario(propuestaDto.getCreador());
+		Usuario alumno = obtenerUsuario(propuestaDto.getAlumno());
+		Usuario tutor = obtenerUsuario(propuestaDto.getTutor());
+		Usuario profesor = obtenerUsuario(propuestaDto.getProfesor());
+
 		try {
 			propuesta = new Propuesta(
-					0, // id
 					propuestaDto.getTitulo(),
+					propuestaDto.getDescripcion(),
 					propuestaDto.getAreaInteres(),
 					propuestaDto.getObjetivo(),
-					propuestaDto.getDescripcion(),
-					null, // comentarios
-					propuestaDto.getIdAlumno(),
-					0, // aceptada
-					propuestaDto.getIdEntidad(),
-					actividades,
-					propuestaDto.getIdProfesoPrincipal());
+					propuestaDto.getComentarios(),
+					propuestaDto.isAceptada(), creador, alumno, tutor, profesor,
+					actividades);
+
 		} catch (InvalidCantHorasExcepcion e) {
 			e.printStackTrace();
 
@@ -470,7 +406,7 @@ public class PersistenceApi implements IApi {
 		}
 		if (usuarios != null) {
 			for (Usuario u : usuarios) {
-				dtos.add(new UsuarioSimplificadoDTO(u.getNombre(), u.getNombre(), u.getEmail(),
+				dtos.add(new UsuarioSimplificadoDTO(u.getNombreActividad(), u.getNombreActividad(), u.getEmail(),
 						u.getRol().getNombre(), 1111, u.getUsuario()));
 			}
 		}

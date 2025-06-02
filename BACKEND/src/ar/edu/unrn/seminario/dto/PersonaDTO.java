@@ -1,34 +1,47 @@
-
 package ar.edu.unrn.seminario.dto;
 
-public abstract class PersonaDTO {
-	
-	private int id ;
+public class PersonaDTO {
+	private String dni;
 	private String nombre;
-	private  String apellido;
-	private  String dni;
-	private  String correo;
+	private String apellido;
 
-	    // Constructor
-	    public PersonaDTO(String nombre, String apellido, String dni, String correo) {
-	    	this.id = 0 ;
-	        this.nombre = nombre;
-	        this.apellido = apellido;
-	        this.dni = dni;
-	        this.correo = correo;
-	    }
+	// Constructor, getters y setters...
+	public PersonaDTO(String dni, String nombre, String apellido) {
+		this.dni = dni;
+		this.nombre = nombre;
+		this.apellido = apellido;
+	}
 
-	    public void setId(int id) {
-	    	this.id =id ;
-	    }
-	    public String getNombre() { return nombre; }
-	    public String getApellido() { return apellido; }
-	    public String getDni() { return dni; }
-	    public String getCorreo() { return correo; }
-	   
-	    public int getId() {
-	    	return id;
-	    }
-	
+	public String getDni() {
+		return dni;
+	}
 
+	public void setDni(String dni) {
+		this.dni = dni;
+	}
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public String getApellido() {
+		return apellido;
+	}
+
+	public void setApellido(String apellido) {
+		this.apellido = apellido;
+	}
+
+	@Override
+	public String toString() {
+		return "PersonaDTO{" +
+				"dni='" + dni + '\'' +
+				", nombre='" + nombre + '\'' +
+				", apellido='" + apellido + '\'' +
+				'}';
+	}
 }

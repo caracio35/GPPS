@@ -1,48 +1,37 @@
 package ar.edu.unrn.seminario.dto;
 
 public class UsuarioDTO {
-	private String username;
-	private String password;
-	private String nombre;
+	private String usuario;
+	private String contrasena;
 	private String email;
-	private String rol;
 	private boolean activo;
-	private String estado;
+	private String rol;
+	private PersonaDTO persona;
 
-	public UsuarioDTO(String username, String password, String nombre, String email, String rol, boolean activo,
-			String estado) {
+	public UsuarioDTO(String usuario, String contrasena, String email, boolean activo, String rol, PersonaDTO persona) {
 		super();
-		this.username = username;
-		this.password = password;
-		this.nombre = nombre;
+		this.usuario = usuario;
+		this.contrasena = contrasena;
 		this.email = email;
-		this.rol = rol;
 		this.activo = activo;
-		this.estado = estado;
+		this.rol = rol;
+		this.persona = persona;
 	}
 
-	public String getUsername() {
-		return username;
+	public String getUsuario() {
+		return usuario;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setUsuario(String usuario) {
+		this.usuario = usuario;
 	}
 
-	public String getPassword() {
-		return password;
+	public String getContrasena() {
+		return contrasena;
 	}
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getNombre() {
-		return nombre;
-	}
-
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+	public void setContrasena(String contrasena) {
+		this.contrasena = contrasena;
 	}
 
 	public String getEmail() {
@@ -53,14 +42,6 @@ public class UsuarioDTO {
 		this.email = email;
 	}
 
-	public String getRol() {
-		return rol;
-	}
-
-	public void setRol(String rol) {
-		this.rol = rol;
-	}
-
 	public boolean isActivo() {
 		return activo;
 	}
@@ -69,16 +50,24 @@ public class UsuarioDTO {
 		this.activo = activo;
 	}
 
-	public String getEstado() {
-		return estado;
+	public String getRol() {
+		return rol;
 	}
 
-	public void setEstado(String estado) {
-		this.estado = estado;
+	public void setRol(String rol) {
+		this.rol = rol;
+	}
+
+	public PersonaDTO getPersona() {
+		return persona;
+	}
+
+	public void setPersona(PersonaDTO persona) {
+		this.persona = persona;
 	}
 
 	@Override
 	public String toString() {
-		return nombre + " (" + username + ")";
+		return persona + " (" + usuario + ")";
 	}
 }

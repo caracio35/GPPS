@@ -3,18 +3,18 @@ package ar.edu.unrn.seminario.modelo;
 public class Usuario {
 	private String usuario;
 	private String contrasena;
-	private String nombre;
 	private String email;
-	private Rol rol;
 	private boolean activo;
+	private Rol rol; // id de rol
+	private Persona persona; // dni
 
-	public Usuario(String usuario, String contrasena, String nombre, String email, Rol rol) {
+	public Usuario(String usuario, String contrasena, String email, Rol rol, Persona persona2) {
 
 		this.usuario = usuario;
 		this.contrasena = contrasena;
-		this.nombre = nombre;
 		this.email = email;
 		this.rol = rol;
+		this.persona = persona2;
 	}
 
 	public String getUsuario() {
@@ -31,14 +31,6 @@ public class Usuario {
 
 	public void setContrasena(String contrasena) {
 		this.contrasena = contrasena;
-	}
-
-	public String getNombre() {
-		return nombre;
-	}
-
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
 	}
 
 	public String getEmail() {
@@ -98,6 +90,10 @@ public class Usuario {
 		} else if (!usuario.equals(other.usuario))
 			return false;
 		return true;
+	}
+
+	public Persona getPersona() {
+		return persona;
 	}
 
 }

@@ -6,17 +6,18 @@ import ar.edu.unrn.seminario.dto.AlumnoDTO;
 import ar.edu.unrn.seminario.dto.EntidadDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.RolDTO;
-import ar.edu.unrn.seminario.dto.TutorProfesorDTO;
 import ar.edu.unrn.seminario.dto.UsuarioDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 import ar.edu.unrn.seminario.exception.InvalidCantHorasExcepcion;
+import ar.edu.unrn.seminario.modelo.Usuario;
 
 public interface IApi {
 
-	void registrarUsuario(String username, String password, String email, String nombre, Integer rol);
+	void registrarUsuario(String username, String password, String email, String nombre, Integer rol)
+			throws ConexionFallidaException;
 
-	UsuarioDTO obtenerUsuario(String username);
+	Usuario obtenerUsuario(String username);
 
 	void eliminarUsuario(String username);
 
@@ -26,7 +27,7 @@ public interface IApi {
 
 	void guardarRol(Integer codigo, String descripcion, boolean estado); // crear el objeto de dominio �Rol�
 
-	RolDTO obtenerRolPorCodigo(Integer codigo); // recuperar el rol almacenado
+	RolDTO obtenerRolPorCodigo(Integer codigo) throws ConexionFallidaException; // recuperar el rol almacenado
 
 	void activarRol(Integer codigo); // recuperar el objeto Rol, implementar el comportamiento de estado.
 
@@ -51,8 +52,6 @@ public interface IApi {
 	AlumnoDTO obtenerAlumno(int id);
 
 	AlumnoDTO obtenerIdAlumno(String nombre);
-
-	TutorProfesorDTO obtenerProfeso(int id);
 
 	void actualizarEstadoPropuesta(String id, int i) throws ConexionFallidaException;
 

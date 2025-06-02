@@ -7,7 +7,6 @@ import ar.edu.unrn.seminario.dto.AlumnoDTO;
 import ar.edu.unrn.seminario.dto.EntidadDTO;
 import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.RolDTO;
-import ar.edu.unrn.seminario.dto.TutorProfesorDTO;
 import ar.edu.unrn.seminario.dto.UsuarioDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 import ar.edu.unrn.seminario.modelo.Rol;
@@ -38,18 +37,15 @@ public class MemoryApi implements IApi {
 	public void registrarUsuario(String username, String password, String email, String nombre, Integer rol) {
 
 		Rol role = this.buscarRol(rol);
-		Usuario usuario = new Usuario(username, password, nombre, email, role);
-		this.usuarios.add(usuario);
+		// Usuario usuario = new Usuario(username, password, nombre, email, role);
+		// this.usuarios.add(usuario);
 
 	}
 
 	@Override
 	public List<UsuarioDTO> obtenerUsuarios() {
 		List<UsuarioDTO> dtos = new ArrayList<>();
-		for (Usuario u : this.usuarios) {
-			dtos.add(new UsuarioDTO(u.getUsuario(), u.getContrasena(), u.getNombre(), u.getEmail(),
-					u.getRol().getNombre(), u.isActivo(), u.obtenerEstado()));
-		}
+		//
 		return dtos;
 	}
 
@@ -156,12 +152,6 @@ public class MemoryApi implements IApi {
 
 	@Override
 	public AlumnoDTO obtenerAlumno(int id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public TutorProfesorDTO obtenerProfeso(int id) {
 		// TODO Auto-generated method stub
 		return null;
 	}

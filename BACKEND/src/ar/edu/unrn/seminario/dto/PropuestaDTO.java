@@ -6,31 +6,33 @@ import java.util.List;
 import ar.edu.unrn.seminario.exception.InvalidCantHorasExcepcion;
 
 public class PropuestaDTO {
-    private int id;
+
     private String titulo;
+    private String descripcion;
     private String areaInteres;
     private String objetivo;
-    private String descripcion;
-    private int aceptada; // 0 = no aceptada, 1 = aceptada ,-1 = rechazada
     private String comentarios;
+    private Boolean aceptada;
+    private String creador;
+    private String alumno;
+    private String tutor;
+    private String profesor;
     private List<ActividadDTO> actividades;
-    private int idAlumno; // FK a Alumno
-    private int idEntidad; // FK a Entidad
-    private int idProfesoPrincipal;
 
-    public PropuestaDTO(int id, String titulo, String areaInteres, String objetivo, String descripcion, int aceptada,
-            String comentarios, int idAlumno, int idEntidad, int idProfesoPrincipal, List<ActividadDTO> actividades)
+    public PropuestaDTO(String titulo, String descripcion, String areaInteres, String objetivo, String comentarios,
+            Boolean aceptada, String creador, String alumno, String tutor, String profesor,
+            List<ActividadDTO> actividades)
             throws InvalidCantHorasExcepcion {
-        this.id = id;
         this.titulo = titulo;
+        this.descripcion = descripcion;
         this.areaInteres = areaInteres;
         this.objetivo = objetivo;
-        this.descripcion = descripcion;
-        this.aceptada = aceptada;
         this.comentarios = comentarios;
-        this.idAlumno = idAlumno;
-        this.idEntidad = idEntidad;
-        this.idProfesoPrincipal = idProfesoPrincipal;
+        this.aceptada = aceptada;
+        this.creador = creador;
+        this.alumno = alumno;
+        this.tutor = tutor;
+        this.profesor = profesor;
         this.actividades = actividades; // Inicializo la lista vacía
         int totalHoras = 0;
         if (actividades != null) {
@@ -43,17 +45,13 @@ public class PropuestaDTO {
         }
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     // Getters
     public String getTitulo() {
         return titulo;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
     }
 
     public String getAreaInteres() {
@@ -64,28 +62,28 @@ public class PropuestaDTO {
         return objetivo;
     }
 
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public int isAceptada() {
-        return aceptada;
-    }
-
     public String getComentarios() {
         return comentarios;
     }
 
-    public int getIdAlumno() {
-        return idAlumno;
+    public Boolean isAceptada() {
+        return aceptada;
     }
 
-    public int getIdEntidad() {
-        return idEntidad;
+    public String getCreador() {
+        return creador;
     }
 
-    public int getIdProfesoPrincipal() {
-        return idProfesoPrincipal;
+    public String getAlumno() {
+        return alumno;
+    }
+
+    public String getTutor() {
+        return tutor;
+    }
+
+    public String getProfesor() {
+        return profesor;
     }
 
     public List<ActividadDTO> getActividades() {
@@ -97,6 +95,10 @@ public class PropuestaDTO {
         this.titulo = titulo;
     }
 
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
     public void setAreaInteres(String areaInteres) {
         this.areaInteres = areaInteres;
     }
@@ -105,28 +107,28 @@ public class PropuestaDTO {
         this.objetivo = objetivo;
     }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public void setAceptada(int aceptada) {
-        this.aceptada = aceptada;
-    }
-
     public void setComentarios(String comentarios) {
         this.comentarios = comentarios;
     }
 
-    public void setIdAlumno(int idAlumno) {
-        this.idAlumno = idAlumno;
+    public void setAceptada(Boolean aceptada) {
+        this.aceptada = aceptada;
     }
 
-    public void setIdEntidad(int idEntidad) {
-        this.idEntidad = idEntidad;
+    public void setCreador(String creador) {
+        this.creador = creador;
     }
 
-    public void setIdProfesoPrincipal(int idProfesoPrincipal) {
-        this.idProfesoPrincipal = idProfesoPrincipal;
+    public void setAlumno(String alumno) {
+        this.alumno = alumno;
+    }
+
+    public void setTutor(String tutor) {
+        this.tutor = tutor;
+    }
+
+    public void setProfesor(String profesor) {
+        this.profesor = profesor;
     }
 
     public void setActividades(List<ActividadDTO> actividades) {
@@ -141,14 +143,15 @@ public class PropuestaDTO {
     public String toString() {
         return "PropuestaDTO{" +
                 "titulo='" + titulo + '\'' +
+                ", descripcion='" + descripcion + '\'' +
                 ", areaInteres='" + areaInteres + '\'' +
                 ", objetivo='" + objetivo + '\'' +
-                ", descripcion='" + descripcion + '\'' +
-                ", aceptada=" + aceptada +
                 ", comentarios='" + comentarios + '\'' +
-                ", idAlumno=" + idAlumno +
-                ", idEntidad=" + idEntidad +
-                ", idProfesoPrincipal=" + idProfesoPrincipal +
+                ", aceptada=" + aceptada +
+                ", creador='" + creador + '\'' +
+                ", alumno='" + alumno + '\'' +
+                ", tutor='" + tutor + '\'' +
+                ", profesor='" + profesor + '\'' +
                 ", actividades=" + actividades +
                 '}';
     }

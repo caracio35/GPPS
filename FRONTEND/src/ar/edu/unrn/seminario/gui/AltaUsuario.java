@@ -16,6 +16,7 @@ import javax.swing.border.EmptyBorder;
 
 import ar.edu.unrn.seminario.api.IApi;
 import ar.edu.unrn.seminario.dto.RolDTO;
+import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 
 public class AltaUsuario extends JFrame {
 
@@ -69,8 +70,13 @@ public class AltaUsuario extends JFrame {
 
 				RolDTO rol = roles.get(rolComboBox.getSelectedIndex());
 
-				api.registrarUsuario(usuarioTextField.getText(), contrasenaTextField.getText(),
-						nombreTextField.getText(), emailTextField.getText(), rol.getCodigo());
+				try {
+					api.registrarUsuario(usuarioTextField.getText(), contrasenaTextField.getText(),
+							nombreTextField.getText(), emailTextField.getText(), rol.getCodigo());
+				} catch (ConexionFallidaException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				JOptionPane.showMessageDialog(null, "Usuario registrado con exito!", "Info",
 						JOptionPane.INFORMATION_MESSAGE);
 				setVisible(false);
