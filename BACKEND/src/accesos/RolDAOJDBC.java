@@ -46,7 +46,7 @@ public class RolDAOJDBC implements RolDao {
 	}
 
 	@Override
-	public Rol find(Integer codigo) {
+	public Rol find(Integer codigo) throws ConexionFallidaException{
 		Rol rol = null;
 		try {
 			Connection conn = ConnectionManager.getConnection();

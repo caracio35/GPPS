@@ -14,7 +14,7 @@ public interface RolDao {
 
 	void remove(Rol rol);
 
-	Rol find(Integer codigo);
+	Rol find(Integer codigo) throws ConexionFallidaException;
 
 	List<Rol> findAll()throws ConexionFallidaException;
 
