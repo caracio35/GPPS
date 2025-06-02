@@ -3,6 +3,7 @@ package accesos;
 import java.util.List;
 
 import ar.edu.unrn.seminario.exception.ConexionFallidaException;
+import ar.edu.unrn.seminario.exception.ErrorDatosNoEncontradosException;
 import ar.edu.unrn.seminario.modelo.Actividad;
 public interface ActividadDao {
     void create(Actividad actividad) throws ConexionFallidaException;
