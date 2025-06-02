@@ -42,7 +42,7 @@ public class VentanaPrincipal extends JFrame {
         setContentPane(contentPane);
 
         String mensaje = "Bienvenido/a - " + usuario.getNombre();
-        if (usuario.getRol().equals("Director de Carrera")) {
+        if (usuario.getRol().equals("directorCarrera")) {
             pendientes = obtenerPropuestasPendientes();
             if (pendientes > 0)
                 mensaje = "bienvenido director  | Propuestas pendientes por revisar: " + pendientes;
@@ -74,17 +74,24 @@ public class VentanaPrincipal extends JFrame {
 
         // Configurar menús específicos según el rol
         switch (usuario.getRol()) {
-            case "Director de Carrera":
+            case "directorCarrera":
                 agregarMenuDirector(menuBar);
                 break;
-            case "Tutor":
+            case "tutor":
                 agregarMenuTutor(menuBar);
                 break;
-            case "Institución":
+            case "institución":
                 agregarMenuInstitucion(menuBar);
                 break;
             case "Alumno":
                 agregarMenuUsuarioRegular(menuBar);
+                break;
+            case "profesor":
+                agregarMenuTutor(menuBar);
+                ;
+                break;
+            case "Admin":
+                agregarMenuDirector(menuBar);// sgregar el de admin
                 break;
         }
 
@@ -93,7 +100,7 @@ public class VentanaPrincipal extends JFrame {
         menuBar.add(propuestasMenu);
         JMenuItem verPropuestasPendientes = null;
         // Solo colorear el menú en rojo si hay propuestas pendientes
-        if (usuario.getRol().equals("Director de Carrera")) {
+        if (usuario.getRol().equals("directorCarrera")) {
             // Eliminar esta redeclaración de pendientes que está causando el problema
             // int pendientes = 0;
             // try {
@@ -132,13 +139,13 @@ public class VentanaPrincipal extends JFrame {
 
         JMenuItem cargarPropuestas = new JMenuItem("Cargar propuestas");
         cargarPropuestas.addActionListener(e -> {
-            CargarPropuesta cargar = new CargarPropuesta(this, usuario , api);
+            CargarPropuesta cargar = new CargarPropuesta(this, usuario, api);
             cargar.setVisible(true);
         });
         propuestasMenu.add(cargarPropuestas);
 
         // Menú de convenios (solo para Director de Carrera y Admin)
-        if (usuario.getRol().equals("Director de Carrera") || usuario.getRol().equals("Admin")) {
+        if (usuario.getRol().equals("directorCarrera") || usuario.getRol().equals("Admin")) {
             JMenu conveniosMenu = new JMenu("Convenios");
             menuBar.add(conveniosMenu);
 
@@ -195,7 +202,7 @@ public class VentanaPrincipal extends JFrame {
     }
 
     public void actualizarContadorPropuestas() {
-        if (usuario.getRol().equals("Director de Carrera")) {
+        if (usuario.getRol().equals("directorCarrera")) {
             pendientes = obtenerPropuestasPendientes();
             String mensaje = pendientes > 0 ? "bienvenido director  | Propuestas pendientes por revisar: " + pendientes
                     : "bienvenido director de carrear ";

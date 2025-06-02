@@ -57,7 +57,14 @@ public UsuarioSimplificadoDTO(String nombre, String apellido, String email, Stri
 		this.apellido = apellido;
 	}
     public String getUsuario() {
-		return nombreUsuario;}
+		return nombreUsuario;
+	}
+		
+	@Override
+	public String toString() {
+		return nombre + " " + apellido + " - Usuario: " + nombreUsuario + " - Rol: " + rol;
+	}
 
 }
+
 

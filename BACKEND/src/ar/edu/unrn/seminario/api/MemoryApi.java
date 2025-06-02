@@ -9,6 +9,7 @@ import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.RolDTO;
 import ar.edu.unrn.seminario.dto.TutorProfesorDTO;
 import ar.edu.unrn.seminario.dto.UsuarioDTO;
+import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 import ar.edu.unrn.seminario.modelo.Rol;
 import ar.edu.unrn.seminario.modelo.Usuario;
 
@@ -135,8 +136,6 @@ public class MemoryApi implements IApi {
 		return null;
 	}
 
-
-
 	@Override
 	public PropuestaDTO obtenerPropuestaPorTitulo(String tituloProyecto) {
 		// TODO Auto-generated method stub
@@ -171,7 +170,7 @@ public class MemoryApi implements IApi {
 	public void crearConvenio(String fechaGeneracion, String archivo, String tituloPropuesta, int idAlumno,
 			int idProfesor) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -195,12 +194,18 @@ public class MemoryApi implements IApi {
 	@Override
 	public void guardarPropuesta(PropuestaDTO propuesta) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void registrarInscripcionAlumno(int idAlumno, String nombreDePropuesta) {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	@Override
+	public List<UsuarioSimplificadoDTO> obtenerUsuariosSimplificados() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'obtenerUsuariosSimplificados'");
 	}
 }

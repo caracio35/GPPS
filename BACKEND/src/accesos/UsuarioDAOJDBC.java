@@ -116,7 +116,7 @@ public class UsuarioDAOJDBC implements UsuarioDao {
     public List<Usuario> findAll() throws ConexionFallidaException {
         List<Usuario> usuarios = new ArrayList<>();
         String sql = "SELECT u.usuario, u.contrasena, u.nombre, u.email, u.activo, r.codigo as codigo_rol, r.nombre as nombre_rol "
-                   + "FROM usuarios u JOIN roles r ON (u.rol = r.codigo)";
+                + "FROM usuario u JOIN roles r ON (u.rol = r.codigo)";
         try (Connection conn = ConnectionManager.getConnection();
              Statement statement = conn.createStatement();
              ResultSet rs = statement.executeQuery(sql)) {
