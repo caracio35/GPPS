@@ -42,11 +42,11 @@ public class PersistenceApi implements IApi {
 		usuarioDao = new UsuarioDAOJDBC();
 	}
 
-	@Override
 	public void registrarUsuario(String username, String password, String email, String nombre, Integer codigoRol)
 			throws ConexionFallidaException {
 		Rol rol = rolDao.find(codigoRol);
-		Persona persona = null;
+		Persona persona = new Persona(nombre, null, null); // Asumiendo que el constructor de Persona acepta nombre,
+															// apellido y dni
 		Usuario usuario = new Usuario(username, password, email, rol, persona);
 	}
 
@@ -96,6 +96,7 @@ public class PersistenceApi implements IApi {
 		return null;
 	}
 
+	@Override
 	public Usuario obtenerUsuario(String username) {
 		Usuario usuario = null;
 		try {
@@ -103,7 +104,10 @@ public class PersistenceApi implements IApi {
 		} catch (ConexionFallidaException e) {
 			e.printStackTrace();
 		}
-		return usuario;
+		if (usuario != null) {
+			return usuario;
+		}
+		return null;
 	}
 
 	@Override
@@ -213,75 +217,73 @@ public class PersistenceApi implements IApi {
 	}
 
 	@Override
-	public List<PropuestaDTO> obtenerTodasPropuestas()  {
-	    List<PropuestaDTO> propuestasDTO = new ArrayList<>();
+	public List<PropuestaDTO> obtenerTodasPropuestas() {
+		List<PropuestaDTO> propuestasDTO = new ArrayList<>();
 
-	    PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
-	    List<Propuesta> propuestas = null;
+		PropuestaDAOJDBC dao = new PropuestaDAOJDBC();
+		List<Propuesta> propuestas = null;
 
-	    try {
-	        propuestas = dao.findAll();
-	    } catch (ConexionFallidaException e) {
-	        e.printStackTrace();
-	    }
+		try {
+			propuestas = dao.findAll();
+		} catch (ConexionFallidaException e) {
+			e.printStackTrace();
+		}
 
-	    for (Propuesta p : propuestas) {
-	        List<ActividadDTO> actividadesDTO = new ArrayList<>();
-	        for (Actividad actividad : p.getActividades()) {
-	            ActividadDTO actividadDTO = new ActividadDTO(
-	                    actividad.getNombreActividad(),
-	                    actividad.getHoras()
-	            );
-	            actividadesDTO.add(actividadDTO);
-	        }
+		for (Propuesta p : propuestas) {
+			List<ActividadDTO> actividadesDTO = new ArrayList<>();
+			for (Actividad actividad : p.getActividades()) {
+				ActividadDTO actividadDTO = new ActividadDTO(
+						actividad.getNombreActividad(),
+						actividad.getHoras());
+				actividadesDTO.add(actividadDTO);
+			}
 
-	        String creador = null;
-	        Usuario usuario1 = p.getCreador();
-	        if (usuario1 != null) {
-	            creador = usuario1.getUsuario();
-	        }
+			String creador = null;
+			Usuario usuario1 = p.getCreador();
+			if (usuario1 != null) {
+				creador = usuario1.getUsuario();
+			}
 
-	        String alumno = null;
-	        Usuario usuario2 = p.getAlumno();
-	        if (usuario2 != null) {
-	            alumno = usuario2.getUsuario();
-	        }
+			String alumno = null;
+			Usuario usuario2 = p.getAlumno();
+			if (usuario2 != null) {
+				alumno = usuario2.getUsuario();
+			}
 
-	        String tutor = null;
-	        Usuario usuario3 = p.getTutor();
-	        if (usuario3 != null) {
-	            tutor = usuario3.getUsuario();
-	        }
+			String tutor = null;
+			Usuario usuario3 = p.getTutor();
+			if (usuario3 != null) {
+				tutor = usuario3.getUsuario();
+			}
 
-	        String profesor = null;
-	        Usuario usuario4 = p.getProfesor();
-	        if (usuario4 != null) {
-	            profesor = usuario4.getUsuario();
-	        }
-	        
-	        PropuestaDTO propuestaDTO = null;
+			String profesor = null;
+			Usuario usuario4 = p.getProfesor();
+			if (usuario4 != null) {
+				profesor = usuario4.getUsuario();
+			}
+
+			PropuestaDTO propuestaDTO = null;
 			try {
 				propuestaDTO = new PropuestaDTO(
-				        p.getTitulo(),
-				        p.getDescripcion(),
-				        p.getAreaInteres(),
-				        p.getObjetivo(),
-				        p.getComentarios(),
-				        p.isAceptada(),
-				        creador,
-				        alumno,
-				        tutor,
-				        profesor,
-				        actividadesDTO
-				);
+						p.getTitulo(),
+						p.getDescripcion(),
+						p.getAreaInteres(),
+						p.getObjetivo(),
+						p.getComentarios(),
+						p.isAceptada(),
+						creador,
+						alumno,
+						tutor,
+						profesor,
+						actividadesDTO);
 			} catch (InvalidCantHorasExcepcion e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
-	        propuestasDTO.add(propuestaDTO);
-	    }
-	    return propuestasDTO;
+			propuestasDTO.add(propuestaDTO);
+		}
+		return propuestasDTO;
 	}
 
 	@Override
@@ -366,9 +368,9 @@ public class PersistenceApi implements IApi {
 
 	@Override
 	public void actualizarEstadoPropuesta(String id, int estado) throws ConexionFallidaException {
-		//PropuestaDAOJDBC propuestaDao = new PropuestaDAOJDBC();
-		//propuestaDao.find(id);
-		//propuestaDao.actualizarEstadoPropuesta(id, estado);
+		// PropuestaDAOJDBC propuestaDao = new PropuestaDAOJDBC();
+		// propuestaDao.find(id);
+		// propuestaDao.actualizarEstadoPropuesta(id, estado);
 	}
 
 	@Override
@@ -443,37 +445,35 @@ public class PersistenceApi implements IApi {
 
 	@Override
 	public List<UsuarioSimplificadoDTO> obtenerUsuariosSimplificados() {
-	    List<UsuarioSimplificadoDTO> dtos = new ArrayList<>();
-	    List<Usuario> usuarios = null;
-	    try {
-	        usuarios = usuarioDao.findAll();
-	    } catch (ConexionFallidaException e) {
-	        System.out.println("No se pudo conectar: " + e.getMessage());
-	    }
-	    if (usuarios != null) {
-	        for (Usuario u : usuarios) {
-	            String nombre = u.getPersona() != null ? u.getPersona().getNombre() : "";
-	            String apellido = u.getPersona() != null ? u.getPersona().getApellido() : "";
-	            int dni = 0;
-	            if (u.getPersona() != null && u.getPersona().getDni() != null) {
-	                try {
-	                    dni = Integer.parseInt(u.getPersona().getDni());
-	                } catch (NumberFormatException e) {
-	                }
-	            }
-	            dtos.add(new UsuarioSimplificadoDTO(
-	                    nombre,
-	                    apellido,
-	                    u.getEmail(),
-	                    u.getRol().getNombre(),
-	                    dni,
-	                    u.getUsuario()
-	            ));
-	        }
-	    }
-	    return dtos;
+		List<UsuarioSimplificadoDTO> dtos = new ArrayList<>();
+		List<Usuario> usuarios = null;
+		try {
+			usuarios = usuarioDao.findAll();
+		} catch (ConexionFallidaException e) {
+			System.out.println("No se pudo conectar: " + e.getMessage());
+		}
+		if (usuarios != null) {
+			for (Usuario u : usuarios) {
+				String nombre = u.getPersona() != null ? u.getPersona().getNombre() : "";
+				String apellido = u.getPersona() != null ? u.getPersona().getApellido() : "";
+				int dni = 0;
+				if (u.getPersona() != null && u.getPersona().getDni() != null) {
+					try {
+						dni = Integer.parseInt(u.getPersona().getDni());
+					} catch (NumberFormatException e) {
+					}
+				}
+				dtos.add(new UsuarioSimplificadoDTO(
+						nombre,
+						apellido,
+						u.getEmail(),
+						u.getRol().getNombre(),
+						dni,
+						u.getUsuario()));
+			}
+		}
+		return dtos;
 	}
-
 
 	@Override
 	public AlumnoDTO obtenerIdAlumno(String nombre) {
@@ -485,5 +485,12 @@ public class PersistenceApi implements IApi {
 	public AlumnoDTO obtenerAlumno(int id) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void registrarUsuario(String username, String password, String email, Integer codigoRol, Persona p)
+			throws ConexionFallidaException {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'registrarUsuario'");
 	}
 }

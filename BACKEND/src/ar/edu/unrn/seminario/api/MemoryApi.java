@@ -9,6 +9,8 @@ import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.dto.RolDTO;
 import ar.edu.unrn.seminario.dto.UsuarioDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
+import ar.edu.unrn.seminario.exception.ConexionFallidaException;
+import ar.edu.unrn.seminario.modelo.Persona;
 import ar.edu.unrn.seminario.modelo.Rol;
 import ar.edu.unrn.seminario.modelo.Usuario;
 
@@ -23,22 +25,6 @@ public class MemoryApi implements IApi {
 		this.roles.add(new Rol(1, "ADMIN"));
 		this.roles.add(new Rol(2, "ESTUDIANTE"));
 		this.roles.add(new Rol(3, "INVITADO"));
-		inicializarUsuarios();
-	}
-
-	private void inicializarUsuarios() {
-		registrarUsuario("admin", "1234", "admin@unrn.edu.ar", "Admin", 1);
-		registrarUsuario("ldifabio", "4", "ldifabio@unrn.edu.ar", "Lucas", 2);
-		registrarUsuario("bjgorosito", "1234", "bjgorosito@unrn.edu.ar", "Bruno", 3);
-
-	}
-
-	@Override
-	public void registrarUsuario(String username, String password, String email, String nombre, Integer rol) {
-
-		Rol role = this.buscarRol(rol);
-		// Usuario usuario = new Usuario(username, password, nombre, email, role);
-		// this.usuarios.add(usuario);
 
 	}
 
@@ -197,5 +183,12 @@ public class MemoryApi implements IApi {
 	public List<UsuarioSimplificadoDTO> obtenerUsuariosSimplificados() {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'obtenerUsuariosSimplificados'");
+	}
+
+	@Override
+	public void registrarUsuario(String username, String password, String email, Integer codigoRol, Persona p)
+			throws ConexionFallidaException {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'registrarUsuario'");
 	}
 }

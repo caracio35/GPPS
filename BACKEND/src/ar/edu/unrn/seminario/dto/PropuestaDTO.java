@@ -12,7 +12,7 @@ public class PropuestaDTO {
     private String areaInteres;
     private String objetivo;
     private String comentarios;
-    private Boolean aceptada;
+    private int aceptada; // 0 para no aceptada, 1 para aceptada ,-1 para rechazada
     private String creador;
     private String alumno;
     private String tutor;
@@ -20,7 +20,7 @@ public class PropuestaDTO {
     private List<ActividadDTO> actividades;
 
     public PropuestaDTO(String titulo, String descripcion, String areaInteres, String objetivo, String comentarios,
-            Boolean aceptada, String creador, String alumno, String tutor, String profesor,
+            int aceptada, String creador, String alumno, String tutor, String profesor,
             List<ActividadDTO> actividades)
             throws InvalidCantHorasExcepcion {
         this.titulo = titulo;
@@ -66,7 +66,7 @@ public class PropuestaDTO {
         return comentarios;
     }
 
-    public Boolean isAceptada() {
+    public int isAceptada() {
         return aceptada;
     }
 
@@ -111,7 +111,7 @@ public class PropuestaDTO {
         this.comentarios = comentarios;
     }
 
-    public void setAceptada(Boolean aceptada) {
+    public void setAceptada(int aceptada) {
         this.aceptada = aceptada;
     }
 

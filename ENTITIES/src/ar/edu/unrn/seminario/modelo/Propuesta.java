@@ -11,7 +11,7 @@ public class Propuesta {
 	private String areaInteres;
 	private String objetivo;
 	private String comentarios;
-	private Boolean aceptada;
+	private int aceptada; // 0 para no aceptada, 1 para aceptada, -1 para rechazada
 	private Usuario creador; // usuario.usuario
 	private Usuario alumno; // usuario.usuario
 	private Usuario tutor; // usuario.usuario
@@ -20,7 +20,7 @@ public class Propuesta {
 
 	// Constructor con todos los campos
 	public Propuesta(String titulo, String descripcion, String areaInteres, String objetivo, String comentarios,
-			Boolean aceptada, Usuario creador, Usuario alumno, Usuario tutor, Usuario profesor,
+			int aceptada, Usuario creador, Usuario alumno, Usuario tutor, Usuario profesor,
 			List<Actividad> actividades)
 			throws InvalidCantHorasExcepcion {
 		int totalHoras = 0;
@@ -86,11 +86,11 @@ public class Propuesta {
 		this.comentarios = comentarios;
 	}
 
-	public Boolean isAceptada() {
+	public int isAceptada() {
 		return aceptada;
 	}
 
-	public void setAceptada(Boolean aceptada) {
+	public void setAceptada(int aceptada) {
 		this.aceptada = aceptada;
 	}
 

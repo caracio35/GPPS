@@ -1,4 +1,5 @@
 package ar.edu.unrn.seminario.gui;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -30,6 +31,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+
 import ar.edu.unrn.seminario.api.IApi;
 import ar.edu.unrn.seminario.dto.ActividadDTO;
 import ar.edu.unrn.seminario.dto.AlumnoDTO;
@@ -49,11 +51,10 @@ public class CargarPropuesta extends JDialog {
     private UsuarioSimplificadoDTO usuario;
     private IApi api;
 
-    public CargarPropuesta(JFrame parent, UsuarioSimplificadoDTO usuario , IApi api) {
+    public CargarPropuesta(JFrame parent, UsuarioSimplificadoDTO usuario, IApi api) {
         super(parent, "Cargar Propuesta", true);
         this.usuario = usuario;
-        this.api = api ;
-        
+        this.api = api;
 
         // Panel con fondo degradado
         JPanel panel = new JPanel() {
@@ -343,7 +344,7 @@ public class CargarPropuesta extends JDialog {
                     try {
                         int horas = Integer.parseInt(horasStr);
                         totalHoras += horas;
-                        actividades.add(new ActividadDTO(null , horas,nombre));
+                        actividades.add(new ActividadDTO(nombre, horas));
                     } catch (NumberFormatException e) {
                         // Ignorar valores no numéricos
                     }
@@ -374,8 +375,7 @@ public class CargarPropuesta extends JDialog {
                     idAlumno,
                     idEntidad,
                     0, // idProfesorPrincipal
-                    actividades
-            );
+                    actividades);
 
             // Llamada a la API para guardar la propuesta
             api.guardarPropuesta(propuesta);

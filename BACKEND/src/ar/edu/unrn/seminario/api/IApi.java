@@ -10,11 +10,12 @@ import ar.edu.unrn.seminario.dto.UsuarioDTO;
 import ar.edu.unrn.seminario.dto.UsuarioSimplificadoDTO;
 import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 import ar.edu.unrn.seminario.exception.InvalidCantHorasExcepcion;
+import ar.edu.unrn.seminario.modelo.Persona;
 import ar.edu.unrn.seminario.modelo.Usuario;
 
 public interface IApi {
 
-	void registrarUsuario(String username, String password, String email, String nombre, Integer rol)
+	public void registrarUsuario(String username, String password, String email, Integer codigoRol, Persona p)
 			throws ConexionFallidaException;
 
 	Usuario obtenerUsuario(String username);
@@ -39,7 +40,7 @@ public interface IApi {
 
 	void desactivarUsuario(String username); // recuperar el objeto Usuario, implementar el comportamiento de estado.
 
-	List<PropuestaDTO> obtenerTodasPropuestas();
+	List<PropuestaDTO> obtenerTodasPropuestas() throws InvalidCantHorasExcepcion;
 
 	PropuestaDTO obtenerPropuestaPorTitulo(String tituloProyecto) throws InvalidCantHorasExcepcion;
 

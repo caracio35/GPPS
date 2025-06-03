@@ -8,13 +8,13 @@ public class Usuario {
 	private Rol rol; // id de rol
 	private Persona persona; // dni
 
-	public Usuario(String usuario, String contrasena, String email, Rol rol, Persona persona2) {
+	public Usuario(String usuario, String contrasena, String email, Rol rol, Persona persona) {
 
 		this.usuario = usuario;
 		this.contrasena = contrasena;
 		this.email = email;
 		this.rol = rol;
-		this.persona = persona2;
+		this.persona = persona;
 	}
 
 	public String getUsuario() {
@@ -44,8 +44,9 @@ public class Usuario {
 	public Rol getRol() {
 		return rol;
 	}
+
 	public void setActivo(boolean activo) {
-		this.activo = activo ;
+		this.activo = activo;
 	}
 
 	public void setRol(Rol rol) {
