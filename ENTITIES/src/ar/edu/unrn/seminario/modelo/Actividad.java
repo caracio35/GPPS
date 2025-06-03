@@ -35,8 +35,5 @@ public class Actividad {
 				'}';
 	}
 
-	public int getNombrePropuesta() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getNombrePropuesta'");
-	}
+	
 }

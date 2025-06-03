@@ -50,7 +50,7 @@ public class MemoryApi implements IApi {
 	}
 
 	@Override
-	public UsuarioDTO obtenerUsuario(String username) {
+	public Usuario obtenerUsuario(String username) {
 		// TODO Auto-generated method stub
 		return null;
 	}

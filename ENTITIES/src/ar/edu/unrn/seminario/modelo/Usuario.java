@@ -44,6 +44,9 @@ public class Usuario {
 	public Rol getRol() {
 		return rol;
 	}
+	public void setActivo(boolean activo) {
+		this.activo = activo ;
+	}
 
 	public void setRol(Rol rol) {
 		this.rol = rol;

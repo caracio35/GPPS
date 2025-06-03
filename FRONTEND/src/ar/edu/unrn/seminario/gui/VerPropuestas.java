@@ -123,26 +123,25 @@ public class VerPropuestas extends JDialog {
             List<PropuestaDTO> propuestasTodas = api.obtenerTodasPropuestas();
             // Add proposals to table
             for (PropuestaDTO p : propuestasTodas) {
-                if (!aprobadas) { // Si aprobadas es true, mostrar las propuestas aceptadas
-                    if (p.isAceptada() == 1) {
-                        propuestasAprobadas.add(p);
-                        tableModel.addRow(new Object[] {
-                                p.getTitulo(),
-                                p.getAreaInteres(),
-                                p.getDescripcion()
-                        });
-                    }
-                } else { // Si aprobadas es false, mostrar las propuestas pendientes
-                    if (p.isAceptada() == 0) {
-                        propuestasAprobadas.add(p);
-                        tableModel.addRow(new Object[] {
-                                p.getTitulo(),
-                                p.getAreaInteres(),
-                                p.getDescripcion()
-                        });
-                    }
-                }
-            }
+            	if (!aprobadas) { // Si aprobadas es true, mostrar las propuestas aceptadas
+            	    if (Boolean.TRUE.equals(p.isAceptada())) {
+            	        propuestasAprobadas.add(p);
+            	        tableModel.addRow(new Object[]{
+            	                p.getTitulo(),
+            	                p.getAreaInteres(),
+            	                p.getDescripcion()
+            	        });
+            	    }
+            	} else { // Si aprobadas es false, mostrar las propuestas pendientes (null o false)
+            	    if (!Boolean.TRUE.equals(p.isAceptada())) {
+            	        propuestasAprobadas.add(p);
+            	        tableModel.addRow(new Object[]{
+            	                p.getTitulo(),
+            	                p.getAreaInteres(),
+            	                p.getDescripcion()
+            	        });
+            	    }
+            	}}
         } catch (Exception e) {
             // rulo
         }
@@ -243,7 +242,7 @@ public class VerPropuestas extends JDialog {
 
         int totalHoras = 0;
         for (ActividadDTO act : propuesta.getActividades()) {
-            tableModel.addRow(new Object[] { act.getnombre(), act.getHoras() });
+            tableModel.addRow(new Object[] { act.getNombreActividad(), act.getHoras() });
             totalHoras += act.getHoras();
         }
 
@@ -271,7 +270,7 @@ public class VerPropuestas extends JDialog {
 
         // Solo mostrar botones de Aceptar/Rechazar para Director de Carrera y
         // propuestas pendientes
-        if (usuario.getRol().equals("Director de Carrera") && propuesta.isAceptada() == 0) {
+        if (usuario.getRol().equals("Director de Carrera") && propuesta.isAceptada() == false) {
             JButton aceptarBtn = new JButton("Aceptar");
             aceptarBtn.setBackground(new Color(76, 175, 80));
             aceptarBtn.setForeground(Color.WHITE);
@@ -281,7 +280,7 @@ public class VerPropuestas extends JDialog {
                     // Actualizar en la base de datos usando el api
                     api.actualizarEstadoPropuesta(propuesta.getTitulo(), 1);
                     // Actualizar el objeto local
-                    propuesta.setAceptada(1);
+                    propuesta.setAceptada(true);
                     detalleDialog.dispose();
                     // Actualizar la ventana principal
                     ((VentanaPrincipal) getParent()).actualizarContadorPropuestas();
@@ -305,7 +304,7 @@ public class VerPropuestas extends JDialog {
                     // Actualizar en la base de datos usando el api
                     api.actualizarEstadoPropuesta(propuesta.getTitulo(), -1);
                     // Actualizar el objeto local
-                    propuesta.setAceptada(-1);
+                    propuesta.setAceptada(false);
                     detalleDialog.dispose();
                     // Actualizar la ventana principal
                     ((VentanaPrincipal) getParent()).actualizarContadorPropuestas();
@@ -335,7 +334,7 @@ public class VerPropuestas extends JDialog {
                     String tituloPropuesta = propuesta.getTitulo();
 
                     
-                    api.registrarInscripcionAlumno(alumno.getId(), tituloPropuesta);
+                   // api.registrarInscripcionAlumno(alumno.getId(), tituloPropuesta);
 
                     JOptionPane.showMessageDialog(this,
                             "Te has inscrito correctamente en la propuesta.",

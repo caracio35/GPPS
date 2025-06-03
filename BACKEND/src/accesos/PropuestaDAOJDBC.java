@@ -14,275 +14,228 @@ import ar.edu.unrn.seminario.dto.PropuestaDTO;
 import ar.edu.unrn.seminario.exception.ConexionFallidaException;
 import ar.edu.unrn.seminario.exception.InvalidCantHorasExcepcion;
 import ar.edu.unrn.seminario.modelo.Actividad;
+import ar.edu.unrn.seminario.modelo.Persona;
 import ar.edu.unrn.seminario.modelo.Propuesta;
+import ar.edu.unrn.seminario.modelo.Rol;
+import ar.edu.unrn.seminario.modelo.Usuario;
 
 public class PropuestaDAOJDBC implements PropuestaDao {
 
-    @Override
-    public void create(Propuesta propuesta) throws ConexionFallidaException {
-        try (Connection conn = ConnectionManager.getConnection()) {
+	@Override
+	public void create(Propuesta propuesta) throws ConexionFallidaException {
+		 String sql = "INSERT INTO propuesta (titulo, descripcion, area_interes, objetivo, comentarios, aceptada, creador, alumno, tutor, profesor) " +
+                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-            // Validar que al menos uno de los dos IDs esté cargado
-            if (propuesta.getIdAlumno() == 0 && propuesta.getIdEntidad() == 0) {
-                throw new SQLException("Debe especificarse un alumno o una entidad para la propuesta.");
-            }
+    try (Connection conn = ConnectionManager.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            PreparedStatement statement = conn.prepareStatement(
-                    "INSERT INTO propuesta (titulo, area_interes, descripcion, objetivo, aceptada, comentarios, id_alumno, id_entidad) "
-                            +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    Statement.RETURN_GENERATED_KEYS);
+        stmt.setString(1, propuesta.getTitulo());
+        stmt.setString(2, propuesta.getDescripcion());
+        stmt.setString(3, propuesta.getAreaInteres());
+        stmt.setString(4, propuesta.getObjetivo());
+        stmt.setString(5, propuesta.getComentarios());
+        stmt.setBoolean(6, false); // siempre se crea como no aceptada
 
-            statement.setString(1, propuesta.getTitulo());
-            statement.setString(2, propuesta.getAreaInteres());
-            statement.setString(3, propuesta.getDescripcion());
-            statement.setString(4, propuesta.getObjetivo());
-            statement.setBoolean(5, false);
-            statement.setString(6, propuesta.getComentarios());
+        // Insertar los usuarios vinculados
+        stmt.setString(7, propuesta.getCreador() != null ? propuesta.getCreador().getUsuario() : null);
+        stmt.setString(8, propuesta.getAlumno() != null ? propuesta.getAlumno().getUsuario() : null);
+        stmt.setString(9, propuesta.getTutor() != null ? propuesta.getTutor().getUsuario() : null);
+        stmt.setString(10, propuesta.getProfesor() != null ? propuesta.getProfesor().getUsuario() : null);
 
-            if (propuesta.getIdAlumno() != 0) {
-                statement.setInt(7, propuesta.getIdAlumno());
-                statement.setNull(8, java.sql.Types.INTEGER);
-            } else {
-                statement.setNull(7, java.sql.Types.INTEGER);
-                statement.setInt(8, propuesta.getIdEntidad());
-            }
+        int filas = stmt.executeUpdate();
+        if (filas == 0) throw new ConexionFallidaException("No se pudo insertar la propuesta.");
 
-            int affectedRows = statement.executeUpdate();
-
-            if (affectedRows == 0) {
-                throw new SQLException("La creación de la propuesta falló, ninguna fila afectada.");
-            }
-
-            // Obtener el ID generado para la propuesta
-            ResultSet generatedKeys = statement.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                int propuestaId = generatedKeys.getInt(1);
-
-                // Insertar las actividades usando el método separado
-                insertarActividades(propuestaId, propuesta.getActividades());
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al crear la propuesta: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void update(Propuesta propuesta) throws ConexionFallidaException {
-        try (Connection conn = ConnectionManager.getConnection()) {
-
-            PreparedStatement statement = conn.prepareStatement(
-                    "UPDATE propuesta SET titulo = ?, area_interes = ?, descripcion = ?, objetivo = ?, aceptada = ?, comentarios = ?, id_alumno = ?, id_entidad = ? WHERE titulo = ?");
-
-            statement.setString(1, propuesta.getTitulo());
-            statement.setString(2, propuesta.getAreaInteres());
-            statement.setString(3, propuesta.getDescripcion());
-            statement.setString(4, propuesta.getObjetivo());
-            statement.setInt(5, propuesta.isAceptada());
-            statement.setString(6, propuesta.getComentarios());
-
-            // Setear los IDs correctos
-            if (propuesta.getIdAlumno() != 0) {
-                statement.setInt(7, propuesta.getIdAlumno());
-                statement.setNull(8, java.sql.Types.INTEGER);
-            } else {
-                statement.setNull(7, java.sql.Types.INTEGER);
-                statement.setInt(8, propuesta.getIdEntidad());
-            }
-
-            // En lugar de buscar por id, ahora usamos el título
-            statement.setString(9, propuesta.getTitulo());
-
-            int affectedRows = statement.executeUpdate();
-
-            if (affectedRows == 0) {
-                throw new SQLException("No se encontró ninguna propuesta con el título: " + propuesta.getTitulo());
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar la propuesta: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public Propuesta find(String titulo) throws ConexionFallidaException {
-        Propuesta propuesta = null;
-
-        String sql = "SELECT * FROM propuesta WHERE titulo = ?";
-
-        try (Connection conn = ConnectionManager.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, titulo);
-            try (ResultSet rs = stmt.executeQuery()) {
-
-                if (rs.next()) {
-                    int idPropuesta = rs.getInt("id");
-
-                    // Ahora pasar la misma conexión a los métodos secundarios
-                    List<Actividad> actividades = cargarActividades(idPropuesta, conn);
-                    int idTutorDocente = obtenerIdTutorDocente(idPropuesta, conn);
-
-                    try {
-                        propuesta = new Propuesta(
-                                rs.getInt("id"),
-                                rs.getString("titulo"),
-                                rs.getString("area_interes"),
-                                rs.getString("objetivo"),
-                                rs.getString("descripcion"),
-                                rs.getString("comentarios"),
-                                rs.getInt("id_alumno"),
-                                rs.getInt("aceptada"),
-                                rs.getInt("id_entidad"),
-                                actividades,
-                                idTutorDocente);
-                    } catch (InvalidCantHorasExcepcion e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar la propuesta: " + e.getMessage(), e);
-        }
-
-        return propuesta;
-    }
-
-    @Override
-    public List<Propuesta> findAll() throws ConexionFallidaException {
-
-        List<Propuesta> propuestas = new ArrayList<>();
-        String sql = "SELECT * FROM propuesta";
-        try (Connection conn = ConnectionManager.getConnection();
-                PreparedStatement statement = conn.prepareStatement(sql);
-                ResultSet rs = statement.executeQuery()) {
-
-            while (rs.next()) {
-                int idPropuesta = rs.getInt("id");
-                List<Actividad> actividades = cargarActividades(idPropuesta, conn);
-
-                int idTutorDocente = obtenerIdTutorDocente(idPropuesta, conn);
-
-                Propuesta propuesta;
-                try {
-                    propuesta = new Propuesta(
-                            rs.getInt("id"),
-                            rs.getString("titulo"),
-                            rs.getString("area_interes"),
-                            rs.getString("objetivo"),
-                            rs.getString("descripcion"),
-                            rs.getString("comentarios"),
-                            rs.getInt("id_alumno"),
-                            rs.getInt("aceptada"),
-                            rs.getInt("id_entidad"),
-                            actividades,
-                            idTutorDocente);
-                    propuestas.add(propuesta);
-                } catch (InvalidCantHorasExcepcion e) {
-                    // rulo
-                    System.out.println(e.getMessage());
-                }
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener las propuestas: " + e.getMessage(), e);
-        }
-        return propuestas;
-    }
-
-    private List<Actividad> cargarActividades(int idPropuesta, Connection conn) throws SQLException {
-        List<Actividad> actividades = new ArrayList<>();
-        String sql = "SELECT * FROM actividad WHERE propuesta_id = ?";
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, idPropuesta);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    Actividad actividad = new Actividad(
-                            rs.getString("nombre_actividad"),
-                            rs.getInt("horas"),
-                            rs.getString("nombre_actividad"));
-                    actividades.add(actividad);
-                }
+        try (ResultSet rs = stmt.getGeneratedKeys()) {
+            if (rs.next()) {
+                int propuestaId = rs.getInt(1);
+                insertarActividades(propuestaId, propuesta.getActividades(), conn);
             }
         }
-        return actividades;
+
+    } catch (SQLException e) {
+        throw new ConexionFallidaException("Error al crear propuesta: " + e.getMessage());
     }
-    
-    private int obtenerIdTutorDocente(int idPropuesta, Connection conn) throws SQLException {
-        String sql = "SELECT id_tutor_docente FROM tutor_propuesta WHERE id_propuesta = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, idPropuesta);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("id_tutor_docente");
-                }
-            }
-        }
-        return 0; // o un valor que tenga sentido si no hay tutor
-    }
+		
+	}
 
-    private void insertarActividades(int propuestaId, List<Actividad> actividades)
-            throws ConexionFallidaException, SQLException {
-        try (Connection conn = ConnectionManager.getConnection()) {
-            for (Actividad actividad : actividades) {
-                PreparedStatement actividadStmt = conn.prepareStatement(
-                        "INSERT INTO actividad (nombre_actividad, horas, propuesta_id) VALUES (?, ?, ?)");
-                actividadStmt.setString(1, actividad.getNombre());
-                actividadStmt.setInt(2, actividad.getHoras());
-                actividadStmt.setInt(3, propuestaId);
-                actividadStmt.executeUpdate();
-            }
-        }
-    }
+	@Override
+	public void update(Propuesta propuesta) throws ConexionFallidaException {
+	    String sql = "UPDATE propuesta SET descripcion = ?, area_interes = ?, objetivo = ?, comentarios = ?, aceptada = ?, " +
+	                 "creador = ?, alumno = ?, tutor = ?, profesor = ? WHERE titulo = ?";
 
-    public void actualizarEstadoPropuesta(String id, int estado) throws ConexionFallidaException {
-        try (Connection conn = ConnectionManager.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(
-                    "UPDATE propuesta SET aceptada = ? WHERE titulo = ?");
-            stmt.setInt(1, estado);
-            stmt.setString(2, id);
-            int affectedRows = stmt.executeUpdate();
-            if (affectedRows == 0) {
-                throw new SQLException("No se encontró ninguna propuesta con el id: " + id);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar el estado de la propuesta: " + e.getMessage(), e);
-        }
-    }
+	    try (Connection conn = ConnectionManager.getConnection();
+	         PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-    @Override
-    public void registrarAlumnoApropuesta(String nombrePropuesta, int idAlumno) throws ConexionFallidaException {
-        try (Connection conn = ConnectionManager.getConnection()) {
+	        stmt.setString(1, propuesta.getDescripcion());
+	        stmt.setString(2, propuesta.getAreaInteres());
+	        stmt.setString(3, propuesta.getObjetivo());
+	        stmt.setString(4, propuesta.getComentarios());
+	        stmt.setBoolean(5, propuesta.isAceptada());
 
-            
-            String selectSql = "SELECT id FROM propuesta WHERE titulo = ?";
-            
-            try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
-                selectStmt.setString(1, nombrePropuesta);
-                try (ResultSet rs = selectStmt.executeQuery()) {
-                    if (rs.next()) {
-                        int propuestaId = rs.getInt("id");
+	        stmt.setString(6, propuesta.getCreador() != null ? propuesta.getCreador().getUsuario() : null);
+	        stmt.setString(7, propuesta.getAlumno() != null ? propuesta.getAlumno().getUsuario() : null);
+	        stmt.setString(8, propuesta.getTutor() != null ? propuesta.getTutor().getUsuario() : null);
+	        stmt.setString(9, propuesta.getProfesor() != null ? propuesta.getProfesor().getUsuario() : null);
 
-                        String updateSql = "UPDATE propuesta SET id_alumno = ? WHERE id = ?";
-                        try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
-                            updateStmt.setInt(1, idAlumno);
-                            updateStmt.setInt(2, propuestaId);
-                            updateStmt.executeUpdate();
-                        }
+	        stmt.setString(10, propuesta.getTitulo());
 
-                    } else {
-                        throw new ConexionFallidaException("No se encontró ninguna propuesta con el título: " + nombrePropuesta);
-                    }
-                }
-            }
+	        int filas = stmt.executeUpdate();
+	        if (filas == 0)
+	            throw new ConexionFallidaException("No se encontró la propuesta a actualizar: " + propuesta.getTitulo());
 
-        } catch (SQLException e) {
-            throw new ConexionFallidaException("Error al registrar al alumno en la propuesta: " + e.getMessage());
-        }
-    }
+	    } catch (SQLException e) {
+	        throw new ConexionFallidaException("Error al actualizar propuesta: " + e.getMessage());
+	    }
+	}
+
+	@Override
+	public Propuesta find(String titulo) throws ConexionFallidaException {
+		return null;
+	   
+	}
+
+	@Override
+	public List<Propuesta> findAll() throws ConexionFallidaException {
+		  List<Propuesta> propuestas = new ArrayList<>();
+	        String sql = "SELECT * FROM propuesta";
+
+	        
+
+	        try (Connection conn = ConnectionManager.getConnection();
+	             PreparedStatement stmt = conn.prepareStatement(sql);
+	             ResultSet rs = stmt.executeQuery()) {
+
+	            while (rs.next()) {
+	                String titulo = rs.getString("titulo");
+	                String descripcion = rs.getString("descripcion");
+	                String areaInteres = rs.getString("area_interes");
+	                String objetivo = rs.getString("objetivo");
+	                String comentarios = rs.getString("comentarios");
+	                Boolean aceptada = rs.getObject("aceptada") != null ? rs.getBoolean("aceptada") : null;
+
+	                String creadorUsername = rs.getString("creador");
+	                String alumnoUsername = rs.getString("alumno");
+	                String tutorUsername = rs.getString("tutor");
+	                String profesorUsername = rs.getString("profesor");
+
+	               
+
+	                // Cargar usuarios relacionados
+	                Usuario creador = buscarUsuarioPorUsername(creadorUsername, conn);
+	                Usuario alumno = buscarUsuarioPorUsername(alumnoUsername, conn);
+	                Usuario tutor = buscarUsuarioPorUsername(tutorUsername, conn);
+	                Usuario profesor = buscarUsuarioPorUsername(profesorUsername, conn);
+
+	                // Cargar actividades relacionadas
+	                List<Actividad> actividades = cargarActividades(rs.getInt("id"), conn);
+
+	                try {
+	                    Propuesta propuesta = new Propuesta(
+	                            titulo,
+	                            descripcion,
+	                            areaInteres,
+	                            objetivo,
+	                            comentarios,
+	                            aceptada,
+	                            creador,
+	                            alumno,
+	                            tutor,
+	                            profesor,
+	                            actividades
+	                    );
+	                    propuesta.setActividades(actividades);
+	                    propuestas.add(propuesta);
+	                   
+	                } catch (InvalidCantHorasExcepcion e) {
+	                	System.err.println("Propuesta inválida (" + titulo + "): " + e.getMessage());
+	                }
+	            }
+
+	        } catch (SQLException e) {
+	            throw new ConexionFallidaException("Error al obtener propuestas: " + e.getMessage());
+	        }
+	        return propuestas;
+	    }
+
+	@Override
+	public void registrarAlumnoApropuesta(String nombrePropuesta, int idAlumno) throws ConexionFallidaException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private List<Actividad> cargarActividades(int idPropuesta, Connection conn) throws SQLException {
+	    List<Actividad> actividades = new ArrayList<>();
+	    String sql = "SELECT * FROM actividad WHERE propuesta_id = ?";
+
+	    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        stmt.setInt(1, idPropuesta);
+
+	        try (ResultSet rs = stmt.executeQuery()) {
+	            while (rs.next()) {
+	                actividades.add(new Actividad(
+	                        rs.getString("nombre_actividad"),
+	                        rs.getInt("horas")
+	                ));
+	            }
+	        }
+	    }
+	    return actividades;
+	}
+	
+	private void insertarActividades(int propuestaId, List<Actividad> actividades, Connection conn) throws SQLException {
+	    String sql = "INSERT INTO actividad (nombre_actividad, horas, propuesta_id) VALUES (?, ?, ?)";
+	    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        for (Actividad act : actividades) {
+	            stmt.setString(1, act.getNombreActividad());
+	            stmt.setInt(2, act.getHoras());
+	            stmt.setInt(3, propuestaId);
+	            stmt.addBatch();
+	        }
+	        stmt.executeBatch();
+	    }
+	}
+	private Usuario buscarUsuarioPorUsername(String username, Connection conn) throws SQLException {
+	    if (username == null) return null;
+
+	    String sql = "SELECT u.usuario, u.contrasena, u.email, u.activo, u.rol, u.persona, " +
+	                 "r.nombre AS nombre_rol, " +
+	                 "p.dni, p.nombre AS nombre_persona, p.apellido AS apellido_persona " +
+	                 "FROM usuario u " +
+	                 "LEFT JOIN roles r ON u.rol = r.id " +
+	                 "LEFT JOIN persona p ON u.persona = p.dni " +
+	                 "WHERE u.usuario = ?";
+
+	    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        stmt.setString(1, username);
+	        try (ResultSet rs = stmt.executeQuery()) {
+	            if (rs.next()) {
+	                // Datos básicos de Usuario
+	                String contrasena = rs.getString("contrasena");
+	                String email = rs.getString("email");
+	                boolean activo = rs.getBoolean("activo");
+
+	                // Datos de Rol
+	                int rolId = rs.getInt("rol");
+	                String nombreRol = rs.getString("nombre_rol");
+	                Rol rol = new Rol(rolId, nombreRol);
+	                rol.setActivo(true); // Suponemos que por defecto el rol está activo
+
+	                // Datos de Persona
+	                String dni = rs.getString("dni");
+	                String nombrePersona = rs.getString("nombre_persona");
+	                String apellidoPersona = rs.getString("apellido_persona");
+	                Persona persona = new Persona(dni, nombrePersona, apellidoPersona);
+
+	                // Construir el Usuario
+	                Usuario usuario = new Usuario(username, contrasena, email, rol, persona);
+	                usuario.setActivo(activo);
+
+	                return usuario;
+	            }
+	        }
+	    }
+	    return null;
+	}
+	
+ 
 }
